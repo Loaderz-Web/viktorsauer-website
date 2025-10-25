@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viktor Sauer - Schweizer Horror-Autor</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Maske Hover-Effekt */
+        .author-section {
+            position: relative;
+            display: inline-block;
+        }
+        .mask-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .author-section:hover .mask-overlay {
+            opacity: 0.4;
+        }
+        
+        /* Impressum Styling */
+        .impressum-link {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        .impressum-link:hover {
+            color: var(--blood);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#werke">Werke</a></li>
+            <li><a href="#kontakt">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero mit Maske -->
+    <section class="hero">
+        <div class="author-section">
+            <img src="images/vik.webp" class="mask-overlay" alt="Horror Maske">
+            <h1>VIKTOR SAUER</h1>
+        </div>
+        <p class="subtitle">Schweizer Horror-Autor</p>
+        <blockquote>
+            "Ich schreibe, damit die Stimmen in meinem Kopf nicht langweilig werden."
+        </blockquote>
+        <div class="scroll-arrow">↓</div>
+    </section>
+
+    <!-- Works -->
+    <section id="werke" class="works">
+        <h2>WERKE</h2>
+        
+        <div class="work-cards">
+            <!-- Roadkill -->
+            <article class="work-card active">
+                <div class="card-status">AKTIV • SERIE</div>
+                <h3>ROADKILL</h3>
+                <p class="genre">Zombie-Apokalypse</p>
+                <p>Eine kannibalistische Familie. Ein mysteriöser Virus. Die Schweiz wird zur Hölle.</p>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 40%"></div>
+                    <span>Band 2 erscheint bald</span>
+                </div>
+               <a href="roadkill/" class="btn btn-primary">→ Zur Serie</a>
+            </article>
+
+            <!-- Beute -->
+            <article class="work-card coming">
+                <div class="card-status">IN ARBEIT</div>
+                <h3>BEUTE</h3>
+                <p class="genre">Tierhorror</p>
+                <p><em>Wenn aus Jägern plötzlich Gejagte werden...</em></p>
+                <p>Eine Jagdgruppe. Ein dunkler Wald. Und etwas, das in den Schatten lauert – größer, stärker und hungriger als alles, was sie kennen.</p>
+                <p class="teaser">Ein Survival-Thriller, der unter die Haut geht.</p>
+                <div class="release">In Vorbereitung</div>
+                <button class="btn btn-locked" onclick="showBeute()">🔒 Mehr erfahren</button>
+            </article>
+
+            <!-- Projekt Grimm -->
+            <article class="work-card mystery">
+                <div class="card-status">KONZEPT</div>
+                <h3>PROJEKT: GRIMM</h3>
+                <p class="genre">Psycho-Märchen (Arbeitstitel)</p>
+                <p><em>Es war einmal... der blanke Horror.</em></p>
+                <p>Viktor Sauer dekonstruiert die heile Märchenwelt und zeigt, was sich hinter Lebkuchenhäusern und sprechenden Tieren wirklich verbirgt.</p>
+                <p class="teaser">Dieses Märchen endet nicht mit "und wenn sie nicht gestorben sind..."</p>
+                <button class="btn btn-danger" onclick="showGrimm()">⚠️ Details</button>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer mit Impressum -->
+    <footer id="kontakt">
+        <a href="https://instagram.com/viktorsauerch" target="_blank">@viktorsauerch</a>
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        <p>&copy; 2025 Viktor Sauer</p>
+        <a href="#" class="impressum-link" onclick="showImpressum(); return false;">Impressum</a>
+    </footer>
+
+    <!-- Beute Modal -->
+    <div id="beuteModal" class="modal" onclick="closeModal('beuteModal')">
+        <div class="modal-content">
+            <h2>BEUTE</h2>
+            <p class="modal-subtitle">Ein Viktor Sauer Tierhorror</p>
+            <p>
+                Was als normale Jagd beginnt, wird zum verzweifelten Überlebenskampf gegen ein Raubtier, das keine Gnade kennt.
+                <br><br>
+                Viktor Sauer entführt seine Leser in eine Welt, in der die primitive Kommunikation zwischen Leben und Tod entscheidet. 
+                Wo Missverständnisse tödlich enden. 
+                Und wo der Mensch wieder lernen muss, was es heißt, Beute zu sein.
+                <br><br>
+                <strong>In Vorbereitung</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Grimm Modal -->
+    <div id="grimmModal" class="modal" onclick="closeModal('grimmModal')">
+        <div class="modal-content">
+            <h2>PROJEKT: GRIMM</h2>
+            <p class="modal-subtitle">Ein Viktor Sauer Psycho-Märchen</p>
+            <p>
+                In einem vergessenen Winkel eines scheinbar idyllischen Märchenreichs geschehen Dinge, die in keinem Kinderbuch stehen. 
+                <br><br>
+                Die Bewohner des kleinen Dorfes am Waldrand flüstern von verschwundenen Kindern. 
+                Von Albträumen, die Wirklichkeit werden. 
+                Von einem uralten Übel, das sich von der Unschuld nährt.
+                <br><br>
+                Ein psychologischer Horrorroman, der die dunkle Seite unserer liebsten Kindergeschichten offenbart.
+                <br><br>
+                <em>In Entwicklung</em>
+            </p>
+        </div>
+    </div>
+
+    <!-- Impressum Modal -->
+    <div id="impressumModal" class="modal" onclick="closeModal('impressumModal')">
+        <div class="modal-content">
+            <h2>IMPRESSUM</h2>
+            <p><strong>Verantwortlich für den Inhalt:</strong></p>
+            <p>Viktor Sauer<br>
+            Schweiz</p>
+            <p><strong>Kontakt:</strong><br>
+            E-Mail: viktor.sauer.ch@gmail.com</p>
+            <p><strong>Copyright:</strong><br>
+            © 2025 Viktor Sauer. Alle Rechte vorbehalten.</p>
+            <p><strong>Haftungsausschluss:</strong><br>
+            Der Autor übernimmt keine Haftung für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten Informationen.</p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Impressum-Funktion direkt hier eingebaut
+        function showImpressum() {
+            document.getElementById('impressumModal').classList.add('show');
+        }
+    </script>
+</body>
+</html>
+
