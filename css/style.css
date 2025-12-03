@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     --blood: #dc2626;
     --dark-bg: #0f0f0f;
@@ -23,11 +27,27 @@ body {
     line-height: 1.6;
 }
 
+/* Globale Text-Selektion im Branding-Stil */
+::selection {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
 /* EASTER EGG - Geheime Nachricht beim Text markieren */
 p[data-secret]::selection {
     background: #660000;
     color: transparent;
     text-shadow: 0 0 5px rgba(255,0,0,0.5);
+}
+
+/* Focus States für Accessibility */
+a:focus,
+button:focus,
+.btn:focus,
+.char-toggle:focus,
+.menu-toggle:focus {
+    outline: 2px solid var(--blood);
+    outline-offset: 2px;
 }
 
 /* Mobile Navigation */
@@ -61,12 +81,19 @@ p[data-secret]::selection {
     font-size: 1.5rem;
     padding: 0.25rem 0.5rem;
     cursor: pointer;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out;
+}
+
+.menu-toggle:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
 }
 
 .nav-links {
     list-style: none;
     display: none;
     margin-top: 1rem;
+    will-change: transform, opacity;
 }
 
 .nav-links.show {
@@ -79,6 +106,7 @@ p[data-secret]::selection {
     display: block;
     padding: 0.5rem 0;
     border-bottom: 1px solid var(--border);
+    transition: color 0.3s ease-out;
 }
 
 .nav-links a:hover {
@@ -159,7 +187,7 @@ h2 {
     background: var(--card-bg);
     border: 2px solid var(--border);
     padding: 1.5rem;
-    transition: all 0.3s;
+    transition: transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out;
     position: relative;
     overflow: hidden;
 }
@@ -234,7 +262,7 @@ h3 {
 .progress-bar {
     background: linear-gradient(90deg, var(--blood), var(--danger));
     height: 100%;
-    transition: width 0.3s;
+    transition: width 0.5s ease-out;
 }
 
 .progress span {
@@ -259,7 +287,7 @@ h3 {
     padding: 0.75rem 1.5rem;
     margin-top: 1rem;
     text-decoration: none;
-    transition: all 0.3s;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out, transform 0.3s ease-out;
     cursor: pointer;
     border: 2px solid;
     background: transparent;
@@ -316,6 +344,7 @@ footer a {
     color: var(--blood);
     text-decoration: none;
     margin: 0 1rem;
+    transition: color 0.3s ease-out;
 }
 
 footer a:hover {
@@ -375,5 +404,17 @@ footer p {
     .btn {
         width: auto;
         display: inline-block;
+    }
+}
+
+/* Accessibility: Reduzierte Bewegung für empfindliche User */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

@@ -3,10 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROADKILL Serie - Viktor Sauer</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>ROADKILL Serie - Viktor Sauer | Zombie-Horror aus der Schweiz</title>
+    <meta name="description" content="ROADKILL - Die Zombie-Horror-Serie von Viktor Sauer. 4 Bände voller Kannibalismus, schwarzer Adern und purer Apokalypse. Leseproben, Charaktere, Amazon-Links.">
+    <meta name="keywords" content="Roadkill, Zombie, Horror, Viktor Sauer, Kannibalismus, Apokalypse, Schwarze Adern, Buchserie">
+    <meta name="author" content="Viktor Sauer">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROADKILL - Zombie-Horror-Serie von Viktor Sauer">
+    <meta property="og:description" content="4 Bände voller Kannibalismus, schwarzer Adern und purer Apokalypse. Nur für Erwachsene.">
+    <meta property="og:url" content="https://viktorsauer.org/roadkill/">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    <meta property="og:locale" content="de_CH">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ROADKILL - Zombie-Horror-Serie">
+    <meta name="twitter:description" content="Die Zombie-Apokalypse von Viktor Sauer. Nur für Erwachsene.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="../css/style.css">
+    
     <style>
-        /* Alle Styles bleiben gleich wie vorher */
+        /* ========================================
+           ROADKILL SERIE - PAGE STYLES
+           ======================================== */
+        
         .back-link {
             color: var(--blood);
             text-decoration: none;
@@ -17,11 +47,13 @@
         .back-link:hover {
             text-decoration: underline;
         }
+        
         .series-header {
             text-align: center;
             padding: 2rem 1rem;
             background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
         }
+        
         .band-grid {
             display: grid;
             gap: 2rem;
@@ -29,17 +61,21 @@
             margin: 0 auto;
             padding: 2rem 1rem;
         }
+        
         .band-card {
             background: var(--card-bg);
             border: 2px solid var(--border);
             padding: 2rem;
             position: relative;
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
+        
         .band-card.published {
             border-color: var(--blood);
         }
+        
         .band-number {
             position: absolute;
             top: -1rem;
@@ -50,12 +86,15 @@
             font-weight: bold;
             font-size: 0.9rem;
         }
+        
         .band-content {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             align-items: center;
+            flex-grow: 1;
         }
+        
         .band-cover {
             width: 100%;
             max-width: 250px;
@@ -66,26 +105,35 @@
             transform: scale(1.02);
             border-color: var(--blood);
         }
+        
         .band-info {
             width: 100%;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
+        
         .band-title {
             font-size: 1.8rem;
             color: var(--text-white);
             margin: 1rem 0;
         }
+        
         .band-subtitle {
             color: var(--danger);
             font-style: italic;
             margin-bottom: 1rem;
         }
+        
         .band-description {
             color: var(--text-dim);
             line-height: 1.8;
             margin: 1rem 0;
             text-align: left;
+            flex-grow: 1;
         }
+        
         .band-status {
             display: inline-block;
             padding: 0.25rem 0.75rem;
@@ -95,13 +143,17 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             margin: 1rem 0;
+            align-self: center;
+            width: fit-content;
         }
+        
         .band-links {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
             margin-top: 1rem;
         }
+        
         .amazon-link {
             display: inline-block;
             background: #ff9900;
@@ -126,6 +178,7 @@
             background: #666;
             transform: none;
         }
+        
         .char-link {
             display: inline-block;
             background: transparent;
@@ -141,6 +194,7 @@
             background: var(--blood);
             color: var(--dark-bg);
         }
+        
         .warning-box {
             background: rgba(220, 38, 38, 0.1);
             border-left: 4px solid var(--blood);
@@ -152,6 +206,8 @@
             color: var(--blood);
             margin-bottom: 0.5rem;
         }
+        
+        /* Responsive */
         @media (min-width: 768px) {
             .band-grid {
                 grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -165,7 +221,9 @@
     </style>
 </head>
 <body>
-    <!-- Mobile Menu -->
+    <!-- ========================================
+         NAVIGATION
+         ======================================== -->
     <nav class="mobile-nav">
         <div class="nav-header">
             <span class="logo">V.S.</span>
@@ -181,7 +239,9 @@
     <!-- Back Link -->
     <a href="../" class="back-link">← Zurück zur Hauptseite</a>
 
-    <!-- Series Header -->
+    <!-- ========================================
+         SERIES HEADER
+         ======================================== -->
     <div class="series-header">
         <h1>ROADKILL</h1>
         <p class="subtitle">Eine Horror-Serie von Viktor Sauer</p>
@@ -194,8 +254,11 @@
         <p>Diese Serie enthält explizite Darstellungen von Gewalt, Kannibalismus, psychologischem Terror und verstörenden Inhalten. Nur für Leser ab 18 Jahren.</p>
     </div>
 
-    <!-- Band Grid -->
+    <!-- ========================================
+         BAND GRID
+         ======================================== -->
     <div class="band-grid">
+        
         <!-- Band 1 -->
         <article class="band-card published">
             <span class="band-number">BAND 1</span>
@@ -213,7 +276,7 @@
                     </p>
                     <span class="band-status">Verfügbar</span>
                     <div class="band-links">
-                        <a href="https://www.amazon.de/dp/B0FPWQY627" target="_blank" class="amazon-link">
+                        <a href="https://www.amazon.de/dp/B0FPWQY627" target="_blank" rel="noopener" class="amazon-link">
                             📚 Auf Amazon lesen
                         </a>
                         <a href="charaktere-band1.html" class="char-link">
@@ -304,8 +367,14 @@
                     </p>
                     <span class="band-status">Geplant</span>
                     <div class="band-links">
+                        <a href="#" class="amazon-link disabled">
+                            📚 Coming Soon
+                        </a>
                         <a href="#" class="char-link" style="opacity: 0.4; cursor: not-allowed; pointer-events: none;">
                             👥 Neue Charaktere (Coming Soon)
+                        </a>
+                        <a href="#" class="char-link" style="opacity: 0.4; cursor: not-allowed; pointer-events: none;">
+                            📖 Leseprobe (Coming Soon)
                         </a>
                     </div>
                 </div>
@@ -313,7 +382,9 @@
         </article>
     </div>
 
-    <!-- Characters Link -->
+    <!-- ========================================
+         CHARACTERS LINK
+         ======================================== -->
     <div style="text-align: center; padding: 3rem 1rem;">
         <h2 style="color: var(--blood); margin-bottom: 1rem;">Die komplette Charakterübersicht</h2>
         <p style="color: var(--text-dim); margin-bottom: 2rem;">
@@ -322,9 +393,11 @@
         <a href="charaktere-band1.html" class="btn btn-primary">→ Zur Gesamt-Charakterübersicht</a>
     </div>
 
-    <!-- Footer -->
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
     <footer>
-        <a href="https://instagram.com/viktorsauerch" target="_blank">@viktorsauerch</a>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
         <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
         <p>&copy; 2025 Viktor Sauer</p>
     </footer>
