@@ -22,110 +22,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
-    <!-- Stylesheet -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="../css/style.css">
-    
-    <style>
-        .char-header {
-            text-align: center;
-            padding: 2rem 1rem;
-            background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
-            margin-top: 4rem;
-        }
-        .back-link {
-            color: var(--blood);
-            text-decoration: none;
-            display: inline-block;
-            padding: 1rem;
-        }
-        .char-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
-        .char-item {
-            background: var(--card-bg);
-            border: 2px solid var(--border);
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-        }
-        .char-item:hover {
-            border-color: var(--blood);
-        }
-        
-        .char-toggle {
-            display: block;
-            width: 100%;
-            padding: 1.5rem;
-            background: none;
-            border: none;
-            color: var(--text-white);
-            text-align: left;
-            cursor: pointer;
-            font-size: 1.1rem;
-            position: relative;
-        }
-        .char-toggle:after {
-            content: '▼';
-            position: absolute;
-            right: 1.5rem;
-            color: var(--blood);
-            transition: transform 0.3s;
-        }
-        
-        .char-name {
-            font-weight: bold;
-            color: var(--text-white);
-        }
-        .char-role {
-            color: var(--blood);
-            font-size: 0.9rem;
-            margin-left: 1rem;
-        }
-        
-        .char-checkbox {
-            display: none;
-        }
-        .char-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s;
-            padding: 0 1.5rem;
-        }
-        .char-checkbox:checked ~ .char-content {
-            max-height: 800px;
-            padding: 1.5rem;
-            overflow-y: auto;
-        }
-        .char-checkbox:checked ~ .char-toggle:after {
-            transform: rotate(180deg);
-        }
-        
-        .char-description {
-            color: var(--text-dim);
-            line-height: 1.8;
-            margin-bottom: 1rem;
-        }
-        
-        .section-title {
-            color: var(--blood);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
-            margin: 2rem 0 1rem 0;
-            font-size: 1.3rem;
-        }
-        
-        .mystery-hint {
-            text-align: center;
-            color: var(--text-dim);
-            font-style: italic;
-            margin: 2rem 0;
-            padding: 1rem;
-            border-left: 3px solid var(--blood);
-            background: rgba(139, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/charaktere.css">
 </head>
 <body>
     <!-- Mobile Menu -->
@@ -152,7 +51,7 @@
 
     <!-- Charaktere Container -->
     <div class="char-container">
-        <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">
+        <p class="spoiler-hint">
             🚨 SPOILERFREI - Klicke auf einen Namen für Details 🚨
         </p>
 
@@ -337,12 +236,12 @@
     </div>
 
     <!-- Navigation zu anderen Bänden -->
-    <div style="text-align: center; padding: 3rem 1rem; border-top: 1px solid var(--border);">
-        <h3 style="color: var(--blood); margin-bottom: 1rem;">Weitere Charaktere</h3>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <div class="char-nav">
+        <h3>Weitere Charaktere</h3>
+        <div class="char-nav-buttons">
             <a href="charaktere-band2.html" class="btn btn-primary">Band 2 Charaktere</a>
             <a href="charaktere-band3.html" class="btn btn-primary">Band 3 Charaktere</a>
-            <a href="charaktere-band4.html" class="btn btn-locked" style="opacity: 0.4; pointer-events: none;">Band 4 (Coming Soon)</a>
+            <a href="charaktere-band4.html" class="btn btn-locked">Band 4 (Coming Soon)</a>
         </div>
     </div>
 

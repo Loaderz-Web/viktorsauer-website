@@ -332,6 +332,24 @@ h3 {
     50% { opacity: 0.5; }
 }
 
+/* Buttons und Links einheitlich */
+button.btn {
+    font-family: inherit;
+    line-height: 1.6;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Work-Cards: Buttons unten ausrichten */
+.work-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.work-card .btn {
+    margin-top: auto;
+}
+
 /* Footer */
 footer {
     padding: 2rem 1rem;

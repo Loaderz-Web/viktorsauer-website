@@ -1,0 +1,177 @@
+/* ===========================================
+   LESEPROBE STYLES
+   Für: leseprobe-band1.html, leseprobe-band2.html, leseprobe-band3.html
+   =========================================== */
+
+/* Back Link (shared with charaktere.css) */
+.back-link {
+    color: var(--blood);
+    text-decoration: none;
+    display: inline-block;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease-out;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Header */
+.leseprobe-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-bottom: 3rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+.leseprobe-header h1 {
+    color: var(--blood);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.leseprobe-header .subtitle {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+/* Exclusive Badge */
+.exclusive-badge {
+    display: inline-block;
+    background: var(--blood);
+    color: #000;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    text-transform: uppercase;
+}
+
+/* Content Container */
+.leseprobe-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.leseprobe-content p {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    color: var(--text-dim);
+}
+
+.leseprobe-content p:first-of-type {
+    text-indent: 0;
+}
+
+.leseprobe-content em {
+    color: var(--text-white);
+    font-style: italic;
+}
+
+/* Scene Elements */
+.scene-title {
+    color: var(--blood);
+    font-size: 1.8rem;
+    margin: 4rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.scene-intro {
+    font-style: italic;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(220, 38, 38, 0.05);
+    border-left: 3px solid var(--blood);
+}
+
+.scene-divider {
+    text-align: center;
+    padding: 3rem 0;
+    color: var(--blood);
+    font-size: 1.5rem;
+}
+
+/* Warning Box */
+.warning-box {
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--blood);
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 800px;
+}
+
+.warning-box h3 {
+    color: var(--blood);
+    margin-bottom: 0.5rem;
+}
+
+/* Manuscript Notice (Band 3) */
+.manuscript-notice {
+    background: rgba(255, 165, 0, 0.1);
+    border-left: 4px solid #ff9900;
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 800px;
+}
+
+.manuscript-notice h3 {
+    color: #ff9900;
+    margin-bottom: 0.5rem;
+}
+
+/* Buy Box */
+.buy-box {
+    background: var(--card-bg);
+    border: 2px solid var(--blood);
+    padding: 2rem;
+    margin: 3rem auto;
+    max-width: 600px;
+    text-align: center;
+}
+
+.buy-box h3 {
+    color: var(--blood);
+    margin-bottom: 1rem;
+}
+
+/* Amazon Link (specific to leseprobe) */
+.buy-box .amazon-link {
+    display: inline-block;
+    background: #ff9900;
+    color: #000;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 1rem;
+    transition: all 0.3s ease-out;
+}
+
+.buy-box .amazon-link:hover {
+    background: #ffb84d;
+    transform: translateY(-2px);
+}
+
+/* Coming Soon Label */
+.coming-soon {
+    color: var(--blood);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.coming-soon-note {
+    margin-top: 1rem;
+    color: var(--text-dim);
+}
+
+/* Warning Note */
+.warning-note {
+    font-size: 0.9em;
+    margin-top: 0.5rem;
+}
