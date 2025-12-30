@@ -746,13 +746,13 @@ function startCountdown(seconds) {
 function setupAIDifficulty() {
     switch(aiDifficulty) {
         case 'easy':
-            aiConfig = { speed: 3.5, reactionFrames: 25, errorRate: 0.6, errorMagnitude: 120 };
+            aiConfig = { speed: 2.5, reactionFrames: 35, errorRate: 0.7, errorMagnitude: 150 };
             break;
         case 'medium':
-            aiConfig = { speed: 5, reactionFrames: 12, errorRate: 0.3, errorMagnitude: 70 };
+            aiConfig = { speed: 4, reactionFrames: 20, errorRate: 0.45, errorMagnitude: 110 };
             break;
         case 'hard':
-            aiConfig = { speed: 7, reactionFrames: 5, errorRate: 0.1, errorMagnitude: 30 };
+            aiConfig = { speed: 6, reactionFrames: 8, errorRate: 0.15, errorMagnitude: 50 };
             break;
         case 'impossible':
             aiConfig = { speed: 8.5, reactionFrames: 0, errorRate: 0, errorMagnitude: 0 };
