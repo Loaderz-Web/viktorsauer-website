@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROADKILL - Der Kannibalenhügel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Creepster&display=swap');
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            color: #c4b59d;
+            font-family: 'Special Elite', 'Courier New', monospace;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, #1a1510 0%, #0a0a0a 70%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+        
+        #game-container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #151210 0%, #0d0b09 100%);
+            border: 2px solid #3d3428;
+            padding: 30px;
+            border-radius: 3px;
+            box-shadow: 
+                0 0 50px rgba(0,0,0,0.8),
+                inset 0 0 100px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            font-family: 'Creepster', cursive;
+            color: #8b0000;
+            font-size: 2.8em;
+            text-shadow: 
+                2px 2px 0 #000,
+                4px 4px 8px rgba(139,0,0,0.5);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #5a4d3a;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        #story {
+            font-size: 15px;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            min-height: 250px;
+            padding: 25px;
+            background: rgba(0,0,0,0.4);
+            border-left: 3px solid #3d3428;
+            white-space: pre-line;
+        }
+        
+        #story strong {
+            color: #d4c4a8;
+            font-size: 1.1em;
+        }
+        
+        .creepy {
+            color: #8b0000;
+            font-style: italic;
+        }
+        
+        #choices {
+            margin-top: 20px;
+        }
+        
+        .choice {
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #1a1612 0%, #252017 100%);
+            color: #c4b59d;
+            border: 1px solid #3d3428;
+            border-left: 3px solid #5a4a32;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Special Elite', monospace;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        
+        .choice:hover {
+            background: linear-gradient(90deg, #252017 0%, #2f281c 100%);
+            border-left-color: #8b0000;
+            transform: translateX(5px);
+            color: #e8dcc8;
+        }
+        
+        .choice:active {
+            transform: translateX(3px);
+        }
+        
+        #rain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            background: linear-gradient(transparent 0%, rgba(100,149,237,0.03) 50%, transparent 100%);
+            animation: rain 0.5s linear infinite;
+            z-index: 1000;
+        }
+        
+        @keyframes rain {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 100px; }
+        }
+        
+        .flash {
+            animation: lightning 0.1s ease-out;
+        }
+        
+        @keyframes lightning {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(255,255,255,0.1); }
+        }
+        
+        input[type="text"] {
+            background: #0d0b09;
+            color: #c4b59d;
+            border: 1px solid #3d3428;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Special Elite', monospace;
+            width: 100%;
+            max-width: 300px;
+            margin: 15px 0;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #2a2420;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #5a4d3a;
+        }
+        
+        .dead {
+            color: #8b0000 !important;
+            text-decoration: line-through;
+        }
+        
+        #book-link {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(139,0,0,0.1);
+            border: 1px solid #8b0000;
+        }
+        
+        #book-link a {
+            color: #c4b59d;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        
+        #book-link a:hover {
+            color: #8b0000;
+        }
+        
+        .warning {
+            color: #8b0000;
+            font-weight: bold;
+        }
+        
+        .whisper {
+            color: #5a4d3a;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        
+        /* Mobile */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            #game-container { padding: 15px; }
+            h1 { font-size: 2em; }
+            #story { padding: 15px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="rain-overlay"></div>
+    
+    <div id="game-container">
+        <h1>🩸 ROADKILL 🩸</h1>
+        <div class="subtitle">Der Kannibalenhügel , ein interaktives Prequel</div>
+        
+        <div class="stats">
+            <span>👤 Du</span>
+            <span id="char-alex">👤 Alex</span>
+            <span id="char-mia">👤 Mia</span>
+            <span id="char-jake">👤 Jake</span>
+            <span id="char-tiffany">👤 Tiffany</span>
+        </div>
+        
+        <div id="story"></div>
+        <div id="choices"></div>
+        
+        <div id="book-link">
+            <p>Die Geschichte geht weiter...</p>
+            <a href="https://www.amazon.de/dp/B0FPWQY627" target="_blank">📖 ROADKILL: Der Kannibalenhügel , jetzt auf Amazon</a>
+        </div>
+    </div>
+    
+    <script>
+        // ================================================
+        // ROADKILL - DER KANNIBALENHÜGEL
+        // Ein Text-Adventure Teaser für das Buch
+        // ================================================
+        
+        let playerName = "Du";
+        let gameState = {
+            scene: "intro",
+            trustLevel: 0,      // Wie sehr vertraust du der Familie?
+            suspicion: 0,       // Wie misstrauisch bist du?
+            ateStew: false,     // Hast du den Eintopf gegessen?
+            sawSkull: false,    // Hast du den Tierschädel gesehen?
+            heardGrowl: false,  // Hast du das Knurren gehört?
+            askedPhone: 0,      // Wie oft nach Telefon gefragt?
+            rainActive: false
+        };
+        
+        // ================================================
+        // UTILITY FUNCTIONS
+        // ================================================
+        
+        function showStory(text) {
+            document.getElementById('story').innerHTML = text;
+        }
+        
+        function clearChoices() {
+            document.getElementById('choices').innerHTML = '';
+        }
+        
+        function addChoice(text, callback) {
+            const button = document.createElement('button');
+            button.className = 'choice';
+            button.innerHTML = text;
+            button.onclick = callback;
+            document.getElementById('choices').appendChild(button);
+        }
+        
+        function setRain(active) {
+            document.getElementById('rain-overlay').style.opacity = active ? '1' : '0';
+            gameState.rainActive = active;
+        }
+        
+        function flash() {
+            document.body.classList.add('flash');
+            setTimeout(() => document.body.classList.remove('flash'), 100);
+        }
+        
+        function thunder() {
+            flash();
+            // Could add sound here
+        }
+        
+        // ================================================
+        // GAME SCENES
+        // ================================================
+        
+        const scenes = {
+            
+            // --- INTRO ---
+            intro: function() {
+                showStory(`<strong>Crystal Lake, irgendwo in der amerikanischen Wildnis.</strong>
+
+Ein Wochenendtrip mit Freunden. Was kann schon schiefgehen?
+
+Du sitzt auf dem Rücksitz eines 1969er Camaro, eingequetscht zwischen Mia und Tiffany. Der Regen trommelt aufs Dach. Alex flucht am Steuer, während die Scheibenwischer kaum gegen die Wassermassen ankommen.
+
+"Verdammtes Wetter", knurrt er.
+
+Jake neben ihm kippt sein drittes Bier. "Chill mal, Alter. Wir sind gleich da."
+
+Tiffany checkt zum hundertsten Mal ihr Handy. "Kein Empfang. Seit einer Stunde schon."
+
+Mia, neben dir, starrt auf eine zerknitterte Karte. "Die Abzweigung müsste... irgendwo hier sein."
+
+Tiffany auf deiner anderen Seite schaut nervös aus dem Fenster.
+
+Und du? Du hast ein ungutes Gefühl.`);
+                
+                clearChoices();
+                addChoice('"Vielleicht sollten wir umkehren?"', () => goScene('suggest_turn'));
+                addChoice('"Fahr einfach weiter, Jake."', () => goScene('car_trouble'));
+                addChoice('Schweigend aus dem Fenster starren', () => goScene('window_stare'));
+            },
+            
+            suggest_turn: function() {
+                gameState.suspicion++;
+                showStory(`"Vielleicht sollten wir umkehren?"
+
+Jake lacht höhnisch. "Umkehren? Wir sind fast da!"
+
+"Woher willst du das wissen?", fragt Mia leise. "Wir haben seit Ewigkeiten kein Schild mehr gesehen."
+
+Alex schüttelt den Kopf und tritt aufs Gas. "Jake hat recht. Jetzt noch umdrehen wäre Wahnsinn."
+
+HUUUUUP!
+
+Ein Blitz erhellt den Himmel, und für einen Sekundenbruchteil siehst du etwas am Straßenrand. Eine Gestalt? Ein Tier? 
+
+Dann ist es wieder dunkel.
+
+"Was war das?!", kreischt Tiffany.
+
+Bevor jemand antworten kann, hustet der Motor. Einmal. Zweimal.
+
+Dann Stille.`);
+                
+                thunder();
+                clearChoices();
+                addChoice('"Das ist nicht gut..."', () => goScene('car_dead'));
+            },
+            
+            window_stare: function() {
+                showStory(`Du starrst in die Dunkelheit hinaus.
+
+Der Regen verwischt alles zu grauen Schlieren. Bäume ziehen vorbei wie dunkle Wächter. Ab und zu erhellt ein Blitz die Landschaft, kahle Äste, die wie Klauen in den Himmel greifen.
+
+Dann siehst du es.
+
+Nur für einen Moment, im Licht eines Blitzes: Eine Gestalt am Straßenrand. Aufrecht. Reglos. Sie scheint direkt in eure Richtung zu starren.
+
+Du blinzelst, weg.
+
+"Habt ihr das ..."
+
+KNACK. STOTTER. STILLE.
+
+Der Motor ist tot.`);
+                
+                thunder();
+                clearChoices();
+                addChoice('"Da war jemand am Straßenrand!"', () => goScene('car_dead_saw'));
+                addChoice('Den Mund halten', () => goScene('car_dead'));
+            },
+            
+            car_trouble: function() {
+                showStory(`"Fahr einfach weiter, Alex."
+
+"Genau das hab ich vor", murmelt er und tritt aufs Gas.
+
+Der Camaro schießt vorwärts, Regenwasser spritzend. Die Scheinwerfer bohren sich in die Dunkelheit, enthüllen nichts als nasse Straße und endlosen Wald.
+
+Dann, ein Husten. Ein Stottern.
+
+"Was zum ..." Alex tritt aufs Gaspedal. Nichts.
+
+Der Motor stirbt.
+
+Der Wagen rollt aus, kommt zum Stehen. Um euch herum nur der prasselnde Regen und das Heulen des Windes.
+
+"Scheiße", flüstert Alex.`);
+                
+                setRain(true);
+                clearChoices();
+                addChoice('"Jake, was hast du gemacht?"', () => goScene('car_dead'));
+            },
+            
+            car_dead: function() {
+                showStory(`Der Motor ist tot. Endgültig.
+
+Alex dreht den Schlüssel. Klick. Klick. Nichts.
+
+"Das kann nicht sein", murmelt er. "Wir haben gerade erst getankt!"
+
+"Vielleicht ist es die Feuchtigkeit?", versucht Mia. "Der Regen..."
+
+Jake kippt sein Bier. "Alter, dein Schrottwagen hat uns im Stich gelassen."
+
+Ihr sitzt in der Dunkelheit. Der Regen hämmert aufs Dach wie tausend kleine Fäuste, die eingelassen werden wollen.
+
+"Was jetzt?", fragt Tiffany mit zitternder Stimme.
+
+Mia zeigt nach vorne. "Da. Seht ihr das?"
+
+In der Ferne, kaum sichtbar durch den Regen, ein Lichtpunkt. Irgendwo im Wald.`);
+                
+                clearChoices();
+                addChoice('"Da ist jemand. Wir sollten um Hilfe bitten."', () => goScene('before_walk'));
+                addChoice('"Im Auto bleiben. Bis der Sturm nachlässt."', () => goScene('stay_car'));
+                addChoice('"Ich traue dem nicht. Kein Haus hier draußen..."', () => goScene('suspicious_light'));
+            },
+            
+            car_dead_saw: function() {
+                gameState.suspicion++;
+                gameState.sawSkull = true;
+                
+                showStory(`"Da war jemand am Straßenrand!"
+
+Alle starren dich an.
+
+"Was?", fragt Alex. "Ich hab nichts gesehen."
+
+"Da stand jemand. Eine Gestalt. Sie hat uns... beobachtet."
+
+Tiffany umklammert Jakes Arm. "Das ist gruselig. Lass uns hier weg."
+
+"Womit?", schnaubt Jake und zeigt auf das tote Armaturenbrett. "Der Wagen ist im Arsch!"
+
+Mia zeigt nach vorne. "Da. Ein Licht."
+
+Ihr seht es alle, ein schwacher Schimmer, irgendwo im Wald. Ein Haus? Eine Hütte?
+
+Dein Magen zieht sich zusammen. Das Licht ist genau in der Richtung, wo du die Gestalt gesehen hast.`);
+                
+                clearChoices();
+                addChoice('"Das Licht... da stand die Gestalt."', () => goScene('suspicious_light'));
+                addChoice('Die anderen drängen, loszugehen', () => goScene('before_walk'));
+            },
+            
+            stay_car: function() {
+                showStory(`"Lasst uns im Auto bleiben."
+
+"Bis wann?", fragt Alex. "Wir haben keine Heizung, und es wird kälter."
+
+Er hat recht. Die Kälte kriecht bereits in den Wagen. Tiffany zittert sichtbar.
+
+"Außerdem", fügt Mia hinzu, "wer weiß, wann jemand diese Straße benutzt. Wir haben seit einer Stunde kein anderes Auto gesehen."
+
+Der Regen wird stärker. Ein Blitz erhellt die Nacht, gefolgt von einem Donnerschlag, der den Wagen erzittern lässt.
+
+Das Licht im Wald ist immer noch da. Einladend. Warm.
+
+Oder ist es das?`);
+                
+                thunder();
+                clearChoices();
+                addChoice('"Okay. Gehen wir."', () => goScene('before_walk'));
+                addChoice('"Geht ihr. Ich bleib hier."', () => goScene('stay_alone'));
+            },
+            
+            stay_alone: function() {
+                showStory(`"Geht ihr. Ich bleib hier."
+
+Jake zuckt die Schultern. "Wie du willst."
+
+Die anderen steigen aus, einer nach dem anderen. Mia wirft dir einen besorgten Blick zu. "Bist du sicher?"
+
+Du nickst.
+
+Die Türen schlagen zu. Du siehst, wie deine Freunde im Regen verschwinden, ihre Gestalten vom Wald verschluckt.
+
+Stille.
+
+Nur der Regen. Das Klopfen auf dem Dach. Dein eigener Atem.
+
+Dann, ein Klopfen. Aber nicht vom Regen.
+
+Jemand klopft ans Fenster.
+
+Du drehst dich um,
+
+<span class="creepy">Ein Gesicht. Direkt vor dem Glas. Vernarbte Haut. Tote Augen.</span>
+
+Bevor du schreien kannst, zersplittert die Scheibe.`);
+                
+                clearChoices();
+                addChoice('...', () => goScene('bad_end_car'));
+            },
+            
+            bad_end_car: function() {
+                showStory(`<strong style="color: #8b0000;">GAME OVER</strong>
+
+Niemand hörte deine Schreie.
+
+Als die anderen am nächsten Morgen zum Auto zurückkehrten, fanden sie nur zerbrochenes Glas. Und Blut.
+
+Von dir, keine Spur.
+
+<span class="whisper">Manche sagen, man kann dich immer noch hören. In stürmischen Nächten. Wenn der Regen aufs Autodach trommelt...</span>
+
+***
+
+<em>Das war einer der weniger schmerzhaften Wege zu sterben. Aber die Geschichte deiner Freunde? Die geht weiter...</em>`);
+                
+                clearChoices();
+                document.getElementById('book-link').style.display = 'block';
+                addChoice('🔄 Nochmal versuchen', () => location.reload());
+            },
+            
+            suspicious_light: function() {
+                gameState.suspicion++;
+                showStory(`"Ich traue dem nicht. Kein normales Haus hier draußen..."
+
+"Was sollen wir sonst tun?", fragt Alex pragmatisch. "Hier draußen erfrieren?"
+
+"Er hat recht", sagt Jake und zerknüllt seine Bierdose. "Kein Empfang, kein Auto. Das Licht ist unsere einzige Chance."
+
+Du schaust zu Mia. Sie sieht genauso unwohl aus wie du.
+
+"Vielleicht ist es ja nur ein Förster", sagt sie leise, aber ihre Stimme klingt nicht überzeugt.
+
+KRAAACK!
+
+Ein Ast bricht irgendwo in der Dunkelheit. Alle erstarren.
+
+"Was war das?", flüstert Tiffany.
+
+"Wahrscheinlich nur ein Tier", sagt Jake, aber er klingt nervös. "Los jetzt. Je schneller wir dort sind, desto besser."`);
+                
+                clearChoices();
+                addChoice('Mit den anderen gehen', () => goScene('before_walk'));
+            },
+            
+            before_walk: function() {
+                setRain(true);
+                showStory(`Ihr steigt aus.
+
+Der Regen trifft dich wie eine kalte Ohrfeige. Innerhalb von Sekunden bist du durchnässt bis auf die Knochen.
+
+Alex aktiviert die Taschenlampe seines Handys, ein schwacher Lichtkegel in der Finsternis. Mia zieht eine kleine LED-Lampe aus ihrem Rucksack.
+
+"Natürlich hast du eine dabei", murmelt Tiffany.
+
+Ihr folgt dem Licht in der Ferne. Der Wald verschluckt euch.
+
+Der Pfad ist kaum erkennbar, Schlamm und Wurzeln, rutschig vom Regen. Die Bäume stehen so dicht, dass ihre Äste wie Finger nach euch greifen.
+
+Dann, eine Bewegung zwischen den Bäumen.`);
+                
+                clearChoices();
+                addChoice('"Stopp! Da ist jemand!"', () => goScene('meet_pa'));
+                addChoice('Weitergehen, es ignorieren', () => goScene('ignore_movement'));
+            },
+            
+            ignore_movement: function() {
+                showStory(`Du sagst nichts. Vielleicht war es nur ein Tier. Oder deine Fantasie.
+
+Ihr geht weiter. Der Pfad wird steiler, der Schlamm tiefer.
+
+Mia rutscht aus. Alex fängt sie gerade noch auf. Ihre Blicke treffen sich kurz im Taschenlampenlicht.
+
+"Danke", flüstert sie.
+
+KNACK!
+
+Diesmal hören es alle. Ein Ast, der unter einem schweren Gewicht bricht. Nah. Sehr nah.
+
+"Was zum ..."
+
+Eine Gestalt tritt aus dem Unterholz.
+
+Groß. Breitschultrig. Ein Gesicht voller Narben, halb verborgen unter einer Kapuze.`);
+                
+                thunder();
+                clearChoices();
+                addChoice('Zurückweichen', () => goScene('meet_pa'));
+            },
+            
+            meet_pa: function() {
+                showStory(`Die Gestalt steht einfach da. Reglos. Wasser rinnt über sein vernarbtes Gesicht.
+
+"Wer ... wer sind Sie?", stammelt Jake.
+
+Der Mann mustert euch. Einer nach dem anderen. Sein Blick bleibt kurz bei Tiffany hängen, dann bei Mia.
+
+<span class="creepy">Dann bei dir.</span>
+
+"Panne?", fragt er. Seine Stimme klingt rostig, unbenutzt.
+
+"Ja", sagt Alex schnell. "Unser Auto ist liegengeblieben. Können wir bei Ihnen telefonieren?"
+
+Der Mann nickt langsam. "Haus. Nicht weit."
+
+Er dreht sich um und geht los, ohne auf eine Antwort zu warten.
+
+Ihr tauscht Blicke aus.`);
+                
+                clearChoices();
+                addChoice('Ihm folgen', () => goScene('follow_pa'));
+                addChoice('"Wartet. Irgendwas stimmt hier nicht."', () => goScene('hesitate_pa'));
+            },
+            
+            hesitate_pa: function() {
+                gameState.suspicion++;
+                showStory(`"Wartet. Irgendwas stimmt hier nicht."
+
+Die anderen schauen dich an.
+
+"Was meinst du?", fragt Alex.
+
+"Dieser Typ taucht aus dem Nichts auf. Mitten im Wald. Mitten in der Nacht. Bei diesem Wetter."
+
+"Er wohnt hier", sagt Jake ungeduldig. "Was soll er sonst machen?"
+
+"Und sein Gesicht", fügst du hinzu. "Habt ihr die Narben gesehen?"
+
+Tiffany schluchzt leise. "Ich will nur ins Trockene. Bitte."
+
+Der Mann ist bereits mehrere Meter voraus, verschwindet fast in der Dunkelheit.
+
+"Komm schon", drängt Jake. "Es ist unsere einzige Chance."
+
+Mia berührt deinen Arm. "Er hat recht. Wir können uns nicht aussuchen, wer uns hilft."
+
+Sie gehen los. Du hast keine Wahl.`);
+                
+                clearChoices();
+                addChoice('Widerwillig folgen', () => goScene('follow_pa'));
+            },
+            
+            follow_pa: function() {
+                showStory(`Ihr folgt dem Fremden durch den Wald.
+
+Er bewegt sich mit erstaunlicher Sicherheit durch das Unterholz, als könnte er im Dunkeln sehen. Ihr stolpert hinterher, rutscht aus, flucht leise.
+
+"Wie weit noch?", ruft Alex.
+
+"Nicht weit", kommt die knappe Antwort.
+
+Der Pfad wird steiler. Die Bäume stehen dichter. Der Regen peitscht durch die Lücken im Blätterdach.
+
+Dann siehst du es, im Schein von Mias Taschenlampe.
+
+Ein verwitterter Holzpfahl am Wegesrand. Seltsame Symbole eingeritzt.
+
+Und darauf...
+
+<span class="creepy">Ein aufgespießter Tierschädel. Halb verrottet. Leere Augenhöhlen starren dich an.</span>`);
+                
+                gameState.sawSkull = true;
+                clearChoices();
+                addChoice('"Was zur Hölle ist das?!"', () => goScene('skull_reaction'));
+                addChoice('Nichts sagen, aber das Tempo erhöhen', () => goScene('skull_silent'));
+            },
+            
+            skull_reaction: function() {
+                gameState.suspicion++;
+                showStory(`"Was zur Hölle ist das?!"
+
+Alle halten an. Mias Taschenlampe zittert, als sie den Schädel anstrahlt.
+
+"Oh Gott", würgt Tiffany.
+
+Der Fremde dreht sich um. Sein Gesicht ist ausdruckslos.
+
+"Markierung", sagt er nur.
+
+"Markierung? Wofür?"
+
+"Grundstücksgrenze."
+
+Jake lacht nervös. "Krasse Dekoration, Alter."
+
+Der Mann starrt ihn an. Sagt nichts. Dreht sich um und geht weiter.
+
+"Ländliche Gegend", flüstert Alex. "Jäger machen sowas manchmal..."
+
+Aber seine Stimme klingt nicht überzeugt.`);
+                
+                clearChoices();
+                addChoice('Weiter folgen, was bleibt dir übrig?', () => goScene('approach_house'));
+            },
+            
+            skull_silent: function() {
+                showStory(`Du sagst nichts. Aber du beschleunigst deine Schritte.
+
+Mia hat den Schädel auch gesehen. Eure Blicke treffen sich, wortloses Verstehen. Ihr beide wisst: Das hier ist falsch. Alles daran.
+
+Aber was sollt ihr tun? Zurück zum toten Auto? Allein im Wald warten?
+
+Ein tiefes Knurren hallt durch die Nacht.
+
+Alle erstarren.
+
+"Was war das?", zischt Jake.
+
+Der Fremde hebt die Hand. "Raubtiere", sagt er ruhig. "Bleiben meist fern."
+
+"Meist?!"
+
+"Weiter. Schnell."
+
+Er setzt sich in Bewegung, schneller jetzt. Ihr habt keine Wahl als zu folgen.`);
+                
+                gameState.heardGrowl = true;
+                clearChoices();
+                addChoice('Rennen', () => goScene('approach_house'));
+            },
+            
+            approach_house: function() {
+                showStory(`Dann seht ihr es.
+
+Das Haus.
+
+Ein greller Blitz erhellt die Szenerie, und für einen Moment steht es da in all seiner düsteren Pracht:
+
+Ein zweistöckiges Holzhaus, das aussieht wie ein schlafendes Raubtier. Die abblätternde Farbe wie abgeschürfte Haut. Die schiefen Fensterläden wie gebrochene Zähne. Die Veranda, die sich wie ein aufgeklapptes Maul um den Eingang krümmt.
+
+Ein rostiger Pickup in der Einfahrt. Ein Schuppen, dessen Tür im Wind auf und zu schlägt, QUIETSCH. KNARZ. QUIETSCH.
+
+Hinter dem Haus: größere Gebäude. Scheunen. Ihre Zwecke im Dunkeln verborgen.
+
+<span class="creepy">Kein einladendes Licht in den Fenstern. Nur Dunkelheit, die zurückstarrt.</span>
+
+"Willkommen", sagt der Fremde. Seine Stimme klingt plötzlich anders. Fast... amüsiert?`);
+                
+                thunder();
+                clearChoices();
+                addChoice('Zögern', () => goScene('door_opens'));
+                addChoice('"Ich geh da nicht rein."', () => goScene('refuse_enter'));
+            },
+            
+            refuse_enter: function() {
+                gameState.suspicion++;
+                showStory(`"Ich geh da nicht rein."
+
+Alle drehen sich zu dir um.
+
+"Was?", fragt Jake. "Du willst im Regen stehen bleiben?"
+
+"Schau dir das Haus an! Das ist wie aus einem verdammten Horrorfilm!"
+
+"Es ist nur ein altes Haus", sagt Alex, aber seine Stimme zittert.
+
+Bevor ihr weiterdiskutieren könnt, schwingt die Haustür auf.
+
+Gelbes Licht ergießt sich auf die Veranda.
+
+Eine Gestalt steht im Türrahmen, eine korpulente Frau in einem fleckigen Kleid. Ihr Gesicht ist halb im Schatten verborgen.
+
+"Liebling?", ruft sie mit einer hohen, fast kindlichen Stimme. "Hast du Gäste mitgebracht?"
+
+<span class="creepy">Sie klatscht in die Hände wie ein aufgeregtes Kind.</span>
+
+"Kommt rein, kommt rein! Ihr seid ja völlig durchnässt!"`);
+                
+                clearChoices();
+                addChoice('Widerwillig eintreten', () => goScene('enter_house'));
+            },
+            
+            door_opens: function() {
+                showStory(`Die Haustür schwingt auf.
+
+Gelbes Licht ergießt sich auf die Veranda. Eine Gestalt steht im Türrahmen, eine korpulente Frau in einem fleckigen Kleid.
+
+"Liebling?", ruft sie mit einer hohen, fast kindlichen Stimme. "Hast du Gäste mitgebracht?"
+
+Der Fremde, Pa, nickt. "Hatten Panne. Brauchen Telefon."
+
+Die Frau klatscht in die Hände. "Oh, wie wunderbar! Es ist so lange her, dass wir Besuch hatten!"
+
+<span class="creepy">So lange her.</span>
+
+"Kommt rein, kommt rein!"
+
+Ein weiterer Blitz zuckt, und für einen Moment glaubst du, etwas in ihren Augen aufblitzen zu sehen. Etwas Hungriges.
+
+Dann ist es dunkel, und du schiebst den Gedanken beiseite.`);
+                
+                thunder();
+                clearChoices();
+                addChoice('Das Haus betreten', () => goScene('enter_house'));
+            },
+            
+            enter_house: function() {
+                setRain(false);
+                showStory(`Ihr betretet das Haus.
+
+Der Geruch trifft dich zuerst, ranziges Fett, feuchtes Holz, und etwas anderes. Etwas Metallisches, das du nicht einordnen kannst.
+
+Die Eingangshalle wird von einer nackten Glühbirne erhellt. An den Wänden: ausgestopfte Tierköpfe. Ein Hirsch. Ein Wildschwein mit gelben Hauern. Ein Bär mit aufgerissenem Maul.
+
+Zwischen ihnen hängen rostige Werkzeuge.
+
+"Ich bin Ma", stellt sich die Frau vor. Ihr Lächeln entblößt Zähne, die zu perfekt wirken für ihr sonst verwahrlostes Erscheinungsbild.
+
+"Und das ist Pa."
+
+Sie zeigt auf den vernarbten Fremden, der wie ein stiller Schatten hinter euch steht.
+
+"Die Jungs werden auch bald da sein."
+
+"Jungs?", fragt Tiffany nervös.
+
+"Unsere Söhne. Sie kümmern sich gerade um die... Tiere."`);
+                
+                clearChoices();
+                addChoice('"Können wir jetzt telefonieren?"', () => goScene('ask_phone'));
+                addChoice('"Danke, dass Sie uns reinlassen."', () => goScene('polite_entry'));
+            },
+            
+            ask_phone: function() {
+                gameState.askedPhone++;
+                showStory(`"Können wir jetzt telefonieren?"
+
+Mas Lächeln flackert. Nur kurz.
+
+"Natürlich, natürlich", gurrt sie. "Aber zuerst müsst ihr euch aufwärmen! Ich habe gerade Eintopf gemacht, mehr als genug für alle."
+
+"Wir würden wirklich lieber ...", beginnst du.
+
+"Unsinn!", unterbricht Ma. "Die Straßen sind bei diesem Wetter unpassierbar. Niemand kommt vor morgen. Ihr könnt genausogut essen."
+
+Sie dirigiert euch durch einen engen Flur. Pa folgt wie ein stummer Schatten.
+
+Die Küche ist überraschend geräumig. Ein massiver Holztisch in der Mitte. Töpfe und Pfannen hängen von der Decke. Ein großer Herd verbreitet Wärme.
+
+Und dieser Geruch... der metallische Unterton ist hier stärker.`);
+                
+                clearChoices();
+                addChoice('Sich setzen', () => goScene('kitchen'));
+            },
+            
+            polite_entry: function() {
+                showStory(`"Danke, dass Sie uns reinlassen."
+
+"Aber natürlich!", strahlt Ma. "Wir helfen gerne. So wenig Besuch, wie wir bekommen..."
+
+Sie führt euch durch einen engen Flur in die Küche. Der Geruch von kochendem Fleisch mischt sich mit etwas anderem, süßlich und faulig zugleich.
+
+"Setzt euch, setzt euch!"
+
+Die Küche ist groß, dominiert von einem massiven Holztisch. Töpfe und Pfannen hängen von der Decke wie metallene Fledermäuse.
+
+Pa nimmt Position an der Tür ein. Wacht. Beobachtet.
+
+"Ich habe gerade Eintopf gemacht", verkündet Ma fröhlich. "Familienrezept. Ihr werdet es lieben."
+
+Sie geht zum Herd, wo ein großer Topf köchelt.
+
+Der Dampf, der aufsteigt, riecht... interessant.`);
+                
+                clearChoices();
+                addChoice('Am Tisch Platz nehmen', () => goScene('kitchen'));
+            },
+            
+            kitchen: function() {
+                showStory(`Ihr nehmt am Tisch Platz.
+
+Mia und Alex auf einer Seite, du daneben. Jake und Tiffany gegenüber. Pa steht an der Tür wie eine Statue.
+
+Ma stellt dampfende Schüsseln vor euch, dickflüssiger Eintopf mit Fleischstücken, die in der trüben Brühe schwimmen.
+
+"Esst", fordert sie euch auf. "Es wird euch stärken."
+
+Jake greift sofort zum Löffel. "Ich bin am Verhungern." Er schaufelt den Eintopf in sich hinein. "Hey, das ist echt gut!"
+
+Tiffany zögert, dann folgt sie seinem Beispiel.
+
+Alex wartet. Mia ebenfalls. Ihr Löffel ruht neben der Schüssel.
+
+Du schaust auf das Fleisch in deiner Suppe. Die Stücke sind... unregelmäßig. Faserig.
+
+"Was ist da drin?", fragst du.`);
+                
+                clearChoices();
+                addChoice('Den Eintopf probieren', () => goScene('eat_stew'));
+                addChoice('Höflich ablehnen', () => goScene('refuse_stew'));
+                addChoice('In der Suppe herumstochern', () => goScene('inspect_stew'));
+            },
+            
+            eat_stew: function() {
+                gameState.ateStew = true;
+                showStory(`Du nimmst einen Löffel.
+
+Der Eintopf ist... überraschend gut. Würzig. Das Fleisch ist zart, fast zerfallend auf der Zunge.
+
+"Familienrezept", wiederholt Ma mit einem Zwinkern. "Je länger das Fleisch mariniert, desto besser."
+
+Neben dir isst Jake bereits seine zweite Portion. Tiffany hat aufgehört zu zittern.
+
+Du nimmst noch einen Löffel. Und noch einen.
+
+Erst als die Schüssel halb leer ist, bemerkst du Mia. Sie hat ihren Löffel nicht angerührt. Sie starrt dich an mit einem Ausdruck, den du nicht einordnen kannst.
+
+Angst? Ekel?
+
+<span class="creepy">Mitleid?</span>
+
+"Was?", fragst du.
+
+Sie schüttelt den Kopf. "Nichts."`);
+                
+                clearChoices();
+                addChoice('Weiteressen', () => goScene('sons_arrive'));
+                addChoice('Den Löffel hinlegen', () => goScene('sons_arrive'));
+            },
+            
+            refuse_stew: function() {
+                gameState.suspicion++;
+                showStory(`"Danke, aber ich hab keinen Hunger."
+
+Mas Lächeln gefriert. Nur für eine Sekunde.
+
+"Gar keinen? Nach dem langen Marsch?"
+
+"Ich... mir ist nicht gut. Der Regen."
+
+Ma nickt langsam. "Natürlich. Der Regen."
+
+Jake schaufelt bereits seine zweite Portion. "Mehr für mich", grinst er.
+
+Alex und Mia haben ihre Suppe auch nicht angerührt. Ihr tauscht kurze Blicke aus. Stille Verbündete.
+
+"Später vielleicht", sagt Ma. Aber ihre Augen haben etwas Kaltes bekommen.
+
+Pa steht immer noch an der Tür. Reglos. Beobachtend.`);
+                
+                clearChoices();
+                addChoice('Die Stille aushalten', () => goScene('sons_arrive'));
+            },
+            
+            inspect_stew: function() {
+                gameState.suspicion++;
+                showStory(`Du stocherst in der Suppe herum.
+
+Das Fleisch... die Fasern... die Konsistenz...
+
+Du hast in deinem Leben viel Fleisch gegessen. Rind. Schwein. Huhn. Lamm.
+
+Das hier fühlt sich anders an.
+
+"Was ist drin?", fragst du, bemüht beiläufig zu klingen.
+
+"Verschiedene Fleischsorten", antwortet Ma. "Aus eigenem Anbau."
+
+"Anbau?"
+
+"Jagd. Zucht. Was der Wald hergibt." Sie lächelt. "Wir verschwenden hier nichts."
+
+Du legst den Löffel hin. Der Appetit ist dir vergangen.
+
+Mia hat auch nicht gegessen. Ihre Hand liegt unter dem Tisch auf ihrer Tasche, bereit.`);
+                
+                clearChoices();
+                addChoice('"Könnten wir jetzt das Telefon benutzen?"', () => goScene('ask_phone_again'));
+            },
+            
+            ask_phone_again: function() {
+                gameState.askedPhone++;
+                showStory(`"Könnten wir jetzt das Telefon benutzen?"
+
+"Nach dem Essen", sagt Ma bestimmt.
+
+"Aber ..."
+
+"Nach. Dem. Essen."
+
+Ihre Stimme hat etwas Hartes bekommen. Das kindliche Gurren ist verschwunden.
+
+Pa bewegt sich. Nur ein kleiner Schritt. Aber plötzlich steht er zwischen euch und der Tür.
+
+Alex räuspert sich. "Wir sollten wirklich ..."
+
+KRACH!
+
+Die Hintertür fliegt auf. Kalte, regennasse Luft strömt herein.
+
+Zwei massive Gestalten betreten den Raum.`);
+                
+                thunder();
+                clearChoices();
+                addChoice('Aufspringen', () => goScene('sons_arrive'));
+            },
+            
+            sons_arrive: function() {
+                showStory(`Die Söhne sind da.
+
+Zwei massige Männer betreten die Küche. Groß. Breitschultrig. Die gleichen tiefliegenden Augen wie Pa.
+
+"Wir haben Besuch, Jungs", verkündet Ma.
+
+Der Größere mustert euch mit unverhohlenem Interesse. Sein Blick bleibt bei Tiffany hängen. Dann bei Mia. Ein langsames Lächeln breitet sich auf seinem Gesicht aus.
+
+<span class="creepy">Das Lächeln eines Mannes, der seine Beute betrachtet.</span>
+
+"Willkommen", sagt er. "Ich bin Jeb. Das ist Luke."
+
+Luke nickt nur. Er geht zum Waschbecken und beginnt, seine Hände zu waschen.
+
+Das Wasser, das abfließt, ist rot.
+
+"Was ist das?", fragt Mia, ihre Stimme ein Flüstern.
+
+"Tierblut", sagt Luke, ohne sich umzudrehen. "Haben Kaninchen geschlachtet."
+
+"Bei diesem Wetter?"`);
+                
+                clearChoices();
+                addChoice('"Wir müssen jetzt wirklich gehen."', () => goScene('try_leave'));
+                addChoice('Still bleiben und beobachten', () => goScene('observe_family'));
+            },
+            
+            try_leave: function() {
+                showStory(`"Wir müssen jetzt wirklich gehen."
+
+Stille.
+
+Alle Augen der Familie richten sich auf dich. Ma. Pa. Jeb. Luke.
+
+"Gehen?", fragt Ma mit gespielter Überraschung. "Aber ihr seid doch gerade erst angekommen!"
+
+"Es ist spät. Wir wollen keine Umstände ..."
+
+"Unsinn." Jeb tritt einen Schritt näher. "Bei dem Wetter kommt ihr nicht weit."
+
+Pa steht immer noch an der Tür. Blockiert sie.
+
+"Das Telefon", sagt Alex. "Sie sagten, wir könnten telefonieren."
+
+Ma seufzt. "Ja, ja. Das Telefon." Sie deutet auf ein altmodisches Gerät an der Wand. "Aber ich fürchte, die Leitung ist tot. Das Unwetter..."
+
+"Dann gehen wir zurück zum Auto", sagst du.
+
+"Nachts? Im Sturm?" Jeb lacht. "Ihr würdet euch verlaufen. Oder Schlimmeres."
+
+<span class="creepy">"Was meinen Sie mit 'Schlimmeres'?"</span>`);
+                
+                clearChoices();
+                addChoice('Auf eine Antwort bestehen', () => goScene('tension_rises'));
+            },
+            
+            observe_family: function() {
+                showStory(`Du bleibst still. Beobachtest.
+
+Die Familie bewegt sich in einer eingespielten Choreografie. Ma am Herd. Pa an der Tür. Die Söhne, die sich wie Jäger positionieren, zwischen euch und den Ausgängen.
+
+Jeb hat sich neben Tiffany gesetzt. Viel zu nah. Sie rückt weg, er rückt nach.
+
+Jake bemerkt es. Seine Faust ballt sich.
+
+Luke lehnt an der Wand, die blutigen Hände nun sauber. Er mustert Alex und Mia wie Objekte.
+
+"Aus der Stadt?", fragt er.
+
+"College-Trip", antwortet Alex knapp.
+
+"College." Luke lacht, ein trockenes, rostiges Geräusch. "Hab ich nie verstanden. Bücher. Lernen."
+
+"Wir lernen hier anders", sagt Jeb mit einem Grinsen. "Praktisch."
+
+<span class="creepy">Was meint er damit?</span>`);
+                
+                clearChoices();
+                addChoice('"Was meinen Sie mit praktisch?"', () => goScene('tension_rises'));
+            },
+            
+            tension_rises: function() {
+                showStory(`Die Spannung im Raum ist greifbar. Wie Elektrizität vor einem Blitzschlag.
+
+Ein Donner grollt. Die Lichter flackern.
+
+Dann, Dunkelheit. Total. Komplett.
+
+"Oh je", seufzt Mas Stimme. "Das passiert ständig."
+
+Du hörst Bewegungen. Schritte. Irgendwo im Dunkeln.
+
+Jemand greift nach deinem Arm, du fährst zusammen.
+
+"Ich bin's", flüstert Mia. "Bleib bei mir."
+
+Ein Streichholz flammt auf. Luke entzündet eine Öllampe.
+
+Das flackernde Licht wirft verzerrte Schatten an die Wände. Die Gesichter der Familie erscheinen im Halbdunkel, grotesk. Unmenschlich.
+
+Und dann...
+
+<span class="creepy">Tiffany schreit.</span>`);
+                
+                thunder();
+                clearChoices();
+                addChoice('"Was ist los?!"', () => goScene('photo_wall'));
+            },
+            
+            photo_wall: function() {
+                showStory(`Tiffany deutet mit zitternder Hand auf die Wand hinter Ma.
+
+Im flackernden Lampenlicht wird sie sichtbar.
+
+Eine Wand voller Fotografien.
+
+Eine Wand voller Gesichter.
+
+Junge Menschen. Lächelnd. Lebendig. Fremde in diesem abgelegenen Haus.
+
+Und mit plötzlicher, lähmender Klarheit verstehst du:
+
+<span class="warning">Ihr seid nicht die Ersten, die eine Panne auf dieser Straße hatten.</span>
+
+Ma folgt Tiffanys Blick. Ihr Lächeln verändert sich, wird breiter. Falscher. Hungriger.
+
+"Ah", sagt sie leise. "Ihr habt unsere Sammlung entdeckt."
+
+Pa bewegt sich. Die Söhne bewegen sich.
+
+<span class="creepy">Und du realisierst, dass die Tür plötzlich verschlossen ist.</span>`);
+                
+                clearChoices();
+                addChoice('...', () => goScene('your_fate'));
+            },
+            
+            your_fate: function() {
+                showStory(`Das Letzte, was du siehst, bevor die Lampe erlischt:
+
+Mas Lächeln. Zu breit. Zu viele Zähne.
+
+Jeb, der sich auf Jake stürzt.
+
+Luke, der ein Messer zieht.
+
+Pa, der die Tür verriegelt.
+
+Und dann, Dunkelheit.
+
+<span class="creepy">Du versuchst zu schreien, aber eine Hand presst sich auf deinen Mund. Grob. Kalt.</span>
+
+"Nicht du", flüstert eine Stimme an deinem Ohr. Lukes Stimme. "Noch nicht."
+
+Du wirst weggezerrt. Durch eine Tür. Eine Treppe hinunter.
+
+Kälte. Feuchtigkeit. Der Geruch von altem Blut.
+
+Deine Freunde, ihre Schreie werden leiser, je tiefer du gehst.
+
+Dann, nichts.
+
+<strong style="color: #8b0000;">Dein Teil der Geschichte endet hier.</strong>
+
+Aber Alex. Mia. Jake. Tiffany.
+
+<em>Ihre Geschichte geht weiter...</em>`);
+                
+                // Mark player as dead
+                document.getElementById('char-alex').classList.remove('dead');
+                document.getElementById('char-mia').classList.remove('dead');
+                document.getElementById('char-jake').classList.remove('dead');
+                document.getElementById('char-tiffany').classList.remove('dead');
+                
+                clearChoices();
+                document.getElementById('book-link').style.display = 'block';
+                addChoice('📖 Erfahre, was mit den anderen passiert...', () => {
+                    window.open('https://www.amazon.de/dp/B0FPWQY627', '_blank');
+                });
+                addChoice('🔄 Nochmal spielen', () => location.reload());
+            }
+        };
+        
+        // ================================================
+        // GAME CONTROL
+        // ================================================
+        
+        function goScene(sceneName) {
+            gameState.scene = sceneName;
+            if (scenes[sceneName]) {
+                scenes[sceneName]();
+            } else {
+                console.error('Scene not found:', sceneName);
+            }
+        }
+        
+        // ================================================
+        // START GAME
+        // ================================================
+        
+        goScene('intro');
+        
+    </script>
+</body>
+</html>
