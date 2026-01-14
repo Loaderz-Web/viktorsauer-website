@@ -328,7 +328,7 @@
     <footer>
         <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a> · 
         <a href="mailto:viktor.sauer.ch@gmail.com">Email</a> · 
-        © 2025 Viktor Sauer
+        © <span id="copyright"></span> Viktor Sauer
     </footer>
 
     <!-- ========================================
@@ -477,6 +477,21 @@
 
         // Fokus auf Input beim Laden
         userInput.focus();
+
+        // Fokus auf Input beim Laden
+        userInput.focus();
+
+        // ============================================
+        // COPYRIGHT JAHR AUTO-UPDATE
+        // ============================================
+        const startYear = 2025;
+        const currentYear = new Date().getFullYear();
+        const copyrightEl = document.getElementById('copyright');
+        if (copyrightEl) {
+            copyrightEl.textContent = currentYear > startYear 
+                ? `${startYear}-${currentYear}` 
+                : startYear;
+        }
     </script>
 </body>
 </html>
