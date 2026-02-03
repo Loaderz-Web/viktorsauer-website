@@ -1,0 +1,438 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+:root {
+    --blood: #dc2626;
+    --dark-bg: #0f0f0f;
+    --card-bg: #1a1a1a;
+    --lighter-bg: #252525;
+    --text-white: #e5e5e5;
+    --text-dim: #a0a0a0;
+    --border: #404040;
+    --danger: #ff4444;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-white);
+    line-height: 1.6;
+}
+
+/* Globale Text-Selektion im Branding-Stil */
+::selection {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+/* EASTER EGG - Geheime Nachricht beim Text markieren */
+p[data-secret]::selection {
+    background: #660000;
+    color: transparent;
+    text-shadow: 0 0 5px rgba(255,0,0,0.5);
+}
+
+/* Focus States für Accessibility */
+a:focus,
+button:focus,
+.btn:focus,
+.char-toggle:focus,
+.menu-toggle:focus {
+    outline: 2px solid var(--blood);
+    outline-offset: 2px;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: var(--blood);
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.menu-toggle {
+    background: transparent;
+    border: 2px solid var(--blood);
+    color: var(--blood);
+    font-size: 1.5rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out;
+}
+
+.menu-toggle:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+.nav-links {
+    list-style: none;
+    display: none;
+    margin-top: 1rem;
+    will-change: transform, opacity;
+}
+
+.nav-links.show {
+    display: block;
+}
+
+.nav-links a {
+    color: var(--text-white);
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.3s ease-out;
+}
+
+.nav-links a:hover {
+    color: var(--blood);
+}
+
+/* Hero Section */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    padding-top: 5rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+h1 {
+    font-size: clamp(2.5rem, 10vw, 5rem);
+    color: var(--blood);
+    letter-spacing: 0.1em;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    margin: 0.5rem 0;
+}
+
+blockquote {
+    font-style: italic;
+    margin: 2rem auto;
+    max-width: 90%;
+    color: var(--text-dim);
+    font-size: 1rem;
+}
+
+.scroll-arrow {
+    position: absolute;
+    bottom: 2rem;
+    color: var(--text-dim);
+    animation: bounce 2s infinite;
+    font-size: 1.5rem;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* Works Section */
+.works {
+    padding: 3rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    color: var(--blood);
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.work-cards {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.work-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 1.5rem;
+    transition: transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.work-card:hover {
+    border-color: var(--blood);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(220, 38, 38, 0.2);
+}
+
+.work-card.active {
+    border-color: var(--blood);
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--lighter-bg) 100%);
+}
+
+.work-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--blood);
+}
+
+.work-card.mystery {
+    background: var(--dark-bg);
+    border-style: dashed;
+}
+
+.card-status {
+    font-size: 0.75rem;
+    color: var(--blood);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+h3 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    color: var(--text-white);
+}
+
+.genre {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.work-card p {
+    color: var(--text-dim);
+    line-height: 1.6;
+}
+
+.teaser {
+    font-style: italic;
+    color: var(--text-dim);
+    margin-top: 1rem;
+    opacity: 0.7;
+}
+
+.progress {
+    margin: 1rem 0;
+    background: var(--dark-bg);
+    height: 20px;
+    position: relative;
+    border: 1px solid var(--border);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--blood), var(--danger));
+    height: 100%;
+    transition: width 0.5s ease-out;
+}
+
+.progress span {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    color: var(--text-white);
+}
+
+.release {
+    color: var(--blood);
+    font-weight: bold;
+    margin: 1rem 0;
+    font-size: 1.1rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    margin-top: 1rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out, transform 0.3s ease-out;
+    cursor: pointer;
+    border: 2px solid;
+    background: transparent;
+    color: var(--text-white);
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    border-color: var(--blood);
+    color: var(--blood);
+}
+
+.btn-primary:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+.btn-locked {
+    border-color: var(--border);
+    color: var(--text-dim);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-locked:hover {
+    background: transparent;
+    color: var(--text-dim);
+}
+
+.btn-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Buttons und Links einheitlich */
+button.btn {
+    font-family: inherit;
+    line-height: 1.6;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Work-Cards: Buttons unten ausrichten */
+.work-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.work-card .btn {
+    margin-top: auto;
+}
+
+/* Footer */
+footer {
+    padding: 2rem 1rem;
+    text-align: center;
+    background: var(--dark-bg);
+    border-top: 1px solid var(--border);
+}
+
+footer a {
+    color: var(--blood);
+    text-decoration: none;
+    margin: 0 1rem;
+    transition: color 0.3s ease-out;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+footer p {
+    color: var(--text-dim);
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 2rem;
+    max-width: 90%;
+    border: 2px solid var(--blood);
+    color: var(--text-white);
+}
+
+.modal-content h2 {
+    color: var(--blood);
+    margin-bottom: 1rem;
+}
+
+.modal-subtitle {
+    color: var(--danger);
+    font-style: italic;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .work-cards {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .btn {
+        width: auto;
+        display: inline-block;
+    }
+}
+
+/* Accessibility: Reduzierte Bewegung für empfindliche User */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

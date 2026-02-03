@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TOTPUNKT - Viktor Sauers Arcade</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Share+Tech+Mono&display=swap');
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            margin: 0; 
+            background: #0a0a0a; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: 'Share Tech Mono', monospace; 
+            color: #fff;
+            background-image: 
+                radial-gradient(ellipse at top, #1a0000 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, #000a0a 0%, transparent 50%);
+            overscroll-behavior: none;
+        }
+        
+        .game-container { 
+            text-align: center; 
+            border: 3px solid #8b0000; 
+            padding: 25px 50px; 
+            background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 100%);
+            border-radius: 15px; 
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.4), inset 0 0 60px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        
+        .game-title {
+            font-family: 'Creepster', cursive;
+            font-size: 42px;
+            color: #cc0000;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            margin: 0 0 5px 0;
+            letter-spacing: 4px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        canvas { 
+            border: 2px solid #8b0000; 
+            background: #000; 
+            display: block; 
+            margin: 15px auto; 
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3), inset 0 0 100px rgba(139, 0, 0, 0.05);
+            touch-action: none;
+        }
+        
+        .score { 
+            font-size: 32px; 
+            margin: 10px 0; 
+            color: #ff3333; 
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .score span { 
+            display: inline-block; 
+            min-width: 40px; 
+        }
+        
+        .speed-info { 
+            font-size: 11px; 
+            color: #666; 
+            margin: 5px 0; 
+        }
+        
+        .controls { 
+            font-size: 13px; 
+            margin: 10px 0; 
+            color: #888; 
+            line-height: 1.6;
+        }
+        
+        .controls strong { color: #aa4444; }
+        
+        .button-row {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .overlay { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: rgba(10, 0, 0, 0.97); 
+            padding: 40px; 
+            border: 3px solid #8b0000; 
+            text-align: center; 
+            border-radius: 15px; 
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.5), inset 0 0 30px rgba(139, 0, 0, 0.1);
+            z-index: 100;
+            min-width: 350px;
+        }
+        
+        .overlay h2 {
+            font-family: 'Creepster', cursive;
+            color: #cc0000;
+            font-size: 28px;
+            margin-top: 0;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        
+        .overlay p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+        
+        button { 
+            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+            color: #ff6666; 
+            border: 2px solid #8b0000; 
+            padding: 12px 24px; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover { 
+            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+            color: #fff; 
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.6);
+            transform: scale(1.05); 
+        }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button.small-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        select { 
+            background: #1a0a0a;
+            color: #ff6666; 
+            border: 2px solid #8b0000; 
+            padding: 10px 15px; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+        
+        .hidden { display: none !important; }
+        
+        .difficulty-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #3a1a1a; 
+            border-radius: 8px; 
+            background: rgba(139, 0, 0, 0.05);
+        }
+        
+        .difficulty-section label {
+            color: #888;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .difficulty-section label:last-child {
+            margin-bottom: 0;
+        }
+        
+        .mode-buttons { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin: 25px 0; 
+        }
+        
+        .mode-btn { 
+            flex: 1; 
+            max-width: 180px; 
+            padding: 15px 20px;
+            white-space: nowrap;
+        }
+        
+        .winner-text {
+            font-family: 'Creepster', cursive;
+            font-size: 24px;
+            color: #ff3333;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        
+        .skull { 
+            font-size: 24px; 
+            vertical-align: middle;
+        }
+        
+        .footer-note {
+            font-size: 10px;
+            color: #444;
+            margin-top: 15px;
+        }
+        
+        .footer-note a {
+            color: #666;
+            text-decoration: none;
+        }
+        
+        .footer-note a:hover {
+            color: #8b0000;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 850px) {
+            .game-container {
+                padding: 15px 40px;
+                margin: 10px;
+                border-width: 2px;
+            }
+            
+            .game-title {
+                font-size: 32px;
+            }
+            
+            canvas {
+                width: 100%;
+                height: auto;
+                max-width: 800px;
+            }
+            
+            .score {
+                font-size: 24px;
+            }
+            
+            .controls {
+                font-size: 11px;
+            }
+            
+            .overlay {
+                width: 90%;
+                min-width: auto;
+                padding: 25px 20px;
+            }
+            
+            .mode-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .button-row {
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* Landscape Mobile - alles kompakter */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-container {
+                padding: 8px 40px;
+                margin: 5px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+                margin-bottom: 2px;
+            }
+            
+            .subtitle {
+                display: none;
+            }
+            
+            .score {
+                font-size: 20px;
+                margin: 5px 0;
+            }
+            
+            .speed-info {
+                font-size: 10px;
+                margin: 2px 0;
+            }
+            
+            canvas {
+                margin: 8px auto;
+                max-height: 55vh;
+                width: auto;
+            }
+            
+            .controls {
+                font-size: 10px;
+                margin: 5px 0;
+            }
+            
+            .button-row {
+                margin-top: 8px;
+            }
+            
+            .button-row button {
+                padding: 5px 12px;
+                font-size: 11px;
+            }
+            
+            .overlay {
+                padding: 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .overlay h2 {
+                font-size: 22px;
+                margin-bottom: 10px;
+            }
+            
+            .overlay p {
+                font-size: 12px;
+                margin: 8px 0;
+            }
+            
+            .mode-buttons {
+                flex-direction: row;
+                gap: 10px;
+            }
+            
+            .mode-btn {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+            
+            .difficulty-section {
+                margin: 10px 0;
+                padding: 10px;
+            }
+            
+            .footer-note {
+                margin-top: 8px;
+            }
+        }
+        
+        /* Touch Controls Indicator */
+        .touch-hint {
+            display: none;
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        @media (pointer: coarse) {
+            .touch-hint {
+                display: block;
+            }
+            .keyboard-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">☠ TOTPUNKT ☠</h1>
+        <div class="subtitle">Viktor Sauers Arcade des Grauens</div>
+        
+        <div class="score">
+            <span id="score1">0</span> : <span id="score2">0</span>
+        </div>
+        <div class="speed-info" id="speedInfo">Geschwindigkeit: 100%</div>
+        
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
+        <div class="controls">
+            <span class="keyboard-hint"><strong>Steuerung:</strong> W/S = Links | <span id="controlText">↑/↓ = Rechts</span> | SPACE = Pause | ESC = Neustart</span>
+            <span class="touch-hint"><strong>Touch:</strong> Deine Seite berühren und Finger bewegen = Paddle steuern</span>
+        </div>
+        
+        <div class="button-row">
+            <button class="small-btn" onclick="resetGame()" id="resetBtn">↺ Neustart</button>
+            <button class="small-btn" onclick="togglePause()" id="pauseBtn" disabled>⏸ Pause</button>
+        </div>
+        
+        <!-- START SCREEN -->
+        <div id="startScreen" class="overlay">
+            <h2>☠ TOTPUNKT ☠</h2>
+            <p>Wer zuerst <strong>10 Punkte</strong> erreicht, überlebt.<br>Der andere... nun ja.</p>
+            
+            <div class="mode-buttons">
+                <button class="mode-btn" onclick="startGame('human')">👥 2 Spieler</button>
+                <button class="mode-btn" onclick="startGame('ai')">🧟 Gegen Zombie</button>
+            </div>
+            
+            <div class="difficulty-section">
+                <label>
+                    <strong>Zombie-Schwierigkeit:</strong>
+                    <select id="aiDifficulty">
+                        <option value="easy">🩸 Leicht (für Anfänger)</option>
+                        <option value="medium" selected>💀 Normal (fordert heraus)</option>
+                        <option value="hard">☠ Schwer (gnadenlos)</option>
+                        <option value="impossible">👹 Unmöglich (viel Glück)</option>
+                    </select>
+                </label>
+                <label id="handednessLabel">
+                    <strong>Deine Spielseite:</strong>
+                    <select id="playerSide">
+                        <option value="right" selected>🤚 Rechts (für Rechtshänder)</option>
+                        <option value="left">🖐 Links (für Linkshänder)</option>
+                    </select>
+                </label>
+            </div>
+            
+            <div class="footer-note">
+                Ein Zeitvertreib von <a href="https://viktorsauer.org" target="_blank">Viktor Sauer</a>
+            </div>
+        </div>
+        
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <h2 id="winnerText" class="winner-text">Spiel beendet!</h2>
+            <p id="finalScore"></p>
+            <button onclick="resetGame()">☠ Nochmal wagen</button>
+        </div>
+    </div>
+
+    <script>
+// ============================================
+// TOTPUNKT - Viktor Sauers Arcade
+// ============================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// UI Elements
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const score1Element = document.getElementById('score1');
+const score2Element = document.getElementById('score2');
+const winnerText = document.getElementById('winnerText');
+const speedInfo = document.getElementById('speedInfo');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const controlText = document.getElementById('controlText');
+
+// Game State
+let gameState = 'start'; // start, playing, paused, gameOver
+let animationId = null;
+let gameMode = 'human';
+let aiDifficulty = 'medium';
+let playerSide = 'left'; // 'left' or 'right' - which side human plays on
+let hitCount = 0;
+let baseSpeed = 5;
+let currentSpeedMultiplier = 1.0;
+
+// AI Configuration
+let aiConfig = { speed: 5, reactionFrames: 10, errorRate: 0.2, errorMagnitude: 80 };
+let aiReactionCounter = 0;
+let aiTargetY = 0;
+let aiCurrentError = 0;
+
+// Countdown & Timing
+let countdownValue = 0;
+let countdownActive = false;
+let ballLaunchDelay = 0;
+let countdownIntervalId = null;
+
+// Delta Time for smooth animation
+let lastTime = 0;
+const targetFPS = 60;
+const frameTime = 1000 / targetFPS; // ~16.67ms per frame
+
+// Audio Context (reused to save resources)
+let audioCtx = null;
+
+// Game Objects
+const game = {
+    ball: { x: canvas.width/2, y: canvas.height/2, dx: baseSpeed, dy: 3, radius: 8, frozen: true },
+    paddle1: { x: 20, y: canvas.height/2 - 50, width: 15, height: 100, speed: 6 },
+    paddle2: { x: canvas.width - 35, y: canvas.height/2 - 50, width: 15, height: 100, speed: 6 },
+    score1: 0,
+    score2: 0,
+    keys: {}
+};
+
+// ============================================
+// AUDIO
+// ============================================
+
+function getAudioContext() {
+    if (!audioCtx) {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch(e) {
+            return null;
+        }
+    }
+    return audioCtx;
+}
+
+function beep(freq, dur) {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'square';
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + dur);
+    } catch(e) {}
+}
+
+// ============================================
+// INPUT HANDLING
+// ============================================
+
+document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    game.keys[key] = true;
+    
+    // Prevent arrow keys from scrolling
+    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(e.key.toLowerCase()) || e.key === ' ') {
+        e.preventDefault();
+    }
+    
+    // Space = Pause toggle
+    if (e.code === 'Space') {
+        togglePause();
+    }
+    
+    // Escape = Reset
+    if (e.key === 'Escape') {
+        resetGame();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    game.keys[e.key.toLowerCase()] = false;
+});
+
+// ============================================
+// TOUCH INPUT HANDLING
+// ============================================
+
+let activeTouches = {};
+
+function getTouchY(touch) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleY = canvas.height / rect.height;
+    const relativeY = (touch.clientY - rect.top) * scaleY;
+    // Clamp to canvas bounds
+    return Math.max(0, Math.min(canvas.height, relativeY));
+}
+
+function isLeftSide(touch) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasCenterX = rect.left + rect.width / 2;
+    return touch.clientX < canvasCenterX;
+}
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    
+    for (let touch of e.changedTouches) {
+        const touchY = getTouchY(touch);
+        const leftSide = isLeftSide(touch);
+        
+        if (gameMode === 'ai') {
+            // Single player - only respond to player's side
+            if (playerSide === 'left' && leftSide) {
+                activeTouches[touch.identifier] = { paddle: 1, y: touchY };
+                game.paddle1.y = touchY - game.paddle1.height / 2;
+            } else if (playerSide === 'right' && !leftSide) {
+                activeTouches[touch.identifier] = { paddle: 2, y: touchY };
+                game.paddle2.y = touchY - game.paddle2.height / 2;
+            }
+        } else {
+            // Two player mode - both sides respond
+            if (leftSide) {
+                activeTouches[touch.identifier] = { paddle: 1, y: touchY };
+                game.paddle1.y = touchY - game.paddle1.height / 2;
+            } else {
+                activeTouches[touch.identifier] = { paddle: 2, y: touchY };
+                game.paddle2.y = touchY - game.paddle2.height / 2;
+            }
+        }
+    }
+    
+    clampPaddles();
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    
+    for (let touch of e.changedTouches) {
+        const touchData = activeTouches[touch.identifier];
+        if (touchData) {
+            const touchY = getTouchY(touch);
+            
+            if (touchData.paddle === 1) {
+                game.paddle1.y = touchY - game.paddle1.height / 2;
+            } else if (touchData.paddle === 2) {
+                game.paddle2.y = touchY - game.paddle2.height / 2;
+            }
+        }
+    }
+    
+    clampPaddles();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    for (let touch of e.changedTouches) {
+        delete activeTouches[touch.identifier];
+    }
+});
+
+canvas.addEventListener('touchcancel', (e) => {
+    for (let touch of e.changedTouches) {
+        delete activeTouches[touch.identifier];
+    }
+});
+
+function clampPaddles() {
+    // Keep paddles within canvas bounds
+    game.paddle1.y = Math.max(0, Math.min(canvas.height - game.paddle1.height, game.paddle1.y));
+    game.paddle2.y = Math.max(0, Math.min(canvas.height - game.paddle2.height, game.paddle2.y));
+}
+
+// ============================================
+// GAME CONTROL FUNCTIONS
+// ============================================
+
+function togglePause() {
+    if (gameState === 'playing' && !countdownActive && ballLaunchDelay === 0) {
+        pauseGame();
+    } else if (gameState === 'paused') {
+        resumeGame();
+    }
+}
+
+function startGame(mode = 'human') {
+    gameMode = mode;
+    aiDifficulty = document.getElementById('aiDifficulty').value;
+    playerSide = document.getElementById('playerSide').value;
+    
+    // Reset scores
+    game.score1 = 0;
+    game.score2 = 0;
+    hitCount = 0;
+    currentSpeedMultiplier = 1.0;
+    
+    // Reset paddles
+    game.paddle1.y = canvas.height/2 - 50;
+    game.paddle2.y = canvas.height/2 - 50;
+    
+    // UI Updates
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    pauseBtn.disabled = false;
+    updateScore();
+    updateSpeedDisplay();
+    
+    // Control text
+    if (mode === 'ai') {
+        if (playerSide === 'right') {
+            controlText.textContent = '🧟 Zombie links | Du rechts';
+        } else {
+            controlText.textContent = 'Du links | 🧟 Zombie rechts';
+        }
+        setupAIDifficulty();
+    } else {
+        controlText.textContent = '↑/↓ = Rechts';
+    }
+    
+    gameState = 'playing';
+    lastTime = 0; // Reset for smooth start
+    resetBall(true);
+    startCountdown(3);
+}
+
+function startCountdown(seconds) {
+    countdownActive = true;
+    countdownValue = seconds;
+    game.ball.frozen = true;
+    
+    // Clear any existing countdown
+    if (countdownIntervalId) {
+        clearInterval(countdownIntervalId);
+    }
+    
+    // Draw initial state
+    draw();
+    
+    countdownIntervalId = setInterval(() => {
+        if (gameState !== 'playing' && gameState !== 'paused') {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+            return;
+        }
+        
+        if (countdownValue > 0) {
+            beep(500, 0.1);
+            countdownValue--;
+            draw();
+        } else {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+            beep(700, 0.2);
+            countdownActive = false;
+            game.ball.frozen = false;
+            lastTime = 0; // Reset for smooth start
+            gameLoop(performance.now());
+        }
+    }, 800);
+}
+
+function setupAIDifficulty() {
+    switch(aiDifficulty) {
+        case 'easy':
+            aiConfig = { speed: 2.5, reactionFrames: 35, errorRate: 0.7, errorMagnitude: 150 };
+            break;
+        case 'medium':
+            aiConfig = { speed: 4, reactionFrames: 20, errorRate: 0.45, errorMagnitude: 110 };
+            break;
+        case 'hard':
+            aiConfig = { speed: 6, reactionFrames: 8, errorRate: 0.15, errorMagnitude: 50 };
+            break;
+        case 'impossible':
+            aiConfig = { speed: 8.5, reactionFrames: 0, errorRate: 0, errorMagnitude: 0 };
+            break;
+    }
+    aiReactionCounter = 0;
+    aiCurrentError = 0;
+}
+
+function pauseGame() {
+    if (gameState !== 'playing') return;
+    gameState = 'paused';
+    pauseBtn.textContent = '▶ Weiter';
+    cancelAnimationFrame(animationId);
+    draw();
+}
+
+function resumeGame() {
+    if (gameState !== 'paused') return;
+    gameState = 'playing';
+    pauseBtn.textContent = '⏸ Pause';
+    lastTime = 0; // Reset to prevent jump after pause
+    gameLoop(performance.now());
+}
+
+function resetGame() {
+    // Stop everything
+    cancelAnimationFrame(animationId);
+    if (countdownIntervalId) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+    }
+    
+    // Reset state
+    game.score1 = 0;
+    game.score2 = 0;
+    game.paddle1.y = canvas.height/2 - 50;
+    game.paddle2.y = canvas.height/2 - 50;
+    hitCount = 0;
+    currentSpeedMultiplier = 1.0;
+    countdownActive = false;
+    ballLaunchDelay = 0;
+    
+    // UI
+    updateScore();
+    updateSpeedDisplay();
+    pauseBtn.textContent = '⏸ Pause';
+    pauseBtn.disabled = true;
+    
+    // Show start screen
+    gameState = 'start';
+    startScreen.classList.remove('hidden');
+    gameOverScreen.classList.add('hidden');
+    
+    draw();
+}
+
+function resetBall(isGameStart = false) {
+    game.ball.x = canvas.width / 2;
+    game.ball.y = canvas.height / 2;
+    
+    const dir = Math.random() > 0.5 ? 1 : -1;
+    game.ball.dx = baseSpeed * currentSpeedMultiplier * dir;
+    game.ball.dy = (Math.random() - 0.5) * 4 * currentSpeedMultiplier;
+    
+    aiReactionCounter = aiConfig.reactionFrames;
+    aiCurrentError = 0;
+    
+    if (!isGameStart) {
+        game.ball.frozen = true;
+        ballLaunchDelay = 90; // ~1.5 seconds at 60fps
+    }
+}
+
+// ============================================
+// ZOMBIE LOGIC
+// ============================================
+
+function updateAI(delta, aiPaddle) {
+    if (gameMode !== 'ai') return;
+    
+    // Determine if ball is coming towards this AI paddle
+    const ballComingToAI = (playerSide === 'left') 
+        ? (game.ball.dx > 0)  // AI on right, ball going right
+        : (game.ball.dx < 0); // AI on left, ball going left
+    
+    if (ballComingToAI) {
+        if (aiReactionCounter > 0) {
+            aiReactionCounter -= delta;
+            aiTargetY = canvas.height / 2;
+        } else {
+            if (aiReactionCounter > -1 && aiReactionCounter <= 0) {
+                // Introduce error based on difficulty
+                if (Math.random() < aiConfig.errorRate) {
+                    aiCurrentError = (Math.random() - 0.5) * aiConfig.errorMagnitude;
+                } else {
+                    aiCurrentError = 0;
+                }
+                aiReactionCounter = -2;
+            }
+            aiTargetY = game.ball.y + aiCurrentError;
+        }
+    } else {
+        // Return to center when ball going away
+        aiTargetY = canvas.height / 2;
+        aiReactionCounter = aiConfig.reactionFrames;
+    }
+    
+    // Move paddle towards target
+    const paddleCenter = aiPaddle.y + aiPaddle.height / 2;
+    const diff = aiTargetY - paddleCenter;
+    const aiMoveAmount = aiConfig.speed * delta;
+    
+    if (Math.abs(diff) > 10) {
+        if (diff > 0 && aiPaddle.y < canvas.height - aiPaddle.height) {
+            aiPaddle.y += aiMoveAmount;
+        } else if (diff < 0 && aiPaddle.y > 0) {
+            aiPaddle.y -= aiMoveAmount;
+        }
+    }
+}
+
+// ============================================
+// GAME UPDATE LOGIC
+// ============================================
+
+function updatePaddles(delta) {
+    const moveAmount = game.paddle1.speed * delta;
+    
+    if (gameMode === 'ai') {
+        // Single player - player controls one side, AI the other
+        if (playerSide === 'left') {
+            // Player on left (paddle1), AI on right (paddle2)
+            if (game.keys['w'] && game.paddle1.y > 0) {
+                game.paddle1.y -= moveAmount;
+            }
+            if (game.keys['s'] && game.paddle1.y < canvas.height - game.paddle1.height) {
+                game.paddle1.y += moveAmount;
+            }
+            updateAI(delta, game.paddle2);
+        } else {
+            // Player on right (paddle2), AI on left (paddle1)
+            if (game.keys['arrowup'] && game.paddle2.y > 0) {
+                game.paddle2.y -= moveAmount;
+            }
+            if (game.keys['arrowdown'] && game.paddle2.y < canvas.height - game.paddle2.height) {
+                game.paddle2.y += moveAmount;
+            }
+            // Also allow W/S for right side player
+            if (game.keys['w'] && game.paddle2.y > 0) {
+                game.paddle2.y -= moveAmount;
+            }
+            if (game.keys['s'] && game.paddle2.y < canvas.height - game.paddle2.height) {
+                game.paddle2.y += moveAmount;
+            }
+            updateAI(delta, game.paddle1);
+        }
+    } else {
+        // Two player mode
+        // Player 1 (left) - W/S
+        if (game.keys['w'] && game.paddle1.y > 0) {
+            game.paddle1.y -= moveAmount;
+        }
+        if (game.keys['s'] && game.paddle1.y < canvas.height - game.paddle1.height) {
+            game.paddle1.y += moveAmount;
+        }
+        // Player 2 (right) - Arrow keys
+        if (game.keys['arrowup'] && game.paddle2.y > 0) {
+            game.paddle2.y -= moveAmount;
+        }
+        if (game.keys['arrowdown'] && game.paddle2.y < canvas.height - game.paddle2.height) {
+            game.paddle2.y += moveAmount;
+        }
+    }
+    
+    clampPaddles();
+}
+
+function updateBall(delta) {
+    // Handle launch delay after scoring
+    if (ballLaunchDelay > 0) {
+        ballLaunchDelay -= delta;
+        if (ballLaunchDelay <= 0) {
+            ballLaunchDelay = 0;
+            game.ball.frozen = false;
+        }
+        return;
+    }
+    
+    if (game.ball.frozen) return;
+    
+    // Store previous position for collision detection
+    const prevX = game.ball.x;
+    
+    // Move ball with delta time
+    game.ball.x += game.ball.dx * delta;
+    game.ball.y += game.ball.dy * delta;
+    
+    // Wall collision (top/bottom)
+    if (game.ball.y <= game.ball.radius) {
+        game.ball.y = game.ball.radius;
+        game.ball.dy = -game.ball.dy;
+        beep(600, 0.08);
+    }
+    if (game.ball.y >= canvas.height - game.ball.radius) {
+        game.ball.y = canvas.height - game.ball.radius;
+        game.ball.dy = -game.ball.dy;
+        beep(600, 0.08);
+    }
+    
+    // Paddle 1 collision (left) - with sweep test for high speeds
+    if (game.ball.dx < 0) {
+        const paddleRight = game.paddle1.x + game.paddle1.width;
+        if (prevX - game.ball.radius >= paddleRight && game.ball.x - game.ball.radius <= paddleRight) {
+            // Ball crossed paddle plane
+            if (game.ball.y >= game.paddle1.y && game.ball.y <= game.paddle1.y + game.paddle1.height) {
+                game.ball.dx = Math.abs(game.ball.dx);
+                game.ball.x = paddleRight + game.ball.radius;
+                const hitPos = (game.ball.y - game.paddle1.y) / game.paddle1.height;
+                game.ball.dy = (hitPos - 0.5) * 10 * currentSpeedMultiplier;
+                increaseBallSpeed();
+                beep(500, 0.1);
+            }
+        }
+    }
+    
+    // Paddle 2 collision (right) - with sweep test
+    if (game.ball.dx > 0) {
+        const paddleLeft = game.paddle2.x;
+        if (prevX + game.ball.radius <= paddleLeft && game.ball.x + game.ball.radius >= paddleLeft) {
+            // Ball crossed paddle plane
+            if (game.ball.y >= game.paddle2.y && game.ball.y <= game.paddle2.y + game.paddle2.height) {
+                game.ball.dx = -Math.abs(game.ball.dx);
+                game.ball.x = paddleLeft - game.ball.radius;
+                const hitPos = (game.ball.y - game.paddle2.y) / game.paddle2.height;
+                game.ball.dy = (hitPos - 0.5) * 10 * currentSpeedMultiplier;
+                increaseBallSpeed();
+                beep(500, 0.1);
+            }
+        }
+    }
+    
+    // Scoring
+    if (game.ball.x < -game.ball.radius) {
+        game.score2++;
+        beep(300, 0.3);
+        updateScore();
+        resetBall();
+        checkWin();
+    } else if (game.ball.x > canvas.width + game.ball.radius) {
+        game.score1++;
+        beep(300, 0.3);
+        updateScore();
+        resetBall();
+        checkWin();
+    }
+}
+
+function increaseBallSpeed() {
+    hitCount++;
+    currentSpeedMultiplier = Math.min(1.0 + (hitCount * 0.006), 2.0);
+    const sign = game.ball.dx > 0 ? 1 : -1;
+    game.ball.dx = baseSpeed * currentSpeedMultiplier * sign;
+    updateSpeedDisplay();
+}
+
+function updateSpeedDisplay() {
+    const percent = Math.round(currentSpeedMultiplier * 100);
+    speedInfo.textContent = `Geschwindigkeit: ${percent}% (${hitCount} Treffer)`;
+}
+
+function checkWin() {
+    if (game.score1 >= 10 || game.score2 >= 10) {
+        gameState = 'gameOver';
+        pauseBtn.disabled = true;
+        
+        if (gameMode === 'ai') {
+            // Determine winner based on which side player is on
+            const playerWon = (playerSide === 'left') 
+                ? (game.score1 >= 10) 
+                : (game.score2 >= 10);
+            
+            winnerText.innerHTML = playerWon 
+                ? '🏆 Du überlebst! 🏆' 
+                : '☠ Der Zombie triumphiert ☠';
+        } else {
+            winnerText.innerHTML = game.score1 >= 10 
+                ? '🏆 Spieler 1 überlebt! 🏆' 
+                : '🏆 Spieler 2 überlebt! 🏆';
+        }
+        
+        const maxSpeed = Math.round(currentSpeedMultiplier * 100);
+        document.getElementById('finalScore').innerHTML = 
+            `Endstand: <strong>${game.score1} : ${game.score2}</strong><br>` +
+            `Max. Geschwindigkeit: ${maxSpeed}%`;
+        
+        gameOverScreen.classList.remove('hidden');
+        beep(200, 0.8);
+        cancelAnimationFrame(animationId);
+    }
+}
+
+function updateScore() {
+    score1Element.textContent = game.score1;
+    score2Element.textContent = game.score2;
+}
+
+// ============================================
+// RENDERING
+// ============================================
+
+function draw() {
+    // Clear canvas
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Center line
+    ctx.strokeStyle = '#2a1a1a';
+    ctx.setLineDash([15, 15]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Paddles
+    ctx.fillStyle = '#8b0000';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ff0000';
+    ctx.fillRect(game.paddle1.x, game.paddle1.y, game.paddle1.width, game.paddle1.height);
+    ctx.fillRect(game.paddle2.x, game.paddle2.y, game.paddle2.width, game.paddle2.height);
+    ctx.shadowBlur = 0;
+    
+    // Ball with glow based on speed
+    const glowIntensity = Math.min((currentSpeedMultiplier - 1) * 3, 1);
+    ctx.shadowBlur = 15 + (glowIntensity * 20);
+    ctx.shadowColor = glowIntensity > 0.5 ? '#ff3300' : '#ff0000';
+    ctx.fillStyle = glowIntensity > 0.7 ? '#ffff00' : '#ff3333';
+    ctx.beginPath();
+    ctx.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    // Countdown display
+    if (countdownActive && countdownValue > 0) {
+        ctx.fillStyle = '#cc0000';
+        ctx.font = "bold 80px 'Creepster', cursive";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#000';
+        ctx.fillText(countdownValue, canvas.width / 2, canvas.height / 2);
+        ctx.shadowBlur = 0;
+    } else if (countdownActive && countdownValue === 0) {
+        ctx.fillStyle = '#cc0000';
+        ctx.font = "bold 50px 'Creepster', cursive";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#000';
+        ctx.fillText('LOS!', canvas.width / 2, canvas.height / 2);
+        ctx.shadowBlur = 0;
+    }
+    
+    // Ball launch delay indicator
+    if (ballLaunchDelay > 0 && !countdownActive) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = "20px 'Share Tech Mono', monospace";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Bereit...', canvas.width / 2, canvas.height / 2 + 50);
+    }
+    
+    // Pause overlay
+    if (gameState === 'paused') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#cc0000';
+        ctx.font = "bold 48px 'Creepster', cursive";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = '#000';
+        ctx.fillText('PAUSE', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.shadowBlur = 0;
+        
+        ctx.fillStyle = '#888';
+        ctx.font = "16px 'Share Tech Mono', monospace";
+        ctx.fillText('SPACE oder Klick zum Fortsetzen', canvas.width / 2, canvas.height / 2 + 30);
+    }
+}
+
+// ============================================
+// GAME LOOP
+// ============================================
+
+function gameLoop(currentTime) {
+    if (gameState === 'playing' && !countdownActive) {
+        // Calculate delta time
+        if (lastTime === 0) lastTime = currentTime;
+        const deltaTime = (currentTime - lastTime) / frameTime; // 1.0 at 60fps
+        lastTime = currentTime;
+        
+        // Cap deltaTime to prevent huge jumps (e.g., after tab switch)
+        const cappedDelta = Math.min(deltaTime, 3);
+        
+        updatePaddles(cappedDelta);
+        updateBall(cappedDelta);
+        draw();
+        animationId = requestAnimationFrame(gameLoop);
+    } else if (gameState === 'paused') {
+        draw();
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+draw();
+    </script>
+</body>
+</html>

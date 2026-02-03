@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Mara – Viktor Sauers Assistentin</title>
+    <meta name="description" content="Sprich mit Mara, der geheimnisvollen Assistentin von Horror-Autor Viktor Sauer. Fragen zu ROADKILL und anderen Werken.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <style>
+        /* ========================================
+           VARIABLEN (gleich wie Hauptseite)
+           ======================================== */
+        :root {
+            --blood: #dc2626;
+            --blood-dark: #991b1b;
+            --dark-bg: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-white: #e5e5e5;
+            --text-dim: #a0a0a0;
+            --border: #2a2a2a;
+        }
+
+        /* ========================================
+           RESET & BASE
+           ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: var(--dark-bg);
+            color: var(--text-white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            color: var(--blood);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+        .header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--blood);
+            font-weight: normal;
+            letter-spacing: 0.1em;
+        }
+
+        .header h1 span {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .back-link {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ========================================
+           CHAT CONTAINER
+           ======================================== */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem;
+            min-height: 0; /* Wichtig für Flex-Scroll */
+        }
+
+        /* ========================================
+           MESSAGES
+           ======================================== */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .message.mara {
+            background: var(--card-bg);
+            border-left: 2px solid var(--blood);
+            align-self: flex-start;
+        }
+
+        .message.user {
+            background: var(--border);
+            align-self: flex-end;
+            border-right: 2px solid var(--text-dim);
+        }
+
+        .message.mara .sender {
+            color: var(--blood);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .message.user .sender {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-align: right;
+        }
+
+        .message.error {
+            background: var(--blood-dark);
+            border-left: 2px solid var(--blood);
+            align-self: center;
+            color: var(--text-white);
+            font-style: italic;
+        }
+
+        .message.system {
+            align-self: center;
+            color: var(--text-dim);
+            font-style: italic;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+        }
+
+        /* Kursiver Text in Nachrichten */
+        .message em {
+            color: var(--text-dim);
+        }
+
+        /* Links in Nachrichten */
+        .message a {
+            color: var(--blood);
+            text-decoration: underline;
+        }
+
+        .message a:hover {
+            color: var(--text-white);
+        }
+
+        /* Typing Indicator */
+        .typing {
+            display: none;
+            align-self: flex-start;
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 0.5rem 1rem;
+        }
+
+        .typing.visible {
+            display: block;
+        }
+
+        .typing span {
+            animation: blink 1.4s infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0%, 60%, 100% { opacity: 0.2; }
+            30% { opacity: 1; }
+        }
+
+        /* ========================================
+           INPUT AREA
+           ======================================== */
+        .input-area {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .input-area input:focus {
+            outline: none;
+            border-color: var(--blood);
+        }
+
+        .input-area input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .input-area button {
+            padding: 0.8rem 1.5rem;
+            background: var(--blood);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-area button:hover {
+            background: var(--blood-dark);
+        }
+
+        .input-area button:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+        footer {
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .input-area button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========================================
+         HEADER
+         ======================================== -->
+    <header class="header">
+        <h1>MARA <span>Eine verwirrte Assistentin</span></h1>
+        <a href="/" class="back-link">← Zurück zur Hauptseite</a>
+    </header>
+
+    <!-- ========================================
+         CHAT
+         ======================================== -->
+    <main class="chat-container">
+        <div class="messages" id="messages">
+            <div class="message mara">
+                <div class="sender">MARA</div>
+                <div class="content">Du bist hier. Gut. Ich bin Mara, Viktors Assistentin. Er ist beschäftigt, wie immer. Aber ich kann dir vielleicht helfen. Was möchtest du wissen?</div>
+            </div>
+        </div>
+
+        <div class="typing" id="typing">
+            <span>.</span><span>.</span><span>.</span> Mara tippt
+        </div>
+
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="userInput" 
+                placeholder="Schreib etwas..." 
+                maxlength="1000"
+                autocomplete="off"
+            >
+            <button id="sendBtn" onclick="sendMessage()">Senden</button>
+        </div>
+    </main>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a> · 
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a> · 
+        © <span id="copyright"></span> Viktor Sauer
+    </footer>
+
+    <!-- ========================================
+         JAVASCRIPT
+         ======================================== -->
+    <script>
+        // ============================================
+        // KONFIGURATION
+        // ============================================
+        // Für lokales Testen: http://localhost:8787
+        // Für Produktion: https://viktor-bot.<dein-account>.workers.dev
+        const API_URL = 'https://api.viktorsauer.org';
+
+        // ============================================
+        // ELEMENTE
+        // ============================================
+        const messagesContainer = document.getElementById('messages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typing');
+
+        // ============================================
+        // NACHRICHT SENDEN
+        // ============================================
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // User-Nachricht anzeigen
+            addMessage(message, 'user');
+            userInput.value = '';
+            sendBtn.disabled = true;
+            typingIndicator.classList.add('visible');
+            scrollToBottom();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addMessage(data.error, 'error');
+                } else {
+                    addMessage(data.reply, 'mara');
+                }
+            } catch (error) {
+                addMessage('Die Verbindung wurde unterbrochen. Die Schatten sind heute unruhig...', 'error');
+            } finally {
+                sendBtn.disabled = false;
+                typingIndicator.classList.remove('visible');
+                scrollToBottom();
+                userInput.focus();
+            }
+        }
+
+        // ============================================
+        // NACHRICHT HINZUFÜGEN
+        // ============================================
+        function addMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            if (type === 'mara') {
+                messageDiv.innerHTML = `
+                    <div class="sender">MARA</div>
+                    <div class="content">${formatText(text)}</div>
+                `;
+            } else if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="sender">DU</div>
+                    <div class="content">${escapeHtml(text)}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `<div class="content">${escapeHtml(text)}</div>`;
+            }
+
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll nach kurzer Verzögerung (DOM muss rendern)
+            setTimeout(scrollToBottom, 50);
+        }
+
+        // ============================================
+        // AUTO-SCROLL
+        // ============================================
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Eingabefeld in den sichtbaren Bereich scrollen
+            userInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        // ============================================
+        // TEXT FORMATIEREN
+        // ============================================
+        function formatText(text) {
+            // Escape HTML first
+            let formatted = escapeHtml(text);
+            
+            // URLs klickbar machen (http/https)
+            formatted = formatted.replace(
+                /(https?:\/\/[^\s<]+)/g,
+                '<a href="$1" target="_blank" rel="noopener">$1</a>'
+            );
+            
+            // Email-Adressen klickbar machen
+            formatted = formatted.replace(
+                /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+                '<a href="mailto:$1">$1</a>'
+            );
+            
+            // @handles klickbar machen (Instagram)
+            formatted = formatted.replace(
+                /@([a-zA-Z0-9_]+)/g,
+                '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>'
+            );
+            
+            // Zeilenumbrüche
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // *text* zu kursiv
+            formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            
+            return formatted;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // ENTER-TASTE
+        // ============================================
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !sendBtn.disabled) {
+                sendMessage();
+            }
+        });
+
+        // Fokus auf Input beim Laden
+        userInput.focus();
+
+        // Fokus auf Input beim Laden
+        userInput.focus();
+
+        // ============================================
+        // COPYRIGHT JAHR AUTO-UPDATE
+        // ============================================
+        const startYear = 2025;
+        const currentYear = new Date().getFullYear();
+        const copyrightEl = document.getElementById('copyright');
+        if (copyrightEl) {
+            copyrightEl.textContent = currentYear > startYear 
+                ? `${startYear}-${currentYear}` 
+                : startYear;
+        }
+    </script>
+<p style="font-size: 1rem; color: #666; text-align: center; padding: 1rem; margin-top: 2rem;">
+    Dies ist ein experimentelles Projekt. Keine Gewähr für Inhalte.
+</p>
+</body>
+</html>

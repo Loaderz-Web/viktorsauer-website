@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO -->
+    <title>ROADKILL Band 3 - Charaktere | Viktor Sauer</title>
+    <meta name="description" content="Lerne die Charaktere aus ROADKILL Band 3: Albtraumjäger kennen. Das Rettungsteam, Team Hades, die Carpenter-Familie und neue Verbündete.">
+    <meta name="keywords" content="Roadkill, Charaktere, Band 3, Albtraumjäger, Viktor Sauer, Horror, Thriller, Zombie">
+    <meta name="author" content="Viktor Sauer">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROADKILL Band 3 - Charaktere">
+    <meta property="og:description" content="Lerne die Charaktere aus ROADKILL Band 3: Albtraumjäger kennen. Das Rettungsteam, Team Hades und die Carpenter-Familie.">
+    <meta property="og:url" content="https://viktorsauer.org/roadkill/charaktere-band3.html">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        .char-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+            margin-top: 4rem;
+        }
+        .back-link {
+            color: var(--blood);
+            text-decoration: none;
+            display: inline-block;
+            padding: 1rem;
+        }
+        .char-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Akkordeon Style */
+        .char-item {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .char-item:hover {
+            border-color: var(--blood);
+        }
+        
+        .char-toggle {
+            display: block;
+            width: 100%;
+            padding: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            text-align: left;
+            cursor: pointer;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        .char-toggle:after {
+            content: '▼';
+            position: absolute;
+            right: 1.5rem;
+            color: var(--blood);
+            transition: transform 0.3s;
+        }
+        
+        .char-name {
+            font-weight: bold;
+            color: var(--text-white);
+        }
+        .char-role {
+            color: var(--blood);
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        
+        /* Checkbox Trick für Aufklappen ohne JavaScript */
+        .char-checkbox {
+            display: none;
+        }
+        .char-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            padding: 0 1.5rem;
+            overflow-y: auto; 
+        }
+        .char-checkbox:checked ~ .char-content {
+            max-height: 2000px;
+            padding: 1.5rem;
+        }
+        .char-checkbox:checked ~ .char-toggle:after {
+            transform: rotate(180deg);
+        }
+        
+        .char-description {
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .faction-divider {
+            margin: 3rem 0 2rem;
+            text-align: center;
+            color: var(--blood);
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        .faction-divider:before,
+        .faction-divider:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: var(--blood);
+        }
+        .faction-divider:before { left: 0; }
+        .faction-divider:after { right: 0; }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="../">Start</a></li>
+            <li><a href="../roadkill/">Roadkill</a></li>
+            <li><a href="../#kontakt">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- Back Link -->
+    <a href="../roadkill/" class="back-link">← Zurück zur Serie</a>
+
+    <!-- Header -->
+    <div class="char-header">
+        <h1>Band 3: Albtraumjäger</h1>
+        <p class="subtitle">Charaktere</p>
+    </div>
+
+    <!-- Charaktere Container -->
+    <div class="char-container">
+        <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">
+            Klicke auf einen Namen für mehr Details (spoilerfrei)
+        </p>
+
+        <div class="faction-divider">Das Rettungsteam</div>
+
+        <!-- Miguel Reyes -->
+        <div class="char-item">
+            <input type="checkbox" id="miguel" class="char-checkbox">
+            <label for="miguel" class="char-toggle">
+                <span class="char-name">Miguel Reyes</span>
+                <span class="char-role">Der präzise Meisterdieb</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    45 Jahre alt, graumeliertes Haar und eine Narbe von der Schläfe bis zum Kinn. Carlos' Partner und das Eis zu seiner Flamme. Ehemaliger argentinischer Militär-Feinmechaniker, spezialisiert auf Bombenentschärfung, nutzt sein Wissen nun für die komplexesten Sicherheitssysteme der Welt. Trägt stets maßgeschneiderte Lederhandschuhe und löst Schachprobleme im Kopf bei Nervosität. Mit seinem selbstgebauten Spezialwerkzeug-Etui kann er jedes Schloss öffnen - es ist nur eine Frage der Zeit. Seine übernatürliche Geduld, Präzision und 30 Jahre fehlerfreie Karriere machen ihn zur Legende. Plant jeden Schritt dreifach und züchtet in seiner Freizeit Rosen.
+                </p>
+            </div>
+        </div>
+
+        <!-- Jester -->
+        <div class="char-item">
+            <input type="checkbox" id="jester" class="char-checkbox">
+            <label for="jester" class="char-toggle">
+                <span class="char-name">Jester</span>
+                <span class="char-role">Die wahnsinnige Akrobatin</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    28 Jahre, ehemalige osteuropäische Zirkusakrobatin mit einer Seite schwarzem, einer Seite blutrotem Haar. Nach dem Überleben der ersten Zombie-Wellen dem Wahnsinn verfallen. Unberechenbar, schrill und gefährlich amüsant - sieht die Apokalypse als kosmischen Witz. Meisterin mit Wurfmessern, tödlich präzise auf 20 Meter. Führt ein Glitzer-Tagebuch über ihre besten Kills, spricht mit Zombies und imitiert ihre Bewegungen. Die "DADDY"-Tätowierung an ihrem Hals verrät ihre tiefsitzenden Issues. Bewaffnet mit B&T SPC9, zwei SIG P226 und Messern an jeder erdenklichen Körperstelle. Wechselt zwischen kindlicher Verspieltheit und berechnender Brutalität.
+                </p>
+            </div>
+        </div>
+
+        <!-- Mammoth -->
+        <div class="char-item">
+            <input type="checkbox" id="mammoth" class="char-checkbox">
+            <label for="mammoth" class="char-toggle">
+                <span class="char-name">Mammoth</span>
+                <span class="char-role">Der poetische Koloss</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    2,05m groß, 130kg pure Muskelmasse mit skandinavischen Wurzeln. Ein wandelnder Panzer, der Kriegsgedichte zitiert während er seine modifizierte Minigun "Bertha" abfeuert. Trägt ein selbstmodifiziertes Exoskelett an den Armen, isst ständig Proteinriegel und hat ein fotografisches Gedächtnis für Schlachtfelder. Überlebte mehr Kampfeinsätze als jeder andere bekannte Söldner. Stoisch, wortkarg, mit einem strengen persönlichen Ehrenkodex. Im Kampf verwandelt er sich in eine unbarmherzige Tötungsmaschine. Sucht den "perfekten Kampf" und sieht in der Zombie-Apokalypse einen würdigen Gegner. Überraschend: Vegetarier mit einem IQ von 145.
+                </p>
+            </div>
+        </div>
+
+        <!-- Cipher -->
+        <div class="char-item">
+            <input type="checkbox" id="cipher" class="char-checkbox">
+            <label for="cipher" class="char-toggle">
+                <span class="char-name">Cipher</span>
+                <span class="char-role">Der paranoide Hacker</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    31 Jahre, androgynes Erscheinungsbild mit türkisem Irokesenstreifen und gefälschten Gefängnistätowierungen. Angeblich ehemaliges Genie bei einer Cyberterrorismus-Abwehreinheit, gefeuert und eingesperrt nach einem Hack gegen die eigene Regierung. Entkam während des Zombie-Chaos aus dem Gefängnis. Spricht in technischen Fachbegriffen und verschlüsselten Metaphern, kultiviert bewusst das Image eines misstrauischen Außenseiters. Trägt eine AR-Brille mit versteckter Technologie und einen selbstgebauten Drohnen-Rucksack. Sammelt obsessiv Daten über die Infektion und murmelt ständig über "strukturelle Integrität". Sein trockener, beißender Humor maskiert tiefere Geheimnisse.
+                </p>
+            </div>
+        </div>
+
+        <!-- Raven -->
+        <div class="char-item">
+            <input type="checkbox" id="raven" class="char-checkbox">
+            <label for="raven" class="char-toggle">
+                <span class="char-name">Raven "Rotor" Blackwood</span>
+                <span class="char-role">Die todessehnsüchtige Pilotin</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    33 Jahre, feuerrote Haare mit Undercut und Rotorblatt-Tattoos an beiden Unterarmen. Ehemalige Elite-Kampfpilotin, unehrenhaft entlassen wegen "wahnsinniger Flugmanöver". Kann praktisch alles fliegen, was Rotorblätter hat - selbst schwer beschädigte Maschinen. Überlebte 7 Abstürze und ist bekannt für unmögliche Rettungsaktionen in Krisengebieten. Trägt eine abgewetzte Pilotenjacke mit Dutzenden Aufnähern von überlebten Missionen. Spricht ständig mit ihrem Helikopter wie mit einem Geliebten, leidet unter Schlaflosigkeit und bekämpft ihre Dämonen mit Alkohol und Risiko. Sucht den ultimativen Adrenalinkick - die Zombie-Apokalypse ist das perfekte Spielfeld für ihre selbstmörderischen Tendenzen.
+                </p>
+            </div>
+        </div>
+
+        <div class="faction-divider">Nexus Dynamics - Team Hades</div>
+
+        <!-- Oberst Voss -->
+        <div class="char-item">
+            <input type="checkbox" id="voss" class="char-checkbox">
+            <label for="voss" class="char-toggle">
+                <span class="char-name">Oberst Darius Voss</span>
+                <span class="char-role">Der eiskalte Stratege</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    48 Jahre, graues Haar im Bürstenschnitt mit markanter Narbe über dem linken Auge. Team Hades Anführer und Nexus Elite-Commander. Ehemaliger Delta Force-Kommandeur, später CIA Schwarzoperationen, nach einem "Vorfall" in Libyen offiziell für tot erklärt. Sieht Menschen als Schachfiguren in einer mathematischen Gleichung. Spricht mit hypnotisch ruhiger Stimme, selbst während extremer Gewalt. Nutzt experimentelle Militärdrogen zur Schmerzunterdrückung und trägt eine taktische Kontaktlinse mit Echtzeit-Daten. Führt digitales Tagebuch über "signifikante Gegner" und besitzt die unheimliche Fähigkeit, Aktionen anderer vorherzusagen. 100% Erfolgsrate bei 47 unmöglichen Missionen.
+                </p>
+            </div>
+        </div>
+
+        <!-- Dr. Grey -->
+        <div class="char-item">
+            <input type="checkbox" id="grey" class="char-checkbox">
+            <label for="grey" class="char-toggle">
+                <span class="char-name">Dr. Vivian Grey</span>
+                <span class="char-role">Die emotionslose Wissenschaftlerin</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    34 Jahre, platinblondes Haar im strengen Dutt, eisblaue Augen ohne Pupillenerweiterung bei Emotionen. Wissenschaftliche Leiterin von Team Hades, ehemalige USAMRIID-Spitzenforscherin für biologische Waffen. Leidet an Congenital Insensitivity to Pain - spürt keinen Schmerz. Brillant und völlig emotionslos, sieht alles als Forschungsobjekt und spricht über Menschen nur als "Proben". Trägt einen Hochleistungs-Biosuit mit integrierten Sensoren und führt regelmäßig Selbstexperimente mit abgeschwächten Pathogenen durch. Nimmt einen experimentellen Medikamentencocktail zur kognitiven Verstärkung. Riecht permanent nach Desinfektionsmittel und Formaldehyd. Sieht in den schwarzen Adern das ultimative biologische Werkzeug.
+                </p>
+            </div>
+        </div>
+
+        <!-- Oracle -->
+        <div class="char-item">
+            <input type="checkbox" id="oracle" class="char-checkbox">
+            <label for="oracle" class="char-toggle">
+                <span class="char-name">Oracle</span>
+                <span class="char-role">Der poetische Scharfschütze</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    38 Jahre, komplett kahler Kopf mit kryptischen Tattoos aus Koordinaten und Zahlen. Team Hades Scharfschütze mit über 200 bestätigten Kills. Besitzt natürlich überragende Sehschärfe (1,5-fach besser als normal) und kann stundenlang regungslos verharren. Nutzt militärische Beta-Blocker um seinen Puls auf 45 zu senken. Präzise, geduldig, methodisch - spricht nur wenn nötig, dann beunruhigend genau. Hat eine seltsame Vorliebe für Poesie und zitiert Kriegsgedichte beim Zielen. Trägt ein maßgeschneidertes Scharfschützengewehr mit fortschrittlichem Smart-Scope. Sein längster bestätigter Schuss: 2.231 Meter. Sieht den Tod als mathematische Gewissheit und sich selbst als Instrument des Schicksals.
+                </p>
+            </div>
+        </div>
+
+        <!-- Butcher -->
+        <div class="char-item">
+            <input type="checkbox" id="butcher" class="char-checkbox">
+            <label for="butcher" class="char-toggle">
+                <span class="char-name">Butcher</span>
+                <span class="char-role">Der schweigende Schlächter</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Alter unbekannt, 2 Meter groß, 120kg kompakte Muskelmasse, komplett kahl. Team Hades Nahkampfspezialist mit geschwärzten Akten - niemand weiß, wer er wirklich ist. Gerüchte reichen von "ehemaliger Verhörspezialist für schwarze Standorte" bis "freigelassener Serienmörder unter psychologischer Konditionierung". Pathologisch sadistisch aber perfekt kontrolliert - zeigt niemals Emotionen außer bei der "Arbeit". Spricht kaum, wenn überhaupt nur in einsilbigen Befehlen. Trägt schwere taktische Rüstung mit zahlreichen Messerscheiden und zwei modifizierte Macheten mit Heizelementen, die Wunden kauterisieren. Hat eine unnatürlich hohe Schmerztoleranz, möglicherweise durch frühere Folter. Kommuniziert über Throat-Mic mit Stimmverzerrer. Sammelt diskret aber systematisch "Trophäen" von Gegnern. Existiert nur für einen Zweck: zu töten.
+                </p>
+            </div>
+        </div>
+
+        <!-- Wraith -->
+        <div class="char-item">
+            <input type="checkbox" id="wraith" class="char-checkbox">
+            <label for="wraith" class="char-toggle">
+                <span class="char-name">Wraith</span>
+                <span class="char-role">Der Gesichtslose</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    36 Jahre, durchschnittlich in jeder Hinsicht - perfekt für Infiltration. Team Hades Infiltrationsspezialist mit einem seltsam "gewöhnlichen" Gesicht, das schwer zu beschreiben oder merken ist. Früher bei einer Spezialeinheit für verdeckte Operationen, nach einem "Vorfall" mit zahlreichen zivilen Opfern wurde er offiziell exekutiert - tatsächlich aber von Nexus rekrutiert. Charmant, manipulativ und völlig skrupellos, kann Persönlichkeiten wie Masken wechseln. Meister in Make-up und Verkleidung, natürliche Begabung für Stimmimitation und Akzentnachahmung. Trägt einen leichten taktischen Anzug mit fortschrittlicher Tarnmuster-Beschichtung und versteckte Waffen aus Materialien, die Metalldetektoren umgehen. Nutzt spezielle Cremes und Sprays, die Geruchsspuren minimieren. Hat einen makabren Sinn für Humor und sieht seine "Kunst" der Täuschung als ultimative Herausforderung.
+                </p>
+            </div>
+        </div>
+
+        <!-- Havoc -->
+        <div class="char-item">
+            <input type="checkbox" id="havoc" class="char-checkbox">
+            <label for="havoc" class="char-toggle">
+                <span class="char-name">Havoc</span>
+                <span class="char-role">Der Explosions-Enthusiast</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    29 Jahre, kräftig gebaut mit auffälligen Explosions-Narben an beiden Armen, rotes Irokesenhaar und multiple Gesichtspiercings. Team Hades Demo-Experte und Schwerwaffenspezialist. Ehemaliger Militäringenieur, unehrenhaft entlassen nachdem seine "verbesserten" Sprengsätze unbeabsichtigte Kollateralschäden verursachten. Laut, aggressiv, hochenergetisch - liebt Explosionen und Zerstörung mit fast kindlicher Begeisterung. Redet ständig mit sich selbst, seiner Ausrüstung und seinen Opfern. Nutzt Exoskelett-Handschuhe für übermenschliche Griffkraft um schwere Waffen ohne Stativ zu bedienen. Trägt einen Rucksack mit selbstgebauten Mini-Sprengladungen und ein spezielles Tablet zur Strukturanalyse von Gebäuden. Sammelt "Souvenirs" von besonders beeindruckenden Explosionen. Sein Lebensziel: das ultimative Meisterwerk der Zerstörung zu schaffen. Riecht permanent nach Schwarzpulver und verbranntem Plastik.
+                </p>
+            </div>
+        </div>
+
+        <div class="faction-divider">Die Familie Carpenter</div>
+
+        <!-- Zeke -->
+        <div class="char-item">
+            <input type="checkbox" id="zeke" class="char-checkbox">
+            <label for="zeke" class="char-toggle">
+                <span class="char-name">Ezekiel "Zeke" Carpenter</span>
+                <span class="char-role">Der Verschwörungstheoretiker, der Recht hatte</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    68 Jahre, wilde graue Haare unter selbstgebasteltem Aluhut. Vietnam-Veteran und ehemaliger Radiomoderator von "Wahrheit um Mitternacht". Nach 9/11 immer extremer geworden, verlor Job, Frau und sozialen Anschluss. Verbrachte 20 Jahre mit Vorbereitung auf 15 verschiedene Apokalypse-Szenarien. Paranoid, brillant und vollkommen durchgeknallt - mischt tiefgründige Wahrheiten mit absurdem Wahnsinn. Spricht in dritter Person wenn nervös ("Zeke weiß, Zeke sieht"), hat ein fotografisches Gedächtnis für Verschwörungstheorien und kann aus Alltagsgegenständen tödliche Fallen bauen. Sein befestigter Bunker enthält Überwachungskameras im 5km-Radius und Vorräte für jedes erdenkliche Weltuntergangsszenario. Trainierte drei Kampfhunde, die auf Paranoia-Kommandos reagieren.
+                </p>
+            </div>
+        </div>
+
+        <!-- Sunshine -->
+        <div class="char-item">
+            <input type="checkbox" id="sunshine" class="char-checkbox">
+            <label for="sunshine" class="char-toggle">
+                <span class="char-name">Rebecca "Sunshine" Carpenter</span>
+                <span class="char-role">Die normale Enkelin des Verrückten</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    22 Jahre, dunkelblonde Haare im praktischen Zopf, athletisch durch Opas "Überlebenstraining". Zekes Enkelin und sein emotionaler Anker zur Realität. Verlor ihre Eltern mit 5 Jahren bei einem Autounfall und wuchs bei ihrem paranoiden Großvater auf. Ausgebildete Krankenschwester - "wenigstens ein normaler Teil" in ihrem Leben. Erstaunlich normal trotz ihrer Kindheit, besitzt einen trockenen Humor und die einzigartige Fähigkeit, Zekes Wahnsinn zu "übersetzen". Kann zwischen seinen Verschwörungstheorien und brillanten Einsichten unterscheiden. Medizinisch kompetent mit starken Nerven, kann mit minimalen Ressourcen arbeiten. Kennt als Einzige den Bunker-Code und kann die Kampfhunde mit Handzeichen kommandieren.
+                </p>
+            </div>
+        </div>
+
+        <!-- Brett -->
+        <div class="char-item">
+            <input type="checkbox" id="brett" class="char-checkbox">
+            <label for="brett" class="char-toggle">
+                <span class="char-name">Brett Morrison</span>
+                <span class="char-role">Der normale Nachbar in der Apokalypse</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    43 Jahre, klassischer "Dad-Bod", schütter werdendes Haar. IT-Manager, geschieden, Wochenend-Vater. Wohnte drei Häuser von Zeke entfernt und war jahrelang genervt von dessen "Vorbereitungen". Als das Chaos ausbricht, flieht er instinktiv zu Zekes Bunker - dem einzigen sicheren Ort, den er kennt. Trägt noch immer seine zerrissene Bürokleidung und den Firmenausweis. Bodenständig, skeptisch, mit gesundem Menschenverstand und sarkastischem Humor als Bewältigungsmechanismus. Dokumentiert alles mit seinem toten Smartphone, führt ständig "Normalitätschecks" durch ("Das ist nicht normal, oder?") und ist überraschend guter Stratege durch jahrelanges Gaming. Vermisst WLAN mehr als er zugibt.
+                </p>
+            </div>
+        </div>
+
+        <!-- Die Hunde -->
+        <div class="char-item">
+            <input type="checkbox" id="hunde" class="char-checkbox">
+            <label for="hunde" class="char-toggle">
+                <span class="char-name">Die "Beweise"</span>
+                <span class="char-role">Zekes Kampfhund-Trio</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Roswell (Deutscher Schäferhund-Mix), Area (Belgischer Malinois) und FiftyOne (Rottweiler-Mastiff-Mix) - benannt nach Verschwörungstheorien. Fünf Jahre Intensivtraining seit sie Welpen waren, reagieren auf Zekes Paranoia-Kommandos wie "Staatsfeind!" (Angriff auf Uniformierte), "Illuminati!" (Kreis-Formation) oder "HAARP!" (absolute Stille). Wurden auf "Regierungsagenten-Geruch" konditioniert und können Infizierte auf 50 Meter riechen. Kommunizieren untereinander mit komplexen Signalen, ignorieren jeden außer Zeke und Sunshine. Tragen modifizierte Kevlar-Westen, Roswell hat eine GoPro am Halsband. Mehr als nur Hunde - sie sind Zekes einzige konstante Gefährten, die seine Paranoia verstehen und nicht urteilen.
+                </p>
+            </div>
+        </div>
+
+        <div class="faction-divider">Neue Verbündete</div>
+
+        <!-- Ellie -->
+        <div class="char-item">
+            <input type="checkbox" id="ellie" class="char-checkbox">
+            <label for="ellie" class="char-toggle">
+                <span class="char-name">Ellie "Echo" Chen</span>
+                <span class="char-role">Das Mädchen mit den Geheimnissen</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    10 Jahre alt, kurz geschnittene schwarze Haare (selbst abgeschnitten, um nicht gegriffen werden zu können). Tochter einer Wissenschaftlerin im Yakuza-Forschungslabor. Als die Infektion ausbrach, versteckte sie sich in Lüftungsschächten und überlebte allein über eine Woche durch extremen Einfallsreichtum. Musste ihre infizierte Mutter selbst töten. Spricht wenig, beobachtet alles mit wachsamen Augen. Hat einen "sechsten Sinn" für die Nähe von Infizierten entwickelt und zeichnet verstörende Bilder der schwarzen Adern in ihr Notizbuch. Trägt das Medaillon ihrer Mutter mit einem versteckten USB-Stick. Kennt jeden Winkel des Jade Dragon Towers und geheime Wege, die niemand sonst kennt. Zeigt unheimliche Momente der Klarheit und Weisheit jenseits ihres Alters.
+                </p>
+            </div>
+        </div>
+
+        <div class="faction-divider">Das Militär</div>
+
+        <!-- Dr. Hirsch -->
+        <div class="char-item">
+            <input type="checkbox" id="hirsch" class="char-checkbox">
+            <label for="hirsch" class="char-toggle">
+                <span class="char-name">Dr. Elias Hirsch</span>
+                <span class="char-role">Der gebrochene Wissenschaftler</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    52 Jahre, schmächtig mit schütterem grauem Haar und nervösem Augenzucken. Leitender Wissenschaftler der geheimen Militärforschungseinrichtung Site 7, Weltklasse-Experte für Genetik und führend im Feld der Oktopus-DNA-Integration. Wollte ursprünglich Pandemien verhindern und die Welt retten - jetzt kämpft er mit dem Gewissen über das, was er erschaffen hat. Die Zombies in seinen Käfigen beginnen Kinderlieder zu singen, zeigen kollektives Bewusstsein. Kaut seine Fingernägel blutig, murmelt Formeln zur Beruhigung, schläft maximal 3 Stunden im Labor. Spricht mit seinen Testobjekten, entschuldigt sich bei ihnen. Seine 73 vollgeschriebenen Notizbücher dokumentieren sowohl wissenschaftliche Daten als auch moralische Qualen. Vegetarier geworden, weil er kein Fleisch mehr sehen kann.
+                </p>
+            </div>
+        </div>
+
+        <!-- Major Frost -->
+        <div class="char-item">
+            <input type="checkbox" id="frost" class="char-checkbox">
+            <label for="frost" class="char-toggle">
+                <span class="char-name">Major Rebecca Frost</span>
+                <span class="char-role">Die Eiskönigin des Militärs</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    41 Jahre, platinblonde militärisch kurze Haare, eisgraue Augen. West Point Jahrgangsbeste, drei Touren in Iraq/Afghanistan. Militärische Liaison zu Nexus Dynamics und Quarantäne-Kommandantin. Eiskalt pragmatisch, sieht Zivilisten als kalkulierte Kollateralschäden. Trägt eine tadellose Uniform über versteckter Kevlar-Weste und einen Nexus-Kommunikator. Lächelt nur bei Grausamkeiten, plant drei Schritte voraus, hasst Unordnung und Chaos. Ihre Philosophie: "Ethik ist ein Luxus, den wir uns nicht leisten können." Kontrolliert den gesamten Informationsfluss, kann Bombardierungen befehlen und hat direkten Pentagon-Draht. Einzige bekannte Schwäche: Sammelt Schneekugeln.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation zu anderen Bänden -->
+    <div style="text-align: center; padding: 3rem 1rem; border-top: 1px solid var(--border);">
+        <h3 style="color: var(--blood); margin-bottom: 1rem;">Weitere Charaktere</h3>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="charaktere-band1.html" class="btn btn-primary">Band 1 Charaktere</a>
+            <a href="charaktere-band2.html" class="btn btn-primary">Band 2 Charaktere</a>
+         	<span class="btn btn-locked" style="opacity: 0.4; cursor: not-allowed;">Band 4 (Coming Soon)</span>
+			<span class="btn btn-locked" style="opacity: 0.4; cursor: not-allowed;">Band 5 (Coming Soon)</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

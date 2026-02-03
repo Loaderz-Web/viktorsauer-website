@@ -1,0 +1,322 @@
+/* ===========================================
+   KURZGESCHICHTEN STYLES
+   Für: kurzgeschichten/index.html, kurzgeschichten/*.html
+   =========================================== */
+
+/* Back Link */
+.back-link {
+    color: var(--blood);
+    text-decoration: none;
+    display: inline-block;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease-out;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* ===========================================
+   ÜBERSICHTSSEITE (index.html)
+   =========================================== */
+
+.kurzgeschichten-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-top: 4rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+.kurzgeschichten-header h1 {
+    color: var(--blood);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.kurzgeschichten-header .subtitle {
+    color: var(--text-dim);
+    font-style: italic;
+    max-width: 600px;
+    margin: 1rem auto;
+}
+
+/* Story Grid */
+.story-grid {
+    display: grid;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Story Card (Übersicht) */
+.story-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 2rem;
+    transition: border-color 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.story-card:hover {
+    border-color: var(--blood);
+    transform: translateY(-2px);
+}
+
+.story-card h2 {
+    color: var(--text-white);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.story-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+.story-meta span {
+    color: var(--text-dim);
+    padding: 0.25rem 0.5rem;
+    background: var(--dark-bg);
+    border: 1px solid var(--border);
+}
+
+.story-meta .genre {
+    color: var(--blood);
+    border-color: var(--blood);
+}
+
+.story-teaser {
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.story-link {
+    display: inline-block;
+    color: var(--blood);
+    border: 2px solid var(--blood);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease-out;
+}
+
+.story-link:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+/* ===========================================
+   EINZELNE STORY SEITE
+   =========================================== */
+
+.story-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-top: 4rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+.story-header h1 {
+    color: var(--blood);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.story-header .story-meta {
+    justify-content: center;
+}
+
+/* Entstehungsgeschichte (Vor-Story) */
+.origin-story {
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    padding: 1.5rem;
+    background: rgba(220, 38, 38, 0.05);
+    border-left: 3px solid var(--blood);
+    font-style: italic;
+    color: var(--text-dim);
+    line-height: 1.8;
+}
+
+.origin-story strong {
+    color: var(--text-white);
+    font-style: normal;
+}
+
+/* Download Section */
+.download-section {
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+}
+
+.download-section h3 {
+    color: var(--blood);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--card-bg);
+    color: var(--text-white);
+    border: 2px solid var(--border);
+    text-decoration: none;
+    transition: all 0.3s ease-out;
+    font-size: 0.9rem;
+}
+
+.download-btn:hover {
+    border-color: var(--blood);
+    color: var(--blood);
+}
+
+.download-btn .icon {
+    font-size: 1.2rem;
+}
+
+/* Story Content */
+.story-content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+    line-height: 1.9;
+    font-size: 1.1rem;
+}
+
+.story-content h2 {
+    color: var(--blood);
+    font-size: 1.5rem;
+    margin: 3rem 0 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.story-content p {
+    margin-bottom: 1.5rem;
+    color: var(--text-dim);
+    text-align: left;
+}
+
+.story-content em {
+    color: var(--text-white);
+}
+
+/* Dialog-Formatierung */
+.story-content p.dialog {
+    color: var(--text-white);
+}
+
+/* Szenen-Trenner */
+.scene-break {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--blood);
+    font-size: 1.5rem;
+    letter-spacing: 0.5rem;
+}
+
+/* Ende-Markierung */
+.story-end {
+    text-align: center;
+    padding: 3rem 0;
+    color: var(--blood);
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 0.2rem;
+}
+
+/* Warning Box */
+.warning-box {
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--blood);
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 700px;
+}
+
+.warning-box h3 {
+    color: var(--blood);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.warning-box p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Weitere Geschichten (am Ende) */
+.more-stories {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.more-stories h3 {
+    color: var(--blood);
+    margin-bottom: 1.5rem;
+}
+
+.more-stories-link {
+    display: inline-block;
+    color: var(--blood);
+    border: 2px solid var(--blood);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease-out;
+}
+
+.more-stories-link:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (min-width: 768px) {
+    .story-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .download-buttons {
+        flex-wrap: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .story-header h1 {
+        font-size: 2rem;
+    }
+    
+    .story-content {
+        font-size: 1rem;
+        padding: 0 1rem 2rem;
+    }
+    
+    .download-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

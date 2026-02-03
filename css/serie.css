@@ -1,0 +1,259 @@
+/* ===========================================
+   SERIE STYLES
+   Für: roadkill/index.html, grimm/index.html, beute/index.html
+   =========================================== */
+
+/* ===========================================
+   SERIE-SPEZIFISCHE AKZENTFARBEN
+   Überschreibe --accent im HTML mit der Klasse
+   =========================================== */
+.serie-roadkill { --accent: var(--blood); }
+.serie-grimm { --accent: #7c3aed; }
+.serie-beute { --accent: #16a34a; }
+
+/* ===========================================
+   HEADER
+   =========================================== */
+.series-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+/* ===========================================
+   BAND GRID & CARDS
+   =========================================== */
+.band-grid {
+    display: grid;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.band-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.band-card.published {
+    border-color: var(--blood);
+}
+
+.band-number {
+    position: absolute;
+    top: -1rem;
+    left: 1rem;
+    background: var(--blood);
+    color: var(--dark-bg);
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* ===========================================
+   BAND CONTENT & INFO
+   =========================================== */
+.band-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.band-cover {
+    width: 100%;
+    max-width: 250px;
+    border: 2px solid var(--border);
+    transition: transform 0.3s ease-out, border-color 0.3s ease-out;
+}
+
+.band-cover:hover {
+    transform: scale(1.02);
+    border-color: var(--blood);
+}
+
+.band-info {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.band-title {
+    font-size: 1.8rem;
+    color: var(--text-white);
+    margin: 1rem 0;
+}
+
+.band-subtitle {
+    color: var(--danger);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.band-description {
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin: 1rem 0;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.band-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--dark-bg);
+    color: var(--blood);
+    border: 1px solid var(--blood);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin: 1rem 0;
+    align-self: center;
+    width: fit-content;
+}
+
+/* ===========================================
+   BAND LINKS
+   =========================================== */
+.band-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Amazon Link */
+.amazon-link {
+    display: inline-block;
+    background: #ff9900;
+    color: #000;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease-out;
+    text-align: center;
+    width: 100%;
+}
+
+.amazon-link:hover {
+    background: #ffb84d;
+    transform: translateY(-2px);
+}
+
+.amazon-link.disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.amazon-link.disabled:hover {
+    background: #666;
+    transform: none;
+}
+
+/* Character/Leseprobe Links */
+.char-link {
+    display: inline-block;
+    background: transparent;
+    color: var(--blood);
+    border: 2px solid var(--blood);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease-out;
+    width: 100%;
+}
+
+.char-link:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+/* Locked Link (für Coming Soon) */
+.char-link-locked {
+    display: inline-block;
+    background: transparent;
+    color: var(--text-dim);
+    border: 2px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ===========================================
+   WARNING BOX
+   =========================================== */
+.warning-box {
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--blood);
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 800px;
+}
+
+.warning-box h3 {
+    color: var(--blood);
+    margin-bottom: 0.5rem;
+}
+
+/* ===========================================
+   BACK LINK
+   =========================================== */
+.back-link {
+    color: var(--blood);
+    text-decoration: none;
+    display: inline-block;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease-out;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* ===========================================
+   CHARACTER NAVIGATION (Bottom Section)
+   =========================================== */
+.char-nav {
+    text-align: center;
+    padding: 3rem 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.char-nav h3 {
+    color: var(--blood);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.char-nav-description {
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (min-width: 768px) {
+    .band-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .band-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

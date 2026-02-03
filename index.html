@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Viktor Sauer - Schweizer Horror-Autor</title>
+    <meta name="description" content="Viktor Sauer - Schweizer Horror-Autor. ROADKILL Zombie-Serie, BEUTE Tierhorror, GRIMM Psycho-Märchen. Bücher auf Amazon. Nur für Erwachsene ab 18.">
+    <meta name="keywords" content="Horror, Schweizer Autor, Viktor Sauer, Roadkill, Zombie, Tierhorror, Bücher, Amazon">
+    <meta name="author" content="Viktor Sauer">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Viktor Sauer - Schweizer Horror-Autor">
+    <meta property="og:description" content="ROADKILL - Zombie-Horror-Serie aus der Schweiz. Nur für Erwachsene.">
+    <meta property="og:url" content="https://viktorsauer.org">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    <meta property="og:locale" content="de_CH">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Viktor Sauer - Schweizer Horror-Autor">
+    <meta name="twitter:description" content="ROADKILL Zombie-Serie, BEUTE Tierhorror. Horror aus der Schweiz.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* ========================================
+           PAGE-SPECIFIC STYLES (index.html)
+           ======================================== */
+        
+        /* Maske Hover-Effekt */
+        .author-section {
+            position: relative;
+            display: inline-block;
+        }
+        .mask-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .author-section:hover .mask-overlay {
+            opacity: 0.4;
+        }
+        
+        /* Impressum Styling */
+        .impressum-link {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        .impressum-link:hover {
+            color: var(--blood);
+        }
+        
+        /* ========================================
+           AGE GATE STYLES
+           ======================================== */
+        #ageGate {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.98) !important;
+            z-index: 99999 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+        
+        #ageGate.hidden {
+            display: none !important;
+        }
+        
+        .age-gate-content {
+            background: #1a0000;
+            border: 2px solid #660000;
+            padding: 20px;
+            text-align: center;
+            max-width: 90%;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(255,0,0,0.3);
+            margin: 20px;
+        }
+        
+        .age-gate-content h1 {
+            color: #ff0000;
+        }
+        
+        .age-gate-content button {
+            margin: 10px;
+            padding: 15px 30px;
+            background: #660000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .age-gate-content button:hover {
+            background: #990000;
+        }
+        
+        .warning {
+            color: #ff9999;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        /* Mobile Anpassung Age Gate */
+        @media (max-width: 600px) {
+            .age-gate-content {
+                padding: 15px;
+                font-size: 14px;
+            }
+            .age-gate-content button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========================================
+         AGE GATE OVERLAY (18+)
+         ======================================== -->
+    <div id="ageGate" class="age-gate-overlay">
+        <div class="age-gate-content">
+            <h1>WARNUNG</h1>
+            <h2>VIKTOR SAUER - HORROR CONTENT</h2>
+            <p>Diese Seite enthält Inhalte über:</p>
+            <ul style="list-style: none; padding: 0;">
+                <li>Extreme Gewaltdarstellungen</li>
+                <li>Verstörende Horror-Szenen</li>
+                <li>Kannibalismus und Gore</li>
+            </ul>
+            <p class="warning">Nur für Personen ab 18 Jahren!</p>
+            <button onclick="verifyAge(true)">Ja, ich bin 18+</button>
+            <button onclick="verifyAge(false)">Nein, ich bin unter 18</button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NAVIGATION
+         ======================================== -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#werke">Werke</a></li>
+            <li><a href="#kontakt">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- ========================================
+         HERO SECTION
+         ======================================== -->
+    <section class="hero">
+        <div class="author-section">
+            <img src="images/vik.webp" class="mask-overlay" alt="Horror Maske">
+            <h1>VIKTOR SAUER</h1>
+        </div>
+        <p class="subtitle">Schweizer Horror-Autor</p>
+        <blockquote>
+            "Ich schreibe, damit die Stimmen in meinem Kopf nicht langweilig werden."
+        </blockquote>
+        <div class="scroll-arrow">↓</div>
+    </section>
+
+    <!-- ========================================
+         WERKE SECTION
+         ======================================== -->
+    <section id="werke" class="works">
+        <h2>WERKE</h2>
+        
+        <div class="work-cards">
+            <!-- Roadkill -->
+            <article class="work-card active">
+                <div class="card-status">AKTIV • SERIE</div>
+                <h3>ROADKILL</h3>
+                <p class="genre">Zombie-Apokalypse</p>
+                <p>Eine kannibalistische Familie. Ein mysteriöser Virus. Eine Stadt wird zur Hölle.</p>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 50%"></div>
+                    <span>Band 1 & 2 auf Amazon</span>
+                </div>
+                <a href="roadkill/" class="btn btn-primary">Zur Serie</a>
+            </article>
+
+            <!-- Beute -->
+            <article class="work-card coming">
+                <div class="card-status">IN ARBEIT</div>
+                <h3>BEUTE</h3>
+                <p class="genre">Tierhorror</p>
+                <p><em>Wenn aus Jägern plötzlich Gejagte werden...</em></p>
+                <p>Eine Jagdgruppe. Ein dunkler Wald. Und etwas, das in den Schatten lauert – grösser, stärker und hungriger als alles, was sie kennen.</p>
+                <p class="teaser">Ein Survival-Thriller, der unter die Haut geht.</p>
+                <div class="release">In Vorbereitung</div>
+                <button class="btn btn-primary" onclick="showBeute()">Mehr erfahren</button>
+            </article>
+
+            <!-- Projekt Grimm -->
+            <article class="work-card mystery">
+                <div class="card-status">KONZEPT</div>
+                <h3>PROJEKT: GRIMM</h3>
+                <p class="genre">Psycho-Märchen (Arbeitstitel)</p>
+                <p><em>Es war einmal... der blanke Horror.</em></p>
+                <p>Viktor Sauer dekonstruiert die heile Märchenwelt und zeigt, was sich hinter Lebkuchenhäusern und sprechenden Tieren wirklich verbirgt.</p>
+                <p class="teaser">Dieses Märchen endet nicht mit "und wenn sie nicht gestorben sind..."</p>
+                <button class="btn btn-primary" onclick="showGrimm()">Mehr erfahren</button>
+            </article>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+<footer id="kontakt">
+    <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+    <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+    <br>
+    <span style="font-size: 0.75rem; color: #555;">Extras:</span>
+    <a href="kurzgeschichten/" style="color: var(--text-dim); font-size: 0.8rem;">Kurzgeschichten</a>
+    <span style="color: #333; margin: 0 0.3rem;">•</span>
+    <a href="chat/" style="color: var(--text-dim); font-size: 0.8rem;">Unten im Keller</a>
+    <span style="color: #333; margin: 0 0.3rem;">•</span>
+    <a href="games/" style="color: var(--text-dim); font-size: 0.8rem;">Games</a>
+    <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
+    <a href="#" class="impressum-link" onclick="showImpressum(); return false;">Impressum</a>
+</footer>
+
+    <!-- ========================================
+         MODALS
+         ======================================== -->
+    
+    <!-- Beute Modal -->
+    <div id="beuteModal" class="modal" onclick="closeModal('beuteModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>BEUTE</h2>
+            <p class="modal-subtitle">Ein Viktor Sauer Tierhorror</p>
+            <p>
+                Was als normale Jagd beginnt, wird zum verzweifelten Überlebenskampf gegen ein Raubtier, das keine Gnade kennt.
+                <br><br>
+                Viktor Sauer entführt seine Leser in eine Welt, in der die primitive Kommunikation zwischen Leben und Tod entscheidet. 
+                Wo Missverständnisse tödlich enden. 
+                Und wo der Mensch wieder lernen muss, was es heisst, Beute zu sein.
+                <br><br>
+                <strong>In Vorbereitung</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Grimm Modal -->
+    <div id="grimmModal" class="modal" onclick="closeModal('grimmModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>PROJEKT: GRIMM</h2>
+            <p class="modal-subtitle">Ein Viktor Sauer Psycho-Märchen</p>
+            <p>
+                In einem vergessenen Winkel eines scheinbar idyllischen Märchenreichs geschehen Dinge, die in keinem Kinderbuch stehen. 
+                <br><br>
+                Die Bewohner des kleinen Dorfes am Waldrand flüstern von verschwundenen Kindern. 
+                Von Albträumen, die Wirklichkeit werden. 
+                Von einem uralten Übel, das sich von der Unschuld nährt.
+                <br><br>
+                Ein psychologischer Horrorroman, der die dunkle Seite unserer liebsten Kindergeschichten offenbart.
+                <br><br>
+                <em>In Entwicklung</em>
+            </p>
+        </div>
+    </div>
+
+    <!-- Impressum Modal -->
+    <div id="impressumModal" class="modal" onclick="closeModal('impressumModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>IMPRESSUM</h2>
+            <p><strong>Verantwortlich für den Inhalt:</strong></p>
+            <p>Viktor Sauer<br>Schweiz</p>
+            <p><strong>Kontakt:</strong><br>
+            E-Mail: viktor.sauer.ch@gmail.com</p>
+            <p><strong>Copyright:</strong><br>
+            © <span id="copyright-impressum"></span> Viktor Sauer. Alle Rechte vorbehalten.</p>
+            <p><strong>Haftungsausschluss:</strong><br>
+            Der Autor übernimmt keine Haftung für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten Informationen.</p>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCRIPTS
+         ======================================== -->
+    <script src="js/main.js"></script>
+    
+    <script>
+        // ========================================
+        // MODAL FUNCTIONS
+        // ========================================
+        function showBeute() {
+            document.getElementById('beuteModal').classList.add('show');
+        }
+        
+        function showGrimm() {
+            document.getElementById('grimmModal').classList.add('show');
+        }
+        
+        function showImpressum() {
+            document.getElementById('impressumModal').classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(function(modal) {
+                    modal.classList.remove('show');
+                });
+            }
+        });
+        
+        // ========================================
+        // AGE GATE
+        // ========================================
+        window.addEventListener('DOMContentLoaded', function() {
+            var ageGate = document.getElementById('ageGate');
+            if (localStorage.getItem('ageVerified') === 'true') {
+                ageGate.classList.add('hidden');
+            }
+        });
+        
+        function verifyAge(isAdult) {
+            if (isAdult === true) {
+                localStorage.setItem('ageVerified', 'true');
+                document.getElementById('ageGate').classList.add('hidden');
+            } else {
+                window.location.href = 'games/totpunkt.html';
+            }
+        }
+        
+        // ========================================
+        // KONAMI CODE EASTER EGG
+        // ↑↑↓↓←→←→BA
+        // ========================================
+        let konamiCode = [];
+        const pattern = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.key);
+            konamiCode = konamiCode.slice(-10);
+            
+            if (konamiCode.join('') === pattern.join('')) {
+                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                console.log('🩸 Du hast das Blut-Ritual aktiviert!');
+                setTimeout(function() {
+                    alert('Kapitel 666 wurde freigeschaltet... nur Spass. Oder?');
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

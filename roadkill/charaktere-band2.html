@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO -->
+    <title>ROADKILL Band 2 - Charaktere | Viktor Sauer</title>
+    <meta name="description" content="Lerne die Charaktere aus ROADKILL Band 2: Schwarze Adern kennen. Die Yakuza-Familie im Jade Dragon Tower – Ehre, Blut und Chaos.">
+    <meta name="keywords" content="Roadkill, Charaktere, Band 2, Schwarze Adern, Yakuza, Viktor Sauer, Horror, Thriller">
+    <meta name="author" content="Viktor Sauer">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROADKILL Band 2 - Charaktere">
+    <meta property="og:description" content="Lerne die Charaktere aus ROADKILL Band 2: Schwarze Adern kennen. Die Yakuza-Familie im Jade Dragon Tower.">
+    <meta property="og:url" content="https://viktorsauer.org/roadkill/charaktere-band2.html">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        .char-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+            margin-top: 4rem;
+        }
+        .back-link {
+            color: var(--blood);
+            text-decoration: none;
+            display: inline-block;
+            padding: 1rem;
+        }
+        .char-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Akkordeon Style */
+        .char-item {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .char-item:hover {
+            border-color: var(--blood);
+        }
+        
+        .char-toggle {
+            display: block;
+            width: 100%;
+            padding: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            text-align: left;
+            cursor: pointer;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        .char-toggle:after {
+            content: '▼';
+            position: absolute;
+            right: 1.5rem;
+            color: var(--blood);
+            transition: transform 0.3s;
+        }
+        
+        .char-name {
+            font-weight: bold;
+            color: var(--text-white);
+        }
+        .char-role {
+            color: var(--blood);
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        
+        /* Checkbox Trick für Aufklappen ohne JavaScript */
+        .char-checkbox {
+            display: none;
+        }
+        .char-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            padding: 0 1.5rem;
+        }
+        .char-checkbox:checked ~ .char-content {
+            max-height: 500px;
+            padding: 1.5rem;
+        }
+        .char-checkbox:checked ~ .char-toggle:after {
+            transform: rotate(180deg);
+        }
+        
+        .char-description {
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .faction-divider {
+            margin: 3rem 0 2rem;
+            text-align: center;
+            color: var(--blood);
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        .faction-divider:before,
+        .faction-divider:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: var(--blood);
+        }
+        .faction-divider:before { left: 0; }
+        .faction-divider:after { right: 0; }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="../">Start</a></li>
+            <li><a href="../roadkill/">Roadkill</a></li>
+            <li><a href="../#kontakt">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- Back Link -->
+    <a href="../roadkill/" class="back-link">← Zurück zur Serie</a>
+
+    <!-- Header -->
+    <div class="char-header">
+        <h1>Band 2: Schwarze Adern</h1>
+        <p class="subtitle">Charaktere</p>
+    </div>
+
+    <!-- Charaktere Container -->
+    <div class="char-container">
+        <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">
+            Klicke auf einen Namen für mehr Details (spoilerfrei)
+        </p>
+
+        <div class="faction-divider">Die Yakuza-Familie</div>
+
+        <!-- Hiroshi -->
+        <div class="char-item">
+            <input type="checkbox" id="hiroshi" class="char-checkbox">
+            <label for="hiroshi" class="char-toggle">
+                <span class="char-name">Hiroshi Tanaka</span>
+                <span class="char-role">Der Oyabun des Jade Dragon Towers</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    62 Jahre alt, distinguiert mit grauen Schläfen und maßgeschneidertem schwarzen Anzug. Der unbestrittene Herrscher über 40 Stockwerke schwarzen Stahls und Panzerglas. Ein Traditionalist der alten Yakuza-Werte, dessen Paranoia separate Treppenhäuser im Tower installieren ließ. Spricht leise - andere müssen zuhören. Seine Philosophie: "Ehre ist alles, aber Überleben ist wichtiger." Sammelt antike Samurai-Schwerter, führt jeden Morgen eine traditionelle Teezeremonie durch. Ein würdiger Gegenspieler, der die alte Ordnung in einer neuen, chaotischen Welt vertritt.
+                </p>
+            </div>
+        </div>
+
+        <!-- Akira -->
+        <div class="char-item">
+            <input type="checkbox" id="akira" class="char-checkbox">
+            <label for="akira" class="char-toggle">
+                <span class="char-name">Akira Nakamura</span>
+                <span class="char-role">Der Künstler des Schmerzes</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Yakuza-Foltermeister mit künstlerischem Stolz auf seine "Arbeit". Trägt eine vollständige Hannya-Masken-Tätowierung auf dem Rücken, schwarze Lederhandschuhe und eine Lederschürze bei der Arbeit. Sammelt Zähne seiner Opfer, hört Vivaldis "Vier Jahreszeiten" während der Folter. Spricht sehr leise und höflich, selbst beim Foltern - seine Räume sind makellos sauber. War einst Medizinstudent, nutzt sein Wissen nun, um Menschen am Leben zu halten für maximale Qual. Seine absolute Loyalität zu Hiroshi und sein Perfektionismus machen ihn zu einer der beunruhigendsten Figuren.
+                </p>
+            </div>
+        </div>
+
+        <!-- Yumi -->
+        <div class="char-item">
+            <input type="checkbox" id="yumi" class="char-checkbox">
+            <label for="yumi" class="char-toggle">
+                <span class="char-name">Yumi Sato</span>
+                <span class="char-role">Die Schwertkämpferin mit Gewissen</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    28-jährige Elite-Leibwächterin und Meisterin mehrerer Kampfstile. Ihre Familie wurde von rivalisierenden Yakuza getötet, sie selbst mit 16 von der Straße geholt und ausgebildet. Beherrscht die verbotene "Kirschblüten-Opferung"-Technik. Ein Kirschblüten-Tattoo ziert ihr linkes Schulterblatt. Trotz ihrer tödlichen Fähigkeiten folgt sie einem strengen Ehrenkodex. Meditiert täglich im Morgengrauen, pflegt ihr Katana wie ein Familienmitglied. Ihre inneren Konflikte zwischen Loyalität und Moral werden zu einem zentralen Element, wenn die alte Ordnung zusammenbricht.
+                </p>
+            </div>
+        </div>
+
+        <!-- Takeshi -->
+        <div class="char-item">
+            <input type="checkbox" id="takeshi" class="char-checkbox">
+            <label for="takeshi" class="char-toggle">
+                <span class="char-name">Takeshi Yamamoto</span>
+                <span class="char-role">Die kalte Rechenmaschine</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Der einzige Yakuza ohne Tattoos - sieht sie als "ineffizient". Ehemaliger Mathematik-Professor, nun das Gehirn hinter Hiroshis Imperium. Trägt eine Rolex Submariner (Geschenk von Hiroshi), löst Kreuzworträtsel während Folterungen, trinkt nur grünen Tee bei exakt 73°C. Führt Buch über jede Transaktion, vergisst nie ein Detail. Kontrolliert das gesamte Yakuza-Netzwerk, verwaltet Millionen ohne einen Cent zu verlieren. Seine Loyalität zu Hiroshi geht über normale Ergebenheit hinaus - es ist fast religiöse Verehrung. "Eine Null kann nicht allein existieren."
+                </p>
+            </div>
+        </div>
+
+        <!-- Kenji -->
+        <div class="char-item">
+            <input type="checkbox" id="kenji" class="char-checkbox">
+            <label for="kenji" class="char-toggle">
+                <span class="char-name">Kenji Ito</span>
+                <span class="char-role">Der brutale Philosoph</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    38 Jahre alt, breiter Muskelberg mit gebrochener Nase und Goldschneidezahn. Ex-Militär, unehrenhaft entlassen wegen Schwarzmarkt-Waffen. Poliert seinen Mercedes täglich sauberer als sein Gewissen, kaut ständig Zahnstocher, erzählt schlechte Witze in unpassenden Momenten. Kann alles fahren was Räder hat, ist Experte für jede Waffe und improvisierte Sprengsätze. Schickt seiner Ex-Frau und den Kindern monatlich Geld - sie wissen nicht woher. Direkt, brutal ehrlich, aber überraschend philosophisch beim Trinken. "Ich löse Probleme. Meistens mit Kugeln."
+                </p>
+            </div>
+        </div>
+
+        <!-- Daichi -->
+        <div class="char-item">
+            <input type="checkbox" id="daichi" class="char-checkbox">
+            <label for="daichi" class="char-toggle">
+                <span class="char-name">Daichi Suzuki</span>
+                <span class="char-role">Der Junge, der ein Held sein will</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Mit 22 das jüngste Vollmitglied der Yakuza-Familie. Noch unvollständiges Drachen-Tattoo, Anzug sitzt nicht richtig, trägt heimlich Sneaker statt Lederschuhe. Übt den Yakuza-Gang vor dem Spiegel, führt ein geheimes Tagebuch, schickt Geld an seine leukämiekranke Schwester. Mit 19 zur Yakuza gekommen wegen der Schulden seines toten Vaters, fehlender kleiner Finger nach verpatzter Lieferung. Übereifrig, nervös, aber mit einem guten Kern. Will unbedingt dazugehören und sich beweisen. Seine jugendliche Unsicherheit und sein Held-Komplex werden auf die ultimative Probe gestellt.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation zu anderen Bänden -->
+    <div style="text-align: center; padding: 3rem 1rem; border-top: 1px solid var(--border);">
+        <h3 style="color: var(--blood); margin-bottom: 1rem;">Weitere Charaktere</h3>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="charaktere-band1.html" class="btn btn-primary">Band 1 Charaktere</a>
+            <a href="charaktere-band3.html" class="btn btn-primary">Band 3 Charaktere</a>
+            <a href="charaktere-band4.html" class="btn btn-locked" style="opacity: 0.4; pointer-events: none;">Band 4 (Coming Soon)</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        <p>&copy; 2025 Viktor Sauer</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
