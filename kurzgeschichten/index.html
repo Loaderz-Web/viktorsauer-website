@@ -3,200 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viktor Sauer | Links</title>
-    <meta name="description" content="Alle Links von Viktor Sauer - Schweizer Horrorautor">
     
-	<!-- Open Graph / Social Media -->
+    <!-- SEO Meta Tags -->
+    <title>Kurzgeschichten - Viktor Sauer</title>
+    <meta name="description" content="Kostenlose Horror-Kurzgeschichten von Viktor Sauer. Zum Lesen, als PDF oder EPUB. Schwarzer Humor trifft auf blanken Horror.">
+    <meta name="keywords" content="Horror, Kurzgeschichten, kostenlos, PDF, EPUB, Viktor Sauer, Zombie, Schweizer Autor">
+    <meta name="author" content="Viktor Sauer">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Viktor Sauer | Links">
-    <meta property="og:description" content="Alle Links von Viktor Sauer - Schweizer Horrorautor. Bücher, Social Media & mehr.">
-    <meta property="og:url" content="https://viktorsauer.org/links/">
-    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    <meta property="og:title" content="Kurzgeschichten - Viktor Sauer">
+    <meta property="og:description" content="Kostenlose Horror-Kurzgeschichten. Schwarzer Humor trifft auf blanken Horror.">
+    <meta property="og:url" content="https://viktorsauer.org/kurzgeschichten/">
+
+	<meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
     <meta property="og:locale" content="de_CH">
     
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Viktor Sauer | Links">
-    <meta name="twitter:description" content="Alle Links von Viktor Sauer - Schweizer Horrorautor.">
-    <meta name="twitter:image" content="https://viktorsauer.org/images/og-image.jpg">
-
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --blood: #dc2626;
-            --dark-bg: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text-white: #e5e5e5;
-            --text-dim: #a0a0a0;
-            --border: #404040;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-white);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem 1rem;
-        }
-        
-        ::selection {
-            background: var(--blood);
-            color: var(--dark-bg);
-        }
-        
-        .container {
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid var(--blood);
-            margin-bottom: 1rem;
-            background: var(--card-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem auto;
-            font-size: 2.5rem;
-        }
-        
-        h1 {
-            color: var(--blood);
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-            letter-spacing: 0.05em;
-        }
-        
-        .bio {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-        
-        .links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .link-btn {
-            display: block;
-            padding: 1rem 1.5rem;
-            background: var(--card-bg);
-            border: 2px solid var(--border);
-            color: var(--text-white);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-        
-        .link-btn:hover {
-            border-color: var(--blood);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
-        }
-        
-        .link-btn.featured {
-            border-color: var(--blood);
-            background: rgba(220, 38, 38, 0.1);
-        }
-        
-        .link-btn.featured:hover {
-            background: var(--blood);
-            color: var(--dark-bg);
-        }
-        
-        .link-icon {
-            margin-right: 0.5rem;
-        }
-        
-        footer {
-            margin-top: auto;
-            padding-top: 3rem;
-            color: var(--text-dim);
-            font-size: 0.75rem;
-        }
-        
-        footer a {
-            color: var(--blood);
-            text-decoration: none;
-        }
-        
-        footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/kurzgeschichten.css">
 </head>
 <body>
-    <div class="container">
-        <div class="avatar">🩸</div>
-        
-        <h1>VIKTOR SAUER</h1>
-        <p class="bio">Schweizer Horrorautor<br>Roadkill-Serie</p>
-        
-        <div class="links">
-            <a href="https://www.amazon.de/dp/B0FPWQY627" target="_blank" class="link-btn featured">
-                <span class="link-icon">📖</span> ROADKILL: Der Kannibalenhügel
-            </a>
-            
-            <a href="https://www.amazon.de/dp/B0GK337LCN" target="_blank" class="link-btn featured">
-                <span class="link-icon">📖</span> ROADKILL: Schwarze Adern
-            </a>
-            
-            <a href="https://www.amazon.de/stores/author/B0FPXBRHVP/about" target="_blank" class="link-btn">
-                <span class="link-icon">💀</span> Der Autor (Amazon)
-            </a>
-            
-            <a href="https://www.instagram.com/viktorsauerch" target="_blank" class="link-btn">
-                <span class="link-icon">📷</span> Instagram
-            </a>
-            
-            <a href="https://www.tiktok.com/@viktorsauer" target="_blank" class="link-btn">
-                <span class="link-icon">🎵</span> TikTok
-            </a>
-            
-            <a href="../" class="link-btn">
-                <span class="link-icon">🌐</span> Website
-            </a>
-            
-            <a href="../kurzgeschichten/" class="link-btn">
-                <span class="link-icon">📝</span> Kurzgeschichten
-            </a>
-            
-            <a href="../games/" class="link-btn">
-                <span class="link-icon">🎮</span> Interaktive Games
-            </a>
-            
-            <a href="../chat/" class="link-btn">
-                <span class="link-icon">🤖</span> Unten im Keller
-            </a>
-            
-            <a href="mailto:viktor.sauer.ch@gmail.com" class="link-btn">
-                <span class="link-icon">📧</span> Kontakt
-            </a>
+    <!-- Navigation -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
         </div>
-    </div>
-    
+        <ul class="nav-links" id="navLinks">
+            <li><a href="../">Startseite</a></li>
+            <li><a href="../roadkill/">Roadkill Serie</a></li>
+            <li><a href="./">Kurzgeschichten</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="kurzgeschichten-header">
+        <a href="../" class="back-link">← Zurück zur Startseite</a>
+        <h1>KURZGESCHICHTEN</h1>
+        <p class="subtitle">
+            Kleine Häppchen Horror. Kostenlos. Zum Lesen, Drucken oder für deinen E-Reader.
+        </p>
+    </header>
+
+    <!-- Story Grid -->
+    <main class="story-grid">
+        
+        <!-- Story 1: Amtlich verstorben -->
+        <article class="story-card">
+            <h2>Amtlich verstorben</h2>
+            <div class="story-meta">
+                <span class="genre">Horror-Komödie</span>
+                <span>~15 Min. Lesezeit</span>
+                <span>Gore, schwarzer Humor</span>
+            </div>
+            <p class="story-teaser">
+                Was passiert, wenn die Zombie-Apokalypse auf Schweizer Bürokratie trifft? 
+                Herr Langenegger vom Zentralen Bürgeramt erklärt es dir. Langsam. Sehr langsam.
+            </p>
+            <a href="amtlich-verstorben.html" class="story-link">Geschichte lesen →</a>
+        </article>
+
+        <!-- Platzhalter für zukünftige Stories -->
+        <!--
+        <article class="story-card">
+            <h2>Titel der nächsten Story</h2>
+            <div class="story-meta">
+                <span class="genre">Genre</span>
+                <span>~X Min. Lesezeit</span>
+            </div>
+            <p class="story-teaser">
+                Teaser-Text hier...
+            </p>
+            <a href="dateiname.html" class="story-link">Geschichte lesen →</a>
+        </article>
+        -->
+
+    </main>
+
+    <!-- Footer -->
     <footer>
-        <a href="../">viktorsauer.org</a>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
     </footer>
+
+    <script src="../js/main.js"></script>
 </body>
 </html>
