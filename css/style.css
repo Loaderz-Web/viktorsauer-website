@@ -436,3 +436,26 @@ footer p {
         scroll-behavior: auto !important;
     }
 }
+
+/* ========================================
+   FOOTER - Impressum & Datenschutz Links
+   ======================================== */
+.impressum-link {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+.impressum-link:hover {
+    color: var(--blood);
+}
+```
+
+Dann:
+```
+Ctrl+O  (Speichern)
+Enter
+Ctrl+X  (Beenden)
