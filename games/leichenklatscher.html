@@ -528,6 +528,31 @@
         }
 
         /* ========================================
+           MUTE BUTTON
+           ======================================== */
+        .mute-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: border-color 0.2s;
+        }
+
+        .mute-btn:hover {
+            border-color: #8b0000;
+        }
+
+        /* ========================================
            SCREEN SHAKE
            ======================================== */
         .shake {
@@ -547,6 +572,8 @@
 
 <div class="cemetery-bg"></div>
 <div class="fog"></div>
+
+<div class="mute-btn" id="muteBtn" onclick="toggleMute()">🔇</div>
 
 <div class="game-wrapper" id="gameWrapper">
 
@@ -639,6 +666,135 @@
     document.getElementById('startHighscore').textContent = highscore;
 
     // ========================================
+    // SOUND ENGINE (Web Audio API)
+    // ========================================
+    let audioCtx = null;
+    let muted = true;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleMute() {
+        muted = !muted;
+        document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    }
+
+    function playSound(type) {
+        if (muted || !audioCtx) return;
+        try {
+            const now = audioCtx.currentTime;
+
+            if (type === 'whack') {
+                // Sattes Klatsch-Geräusch (Noise Burst + tiefem Thump)
+                const bufferSize = audioCtx.sampleRate * 0.08;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'lowpass';
+                noiseFilter.frequency.value = 800;
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.4, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                noise.start(now);
+
+                // Tiefer Thump
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.setValueAtTime(0.3, now);
+                oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(oscGain);
+                oscGain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+
+            } else if (type === 'miss') {
+                // Kurzes dumpfes Wusch
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+
+            } else if (type === 'rise') {
+                // Zombie taucht auf: kurzes tiefes Grollen
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(60, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.2);
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 300;
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+
+            } else if (type === 'gameover') {
+                // Düsterer Abschluss: absteigender Ton
+                [200, 160, 120].forEach(function(freq, i) {
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(0, now + i * 0.2);
+                    gain.gain.linearRampToValueAtTime(0.15, now + i * 0.2 + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.2 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.2);
+                    osc.stop(now + i * 0.2 + 0.45);
+                });
+
+            } else if (type === 'combo') {
+                // Kurzer hoher Pling bei Combo-Aufbau
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600 + combo * 80, now);
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+        } catch(e) {}
+    }
+
+    // ========================================
     // GRID AUFBAUEN
     // ========================================
     const grid = document.getElementById('gameGrid');
@@ -688,6 +844,8 @@
         maxCombo = 0;
         totalWhacked = 0;
         gameActive = true;
+
+        initAudio();
 
         document.getElementById('score').textContent = '0';
         document.getElementById('timer').textContent = '30';
@@ -766,6 +924,7 @@
         if (isFast) grave.classList.add('fast-zombie');
 
         zombie.className = 'zombie rising';
+        playSound('rise');
 
         // Wie lange sichtbar (schnelle Zombies = kürzer)
         const visibleTime = isFast ? 800 : Math.max(900, 1600 - elapsed * 25);
@@ -822,6 +981,8 @@
 
             // Whack-Animation
             zombie.className = 'zombie whacked';
+            playSound('whack');
+            if (combo > 1) playSound('combo');
 
             // Hit-Effekt
             const hitEl = document.createElement('div');
@@ -866,6 +1027,7 @@
             missEl.className = 'miss-effect';
             missEl.textContent = 'Daneben!';
             grave.appendChild(missEl);
+            playSound('miss');
 
             setTimeout(function() {
                 if (missEl.parentNode) missEl.remove();
@@ -880,6 +1042,7 @@
         gameActive = false;
         clearInterval(gameInterval);
         clearTimeout(spawnTimeout);
+        playSound('gameover');
 
         // Alle aktiven Zombies versenken
         for (let i = 0; i < 9; i++) {
