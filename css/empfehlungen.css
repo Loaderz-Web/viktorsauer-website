@@ -1,0 +1,146 @@
+/* ===========================================
+   EMPFEHLUNGEN STYLES
+   Für: empfehlungen/index.html
+   =========================================== */
+
+/* Back Link */
+.back-link {
+    color: var(--blood);
+    text-decoration: none;
+    display: inline-block;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease-out;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Header */
+.empfehlungen-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-top: 4rem;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+}
+
+.empfehlungen-header h1 {
+    color: var(--blood);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.empfehlungen-header .subtitle {
+    color: var(--text-dim);
+    font-style: italic;
+    max-width: 600px;
+    margin: 1rem auto;
+}
+
+/* Empfehlungen Grid */
+.empfehlungen-grid {
+    display: grid;
+    gap: 2.5rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Einzelne Empfehlung */
+.empfehlung-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 2rem;
+    transition: border-color 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.empfehlung-card:hover {
+    border-color: var(--blood);
+    transform: translateY(-2px);
+}
+
+.empfehlung-card h2 {
+    color: var(--text-white);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.empfehlung-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.empfehlung-meta span {
+    color: var(--text-dim);
+    padding: 0.25rem 0.5rem;
+    background: var(--dark-bg);
+    border: 1px solid var(--border);
+}
+
+.empfehlung-meta .rolle {
+    color: var(--blood);
+    border-color: var(--blood);
+}
+
+/* Story-Text innerhalb der Karte */
+.empfehlung-story {
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border);
+}
+
+.empfehlung-story p {
+    margin-bottom: 0.75rem;
+}
+
+.empfehlung-story p:last-child {
+    margin-bottom: 0;
+}
+
+/* Link zur externen Seite */
+.empfehlung-link {
+    display: inline-block;
+    color: var(--blood);
+    border: 2px solid var(--blood);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease-out;
+}
+
+.empfehlung-link:hover {
+    background: var(--blood);
+    color: var(--dark-bg);
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (min-width: 768px) {
+    .empfehlungen-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .empfehlungen-header h1 {
+        font-size: 2rem;
+    }
+
+    .empfehlung-card {
+        padding: 1.5rem;
+    }
+
+    .empfehlung-link {
+        width: 100%;
+        text-align: center;
+    }
+}
