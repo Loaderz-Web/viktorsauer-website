@@ -452,10 +452,3 @@ footer p {
 .impressum-link:hover {
     color: var(--blood);
 }
-```
-
-Dann:
-```
-Ctrl+O  (Speichern)
-Enter
-Ctrl+X  (Beenden)
