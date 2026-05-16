@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO -->
+    <title>ROADKILL Band 4 - Charaktere | Viktor Sauer</title>
+    <meta name="description" content="Lerne die Charaktere aus ROADKILL Band 4: Traumfänger kennen. Neue Antagonisten, alte Schatten – die Apokalypse hat ein Gesicht bekommen.">
+    <meta name="keywords" content="Roadkill, Charaktere, Band 4, Traumfänger, Viktor Sauer, Horror, Thriller">
+    <meta name="author" content="Viktor Sauer">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROADKILL Band 4 - Charaktere">
+    <meta property="og:description" content="Lerne die Charaktere aus ROADKILL Band 4: Traumfänger kennen. Neue Antagonisten, alte Schatten.">
+    <meta property="og:url" content="https://viktorsauer.org/roadkill/charaktere-band4.html">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        .char-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(180deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+            margin-top: 4rem;
+        }
+        .back-link {
+            color: var(--blood);
+            text-decoration: none;
+            display: inline-block;
+            padding: 1rem;
+        }
+        .char-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Akkordeon Style */
+        .char-item {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .char-item:hover {
+            border-color: var(--blood);
+        }
+        
+        .char-toggle {
+            display: block;
+            width: 100%;
+            padding: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-white);
+            text-align: left;
+            cursor: pointer;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        .char-toggle:after {
+            content: '▼';
+            position: absolute;
+            right: 1.5rem;
+            color: var(--blood);
+            transition: transform 0.3s;
+        }
+        
+        .char-name {
+            font-weight: bold;
+            color: var(--text-white);
+        }
+        .char-role {
+            color: var(--blood);
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        
+        /* Checkbox Trick für Aufklappen ohne JavaScript */
+        .char-checkbox {
+            display: none;
+        }
+        .char-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            padding: 0 1.5rem;
+        }
+        .char-checkbox:checked ~ .char-content {
+            max-height: 500px;
+            padding: 1.5rem;
+        }
+        .char-checkbox:checked ~ .char-toggle:after {
+            transform: rotate(180deg);
+        }
+        
+        .char-description {
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .faction-divider {
+            margin: 3rem 0 2rem;
+            text-align: center;
+            color: var(--blood);
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        .faction-divider:before,
+        .faction-divider:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: var(--blood);
+        }
+        .faction-divider:before { left: 0; }
+        .faction-divider:after { right: 0; }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu -->
+    <nav class="mobile-nav">
+        <div class="nav-header">
+            <span class="logo">V.S.</span>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="../">Start</a></li>
+            <li><a href="../roadkill/">Roadkill</a></li>
+            <li><a href="../#kontakt">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- Back Link -->
+    <a href="../roadkill/" class="back-link">← Zurück zur Serie</a>
+
+    <!-- Header -->
+    <div class="char-header">
+        <h1>Band 4: Traumfänger</h1>
+        <p class="subtitle">Charaktere</p>
+    </div>
+
+    <!-- Charaktere Container -->
+    <div class="char-container">
+        <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">
+            Klicke auf einen Namen für mehr Details (spoilerfrei)
+        </p>
+
+        <div class="faction-divider">Neue Antagonisten</div>
+
+        <!-- Earl Gentry -->
+        <div class="char-item">
+            <input type="checkbox" id="earl" class="char-checkbox">
+            <label for="earl" class="char-toggle">
+                <span class="char-name">Earl Gentry</span>
+                <span class="char-role">Der Patriarch vom Land</span>
+            </label>
+            <div class="char-content">
+                <p class="char-description">
+                    Ende 60, breit gebaut wie ein Mann, der sein ganzes Leben körperlich gearbeitet hat und es sich inzwischen leisten kann, andere arbeiten zu lassen. Stetson, Lederstiefel mit Silberbeschlägen, abgetragene aber teure Lederjacke. Hände gepflegt, Nägel sauber. Auf seiner Ranch im amerikanischen Hinterland zieht er seit Jahrzehnten Vieh. Über die Jahre hat sich der Betrieb diversifiziert. Was genau auf seinem Compound alles passiert, steht in keinem Handelsregister, und die Männer, die es wissen, reden nicht. Spricht leise, lächelt selten, vergisst nichts. Sein eingezäuntes Anwesen war schon vor der Apokalypse eine Festung, und die meterhohen Zäune, die früher Tiere am Entkommen hinderten, halten jetzt die Zombies draussen. Eine private Miliz patrouilliert rund um die Uhr. Als die Welt zusammenbrach, hielt Earl einen Moment inne, trank einen Kaffee und machte weiter. „Geduld ist die einzige Tugend, die mit dem Alter wächst."
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation zu anderen Bänden -->
+    <div style="text-align: center; padding: 3rem 1rem; border-top: 1px solid var(--border);">
+        <h3 style="color: var(--blood); margin-bottom: 1rem;">Weitere Charaktere</h3>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="charaktere-band1.html" class="btn btn-primary">Band 1 Charaktere</a>
+            <a href="charaktere-band2.html" class="btn btn-primary">Band 2 Charaktere</a>
+            <a href="charaktere-band3.html" class="btn btn-primary">Band 3 Charaktere</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
