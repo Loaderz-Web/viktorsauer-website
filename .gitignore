@@ -1,0 +1,14 @@
+# Lokale Arbeitsdateien (nicht in Repo)
+CLAUDE.md
+*VORLAGE.md
+PAKET*.md
+
+# Test-Dateien
+_test-*.html
+
+# VS Code lokale Settings
+.vscode/
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
