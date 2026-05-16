@@ -249,7 +249,7 @@
     <span style="color: #333; margin: 0 0.3rem;">•</span>
     <a href="empfehlungen/" style="color: var(--text-dim); font-size: 0.8rem;">Empfehlungen</a>
     <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
-	<a href="#" class="impressum-link" onclick="showImpressum(); return false;">Impressum</a>
+	<a href="impressum.html" class="impressum-link">Impressum</a>
 	<span style="color: #333; margin: 0 0.3rem;">•</span>
 	<a href="datenschutz.html" class="impressum-link">Datenschutz</a>
 </footer>
@@ -294,20 +294,6 @@
         </div>
     </div>
 
-    <!-- Impressum Modal -->
-    <div id="impressumModal" class="modal" onclick="closeModal('impressumModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2>IMPRESSUM</h2>
-            <p><strong>Verantwortlich für den Inhalt:</strong></p>
-            <p>Viktor Sauer<br>Schweiz</p>
-            <p><strong>Kontakt:</strong><br>
-            E-Mail: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="73051a18071c015d00120616015d101b33141e121a1f5d101c1e">[email&#160;protected]</a></p>
-            <p><strong>Copyright:</strong><br>
-            © <span id="copyright-impressum"></span> Viktor Sauer. Alle Rechte vorbehalten.</p>
-            <p><strong>Haftungsausschluss:</strong><br>
-            Der Autor übernimmt keine Haftung für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten Informationen.</p>
-        </div>
-    </div>
 
     <!-- ========================================
          SCRIPTS
@@ -326,9 +312,6 @@
             document.getElementById('grimmModal').classList.add('show');
         }
         
-        function showImpressum() {
-            document.getElementById('impressumModal').classList.add('show');
-        }
         
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
