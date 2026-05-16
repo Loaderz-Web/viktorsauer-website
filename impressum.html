@@ -95,42 +95,39 @@
             border-top: 1px solid var(--border);
             margin: 2.5rem 0;
         }
-        
-        .back-link {
-            display: inline-block;
-            color: var(--blood);
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
     <!-- ========================================
-         NAVIGATION
+         NAVIGATION (Paket 2: Sandwich-Menü)
          ======================================== -->
-    <nav class="mobile-nav">
+    <div class="mobile-nav">
         <div class="nav-header">
-            <a href="/" class="logo" style="text-decoration: none;">V.S.</a>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <a href="/" class="logo">V.S.</a>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
         </div>
         <ul class="nav-links" id="navLinks">
+            <!-- Gruppe 1: Hauptinhalte -->
             <li><a href="/#werke">Werke</a></li>
-            <li><a href="/#kontakt">Kontakt</a></li>
+            <li><a href="/roadkill/">ROADKILL Serie</a></li>
+            <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 2: Extras -->
+            <li><a href="/empfehlungen/">Empfehlungen</a></li>
+            <li><a href="/games/">Games</a></li>
+            <li><a href="/links/">Links</a></li>
+            <li><a href="/chat/">Unten im Keller</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 3: Rechtliches -->
+            <li><a href="/impressum.html">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
         </ul>
-    </nav>
+    </div>
 
     <!-- ========================================
          IMPRESSUM CONTENT
          ======================================== -->
     <main class="legal-content">
-        <a href="/" class="back-link">← Zurück zur Startseite</a>
-        
         <h1>IMPRESSUM</h1>
         <p class="stand"><strong>Stand:</strong> Mai 2026</p>
         
@@ -173,33 +170,28 @@
         <h2>Urheberrecht</h2>
         <p>
             Sämtliche Inhalte dieser Webseite, insbesondere Texte, Bilder und Grafiken, 
-            sind urheberrechtlich geschützt. © 2025&ndash;<script>document.write(new Date().getFullYear())</script> 
+            sind urheberrechtlich geschützt. © <span id="copyright-impressum"></span> 
             Marc Stampfli. Alle Rechte vorbehalten.
-        </p>
-        
-        <hr>
-        
-        <p style="text-align: center;">
-            <a href="/" class="back-link">← Zurück zur Startseite</a>
         </p>
     </main>
 
     <!-- ========================================
-         FOOTER
+         FOOTER (Paket 2: Site-Footer)
          ======================================== -->
-    <footer>
-        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
-        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
-        <p>&copy; <script>document.write(new Date().getFullYear())</script> Viktor Sauer</p>
+    <footer class="site-footer">
+        <p class="site-footer-social">
+            <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+            |
+            <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        </p>
+        <p class="site-footer-copyright">
+            © <span id="copyright"></span> Viktor Sauer
+        </p>
     </footer>
 
     <!-- ========================================
-         SCRIPT (Navigation)
+         SCRIPT (main.js global)
          ======================================== -->
-    <script>
-        function toggleMenu() {
-            document.getElementById('navLinks').classList.toggle('show');
-        }
-    </script>
+    <script src="/js/main.js"></script>
 </body>
 </html>
