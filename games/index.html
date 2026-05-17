@@ -10,64 +10,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
     
-    <!-- Main Stylesheet -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="../css/style.css">
-    
-    <style>
-        /* Game Cards Styling */
-        .game-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 6rem 1rem 2rem 1rem; /* 6rem oben für die fixed Nav */
-        }
-        
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .game-card {
-            background: rgba(20, 0, 0, 0.6);
-            border: 1px solid var(--border);
-            padding: 2rem;
-            text-align: center;
-            transition: transform 0.3s, border-color 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--blood);
-        }
-        
-        .game-card h3 {
-            color: var(--blood);
-            margin-bottom: 1rem;
-        }
-        
-        .game-card p {
-            color: var(--text-dim);
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-top: 3rem;
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-        
-        .back-link:hover {
-            color: var(--blood);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/games.css">
 </head>
 <body>
     <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
@@ -96,10 +41,8 @@
 
     <!-- Main Content -->
     <div class="game-container">
-        <h1 style="text-align: center; color: var(--blood); font-size: 2.5rem; margin-bottom: 0.5rem;">GAMES & GESCHICHTEN</h1>
-        <p style="text-align: center; color: var(--text-dim); margin-bottom: 3rem;">
-            Interaktive Experimente aus der dunklen Ecke
-        </p>
+        <h1>GAMES & GESCHICHTEN</h1>
+        <p>Interaktive Experimente aus der dunklen Ecke</p>
 
         <div class="game-grid">
             <!-- Arcade Game (TOTPUNKT) -->
@@ -121,7 +64,7 @@
                     <br><br>
                     Triff Entscheidungen. Überlebe. Vielleicht.
                     <br><br>
-                    <em style="font-size: 0.85rem;">Der Kannibalenhügel als interaktives Spiel</em>
+                    <em>Der Kannibalenhügel als interaktives Spiel</em>
                 </p>
                 <a href="GameRoadkill1.html" class="btn btn-primary">Abenteuer starten</a>
             </div>

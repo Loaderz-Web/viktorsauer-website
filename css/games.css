@@ -1,0 +1,61 @@
+/* ========================================
+   GAMES PAGE STYLES
+   Verwendet von: games/index.html
+   ======================================== */
+
+.game-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 6rem 1rem 2rem 1rem; /* 6rem oben für die fixed Nav */
+}
+
+.game-container h1 {
+    text-align: center;
+    color: var(--blood);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.game-container > p {
+    text-align: center;
+    color: var(--text-dim);
+    margin-bottom: 3rem;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.game-card {
+    background: rgba(20, 0, 0, 0.6);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s, border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--blood);
+}
+
+.game-card h3 {
+    color: var(--blood);
+    margin-bottom: 1rem;
+}
+
+.game-card p {
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.game-card em {
+    font-size: 0.85rem;
+}
