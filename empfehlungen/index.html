@@ -28,23 +28,32 @@
     <link rel="stylesheet" href="../css/empfehlungen.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="mobile-nav">
+    <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
+    <div class="mobile-nav">
         <div class="nav-header">
-            <span class="logo">V.S.</span>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <a href="/" class="logo">V.S.</a>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
         </div>
         <ul class="nav-links" id="navLinks">
-            <li><a href="../">Startseite</a></li>
-            <li><a href="../roadkill/">Roadkill Serie</a></li>
-            <li><a href="../kurzgeschichten/">Kurzgeschichten</a></li>
-            <li><a href="./">Empfehlungen</a></li>
+            <!-- Gruppe 1: Hauptinhalte -->
+            <li><a href="/#werke">Werke</a></li>
+            <li><a href="/roadkill/">ROADKILL Serie</a></li>
+            <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 2: Extras -->
+            <li><a href="/empfehlungen/">Empfehlungen</a></li>
+            <li><a href="/games/">Games</a></li>
+            <li><a href="/links/">Links</a></li>
+            <li><a href="/chat/">Unten im Keller</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 3: Rechtliches -->
+            <li><a href="/impressum.html">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
         </ul>
-    </nav>
+    </div>
 
     <!-- Header -->
     <header class="empfehlungen-header">
-        <a href="../" class="back-link">&larr; Zurück zur Startseite</a>
         <h1>EMPFEHLUNGEN</h1>
         <p class="subtitle">
             Menschen und Verlage, ohne die es Viktor Sauer so nicht geben würde.
@@ -101,11 +110,16 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
-        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
-        <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
+    <!-- Site Footer minimal (Paket 2) -->
+    <footer class="site-footer">
+        <p class="site-footer-social">
+            <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+            |
+            <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        </p>
+        <p class="site-footer-copyright">
+            &copy; <span id="copyright"></span> Viktor Sauer
+        </p>
     </footer>
 
     <script src="../js/main.js"></script>
