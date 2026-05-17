@@ -14,6 +14,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
+    <!-- Stylesheet (Paket 2: für Sandwich + Footer) -->
+    <link rel="stylesheet" href="../css/style.css">
+    
     <style>
         /* ========================================
            VARIABLEN (gleich wie Hauptseite)
@@ -252,17 +255,6 @@
         }
 
         /* ========================================
-           FOOTER
-           ======================================== */
-        footer {
-            padding: 1rem;
-            text-align: center;
-            border-top: 1px solid var(--border);
-            color: var(--text-dim);
-            font-size: 0.8rem;
-        }
-
-        /* ========================================
            RESPONSIVE
            ======================================== */
         @media (max-width: 600px) {
@@ -284,15 +276,45 @@
                 width: 100%;
             }
         }
+
+        /* ========================================
+           PAKET 2: HEADER UNTER MOBILE-NAV SCHIEBEN
+           ======================================== */
+        .header {
+            margin-top: 4rem;
+        }
     </style>
 </head>
 <body>
+    <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
+    <div class="mobile-nav">
+        <div class="nav-header">
+            <a href="/" class="logo">V.S.</a>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <!-- Gruppe 1: Hauptinhalte -->
+            <li><a href="/#werke">Werke</a></li>
+            <li><a href="/roadkill/">ROADKILL Serie</a></li>
+            <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 2: Extras -->
+            <li><a href="/empfehlungen/">Empfehlungen</a></li>
+            <li><a href="/games/">Games</a></li>
+            <li><a href="/links/">Links</a></li>
+            <li><a href="/chat/">Unten im Keller</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 3: Rechtliches -->
+            <li><a href="/impressum.html">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
+        </ul>
+    </div>
+
     <!-- ========================================
          HEADER
          ======================================== -->
     <header class="header">
         <h1>MARA <span>Eine verwirrte Assistentin</span></h1>
-        <a href="/" class="back-link">← Zurück zur Hauptseite</a>
     </header>
 
     <!-- ========================================
@@ -322,13 +344,20 @@
         </div>
     </main>
 
-    <!-- ========================================
-         FOOTER
-         ======================================== -->
-    <footer>
-        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a> · 
-        <a href="mailto:viktor.sauer.ch@gmail.com">Email</a> · 
-        © <span id="copyright"></span> Viktor Sauer
+    <p style="font-size: 0.85rem; color: #666; text-align: center; padding: 0.5rem 1rem;">
+        Dies ist ein experimentelles Projekt. Keine Gewähr für Inhalte.
+    </p>
+
+    <!-- Site Footer minimal (Paket 2) -->
+    <footer class="site-footer">
+        <p class="site-footer-social">
+            <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+            |
+            <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        </p>
+        <p class="site-footer-copyright">
+            &copy; <span id="copyright"></span> Viktor Sauer
+        </p>
     </footer>
 
     <!-- ========================================
@@ -478,23 +507,9 @@
         // Fokus auf Input beim Laden
         userInput.focus();
 
-        // Fokus auf Input beim Laden
-        userInput.focus();
-
-        // ============================================
-        // COPYRIGHT JAHR AUTO-UPDATE
-        // ============================================
-        const startYear = 2025;
-        const currentYear = new Date().getFullYear();
-        const copyrightEl = document.getElementById('copyright');
-        if (copyrightEl) {
-            copyrightEl.textContent = currentYear > startYear 
-                ? `${startYear}-${currentYear}` 
-                : startYear;
-        }
     </script>
-<p style="font-size: 1rem; color: #666; text-align: center; padding: 1rem; margin-top: 2rem;">
-    Dies ist ein experimentelles Projekt. Keine Gewähr für Inhalte.
-</p>
+
+    <!-- main.js für toggleMenu() etc. (Paket 2) -->
+    <script src="../js/main.js"></script>
 </body>
 </html>
