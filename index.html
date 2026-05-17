@@ -57,19 +57,6 @@
             opacity: 0.4;
         }
         
-        /* Impressum Styling */
-        .impressum-link {
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            text-decoration: none;
-            cursor: pointer;
-            margin-top: 1rem;
-            display: inline-block;
-        }
-        .impressum-link:hover {
-            color: var(--blood);
-        }
-        
         /* ========================================
            AGE GATE STYLES
            ======================================== */
@@ -159,19 +146,29 @@
         </div>
     </div>
 
-    <!-- ========================================
-         NAVIGATION
-         ======================================== -->
-    <nav class="mobile-nav">
+    <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
+    <div class="mobile-nav">
         <div class="nav-header">
-            <span class="logo">V.S.</span>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <a href="/" class="logo">V.S.</a>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
         </div>
         <ul class="nav-links" id="navLinks">
-            <li><a href="#werke">Werke</a></li>
-            <li><a href="#kontakt">Kontakt</a></li>
+            <!-- Gruppe 1: Hauptinhalte -->
+            <li><a href="/#werke">Werke</a></li>
+            <li><a href="/roadkill/">ROADKILL Serie</a></li>
+            <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 2: Extras -->
+            <li><a href="/empfehlungen/">Empfehlungen</a></li>
+            <li><a href="/games/">Games</a></li>
+            <li><a href="/links/">Links</a></li>
+            <li><a href="/chat/">Unten im Keller</a></li>
+            <li class="nav-divider" aria-hidden="true"></li>
+            <!-- Gruppe 3: Rechtliches -->
+            <li><a href="/impressum.html">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
         </ul>
-    </nav>
+    </div>
 
     <!-- ========================================
          HERO SECTION
@@ -233,26 +230,17 @@
         </div>
     </section>
 
-    <!-- ========================================
-         FOOTER
-         ======================================== -->
-<footer id="kontakt">
-    <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
-    <a href="/cdn-cgi/l/email-protection#acdac5c7d8c3de82dfcdd9c9de82cfc4eccbc1cdc5c082cfc3c1">Email</a>
-    <br>
-    <span style="font-size: 0.75rem; color: #555;">Extras:</span>
-    <a href="kurzgeschichten/" style="color: var(--text-dim); font-size: 0.8rem;">Kurzgeschichten</a>
-    <span style="color: #333; margin: 0 0.3rem;">•</span>
-    <a href="chat/" style="color: var(--text-dim); font-size: 0.8rem;">Unten im Keller</a>
-    <span style="color: #333; margin: 0 0.3rem;">•</span>
-    <a href="games/" style="color: var(--text-dim); font-size: 0.8rem;">Games</a>
-    <span style="color: #333; margin: 0 0.3rem;">•</span>
-    <a href="empfehlungen/" style="color: var(--text-dim); font-size: 0.8rem;">Empfehlungen</a>
-    <p>&copy; <span id="copyright"></span> Viktor Sauer</p>
-	<a href="impressum.html" class="impressum-link">Impressum</a>
-	<span style="color: #333; margin: 0 0.3rem;">•</span>
-	<a href="datenschutz.html" class="impressum-link">Datenschutz</a>
-</footer>
+    <!-- Site Footer minimal (Paket 2) -->
+    <footer class="site-footer" id="kontakt">
+        <p class="site-footer-social">
+            <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+            |
+            <a href="mailto:viktor.sauer.ch@gmail.com">Email</a>
+        </p>
+        <p class="site-footer-copyright">
+            &copy; <span id="copyright"></span> Viktor Sauer
+        </p>
+    </footer>
 
     <!-- ========================================
          MODALS
@@ -298,7 +286,7 @@
     <!-- ========================================
          SCRIPTS
          ======================================== -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/main.js"></script>
+    <script src="js/main.js"></script>
     
     <script>
         // ========================================
@@ -341,7 +329,7 @@
                 localStorage.setItem('ageVerified', 'true');
                 document.getElementById('ageGate').classList.add('hidden');
             } else {
-                window.location.href = 'games/totpunkt.html';
+                window.location.href = 'https://www.google.ch';
             }
         }
         
