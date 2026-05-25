@@ -30,6 +30,9 @@
 }
 
 .game-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     background: rgba(20, 0, 0, 0.6);
     border: 1px solid var(--border);
     padding: 2rem;

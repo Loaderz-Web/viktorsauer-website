@@ -12,3 +12,5 @@ _test-*.html
 # Betriebssystem
 .DS_Store
 Thumbs.db
+# Nas Zeugs
+@eaDir
