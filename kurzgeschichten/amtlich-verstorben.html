@@ -25,17 +25,29 @@
     <link rel="stylesheet" href="../css/kurzgeschichten.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="mobile-nav">
-        <div class="nav-header">
-            <span class="logo">V.S.</span>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-        </div>
-        <ul class="nav-links" id="navLinks">
-            <li><a href="../">Startseite</a></li>
-            <li><a href="./">Kurzgeschichten</a></li>
-        </ul>
-    </nav>
+    <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
+<div class="mobile-nav">
+    <div class="nav-header">
+        <a href="/" class="logo">V.S.</a>
+        <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
+    </div>
+    <ul class="nav-links" id="navLinks">
+        <!-- Gruppe 1: Hauptinhalte -->
+        <li><a href="/#werke">Werke</a></li>
+        <li><a href="/roadkill/">ROADKILL-Serie</a></li>
+        <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+        <li class="nav-divider" aria-hidden="true"></li>
+        <!-- Gruppe 2: Extras -->
+        <li><a href="/empfehlungen/">Empfehlungen</a></li>
+        <li><a href="/games/">Games</a></li>
+        <li><a href="/links/">Links</a></li>
+        <li><a href="/chat/">Unten im Keller</a></li>
+        <li class="nav-divider" aria-hidden="true"></li>
+        <!-- Gruppe 3: Rechtliches -->
+        <li><a href="/impressum.html">Impressum</a></li>
+        <li><a href="/datenschutz">Datenschutz</a></li>
+    </ul>
+</div>
 
     <!-- Header -->
     <header class="story-header">

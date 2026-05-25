@@ -24,6 +24,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
     
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         * {
             margin: 0;
@@ -48,7 +49,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 1rem;
+            padding: 5rem 1rem 2rem;
         }
         
         ::selection {
@@ -146,6 +147,31 @@
     </style>
 </head>
 <body>
+
+    <!-- Site Header mit V.S.-Logo und Sandwich-Menü -->
+<div class="mobile-nav">
+    <div class="nav-header">
+        <a href="/" class="logo">V.S.</a>
+        <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
+    </div>
+    <ul class="nav-links" id="navLinks">
+        <!-- Gruppe 1: Hauptinhalte -->
+        <li><a href="/#werke">Werke</a></li>
+        <li><a href="/roadkill/">ROADKILL-Serie</a></li>
+        <li><a href="/kurzgeschichten/">Kurzgeschichten</a></li>
+        <li class="nav-divider" aria-hidden="true"></li>
+        <!-- Gruppe 2: Extras -->
+        <li><a href="/empfehlungen/">Empfehlungen</a></li>
+        <li><a href="/games/">Games</a></li>
+        <li><a href="/links/">Links</a></li>
+        <li><a href="/chat/">Unten im Keller</a></li>
+        <li class="nav-divider" aria-hidden="true"></li>
+        <!-- Gruppe 3: Rechtliches -->
+        <li><a href="/impressum.html">Impressum</a></li>
+        <li><a href="/datenschutz">Datenschutz</a></li>
+    </ul>
+</div>
+
     <div class="container">
         <div class="avatar">🩸</div>
         
@@ -199,8 +225,18 @@
         </div>
     </div>
     
-    <footer>
-        <a href="../">viktorsauer.org</a>
-    </footer>
+    <!-- Site Footer minimal (Paket 2) -->
+<footer class="site-footer" id="kontakt">
+    <p class="site-footer-social">
+        <a href="https://instagram.com/viktorsauerch" target="_blank" rel="noopener">@viktorsauerch</a>
+        |
+        <a href="mailto:viktor.sauer.ch@gmail.com">E-Mail</a>
+    </p>
+    <p class="site-footer-copyright">
+        &copy; <span id="copyright"></span> Viktor Sauer
+    </p>
+
+</footer>
+<script src="../js/main.js"></script>
 </body>
 </html>

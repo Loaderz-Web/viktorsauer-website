@@ -395,6 +395,8 @@
     </style>
 </head>
 <body>
+<a href="./" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
+<button id="soundToggle" onclick="toggleSound()" title="Sound ein/aus" style="position:fixed;top:1rem;right:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:'Share Tech Mono',monospace;border-radius:0;line-height:1;">🔇</button>
     <div class="game-container">
         <h1 class="game-title">☠ TOTPUNKT ☠</h1>
         <div class="subtitle">Viktor Sauers Arcade des Grauens</div>
@@ -506,6 +508,7 @@ const frameTime = 1000 / targetFPS; // ~16.67ms per frame
 
 // Audio Context (reused to save resources)
 let audioCtx = null;
+let soundEnabled = false;
 
 // Game Objects
 const game = {
@@ -533,6 +536,7 @@ function getAudioContext() {
 }
 
 function beep(freq, dur) {
+    if (!soundEnabled) return;
     const ctx = getAudioContext();
     if (!ctx) return;
     
@@ -548,6 +552,23 @@ function beep(freq, dur) {
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + dur);
     } catch(e) {}
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('soundToggle');
+    if (soundEnabled) {
+        btn.textContent = '🔊';
+        btn.style.background = 'rgba(220, 38, 38, 0.15)';
+        // AudioContext anstossen, falls noch nicht passiert
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume();
+        }
+    } else {
+        btn.textContent = '🔇';
+        btn.style.background = 'rgba(15, 15, 15, 0.85)';
+    }
 }
 
 // ============================================
