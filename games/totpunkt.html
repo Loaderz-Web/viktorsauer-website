@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TOTPUNKT - Viktor Sauer</title>
+    <title>TOTPUNKT – Viktor Sauer</title>
 
     <meta name="description" content="Ein klassisches Arcade-Spiel in minimalistischem Schwarz-Rot. Einfach. Zeitlos. Süchtig machend.">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="TOTPUNKT - Viktor Sauer">
+    <meta property="og:title" content="TOTPUNKT – Viktor Sauer">
     <meta property="og:description" content="Ein klassisches Arcade-Spiel in minimalistischem Schwarz-Rot. Einfach. Zeitlos. Süchtig machend.">
     <meta property="og:url" content="https://viktorsauer.org/games/totpunkt.html">
     <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
@@ -402,7 +402,7 @@
         <div class="score">
             <span id="score1">0</span> : <span id="score2">0</span>
         </div>
-        <div class="speed-info" id="speedInfo">Geschwindigkeit: 100%</div>
+        <div class="speed-info" id="speedInfo">Geschwindigkeit: 100 %</div>
         
         <canvas id="gameCanvas" width="800" height="400"></canvas>
         
@@ -1032,7 +1032,7 @@ function increaseBallSpeed() {
 
 function updateSpeedDisplay() {
     const percent = Math.round(currentSpeedMultiplier * 100);
-    speedInfo.textContent = `Geschwindigkeit: ${percent}% (${hitCount} Treffer)`;
+    speedInfo.textContent = `Geschwindigkeit: ${percent} % (${hitCount} Treffer)`;
 }
 
 function checkWin() {
@@ -1058,7 +1058,7 @@ function checkWin() {
         const maxSpeed = Math.round(currentSpeedMultiplier * 100);
         document.getElementById('finalScore').innerHTML = 
             `Endstand: <strong>${game.score1} : ${game.score2}</strong><br>` +
-            `Max. Geschwindigkeit: ${maxSpeed}%`;
+            `Max. Geschwindigkeit: ${maxSpeed} %`;
         
         gameOverScreen.classList.remove('hidden');
         beep(200, 0.8);
