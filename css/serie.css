@@ -94,6 +94,10 @@
     flex-grow: 1;
 }
 
+.band-status {
+    margin-top: auto;
+}
+
 .band-title {
     font-size: 1.8rem;
     color: var(--text-white);
@@ -122,7 +126,7 @@
     border: 1px solid var(--blood);
     font-size: 0.8rem;
     text-transform: uppercase;
-    margin: 1rem 0;
+    margin: auto 0 1rem;
     align-self: center;
     width: fit-content;
 }
