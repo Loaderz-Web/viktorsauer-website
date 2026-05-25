@@ -14,3 +14,9 @@ _test-*.html
 Thumbs.db
 # Nas Zeugs
 @eaDir
+
+# Eleventy Build-Output und Dependencies
+_eleventy/node_modules/
+_eleventy/_site/
+
+*~
