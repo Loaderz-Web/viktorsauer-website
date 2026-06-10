@@ -1,0 +1,17 @@
+# Cloudflare Pages Headers
+# Stand: Juni 2026
+#
+# X-Robots-Tag als zweite Schutzschicht zu den HTML meta-robots Tags.
+# Suchmaschinen sehen damit "noindex" schon im HTTP-Header.
+
+/impressum.html
+  X-Robots-Tag: noindex, follow
+
+/impressum
+  X-Robots-Tag: noindex, follow
+
+/datenschutz.html
+  X-Robots-Tag: noindex, follow
+
+/datenschutz
+  X-Robots-Tag: noindex, follow
