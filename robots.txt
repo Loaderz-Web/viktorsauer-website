@@ -34,3 +34,4 @@ Disallow: /impressum.html
 Disallow: /impressum
 Disallow: /datenschutz.html
 Disallow: /datenschutz
+Sitemap: https://viktorsauer.org/sitemap.xml
