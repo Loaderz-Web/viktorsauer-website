@@ -507,6 +507,8 @@ const DIRS = {
     left:  { dx: -1, dy: 0 },
     right: { dx: 1,  dy: 0 }
 };
+const NONE = null;                          // keine Richtung (steht / kein Wunsch)
+const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
 // Die vier Bewohner: Reihenfolge = Reihenfolge der Z-Startplaetze in der Karte
 // (der erste startet ueber dem Tor, die anderen drei im Friedhof).
@@ -710,7 +712,7 @@ const state = {
     lives: 3,
     dotsLeft: 0,
     dotsEaten: 0,
-    player: { x: 0, y: 0, dir: 'left', nextDir: 'left', speed: 0 },
+    player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0 },   // walked = zurueckgelegte Pixel (Animationsphase)
     zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside }]
     timers: {               // Platzhalter, werden ab Phase 3 gefuellt
         ready: 0,           // Sekunden bis Levelstart
@@ -733,9 +735,10 @@ function resetEntities() {
     const p = tileCenter(playerStart.col, playerStart.row);
     state.player.x = p.x;
     state.player.y = p.y;
-    state.player.dir = 'left';
-    state.player.nextDir = 'left';
+    state.player.dir = isWalkable(playerStart.col - 1, playerStart.row) ? 'left' : NONE;
+    state.player.nextDir = NONE;
     state.player.speed = speedsFor(state.level).spieler * TILE;
+    state.player.walked = 0;
 
     state.zombies = ZOMBIE_DEFS.map((def, i) => {
         const s = zombieStarts[i] || zombieStarts[0];
@@ -1016,22 +1019,54 @@ function drawDots(now) {
     }
 }
 
-// Platzhalter, die echte Zeichnung des Streuners kommt in Phase 2.
+// Der Streuner: Kapuzenkreis, Gesicht als dunkler Keil in Blickrichtung.
+// Animationsphase haengt an der zurueckgelegten Strecke (eine Periode pro Kachel),
+// damit er beim Stehen ruhig bleibt.
 function drawPlayer(p) {
+    drawPlayerAt(p, p.x, p.y);
+    // Im Tunnel: die andere Haelfte am gegenueberliegenden Rand zeigen
+    if (p.x < TILE / 2) drawPlayerAt(p, p.x + W, p.y);
+    else if (p.x > W - TILE / 2) drawPlayerAt(p, p.x - W, p.y);
+}
+
+function drawPlayerAt(p, x, y) {
+    const R = TILE * 0.4;
     const d = DIRS[p.dir] || DIRS.left;
+    const phase = (p.walked / TILE) * Math.PI * 2;
+    const wippen = Math.sin(phase) * 1.5;                       // quer zur Laufrichtung, 1-2 px
+    const halb = 0.45 + 0.15 * (1 - Math.cos(phase));           // halber Oeffnungswinkel des Gesichts
+    const angle = Math.atan2(d.dy, d.dx);
+
     ctx.save();
+    ctx.translate(x - d.dy * wippen, y + d.dx * wippen);
+
+    // Kapuze mit schwachem Schein
     ctx.shadowBlur = 8;
-    ctx.shadowColor = 'rgba(255, 240, 200, 0.5)';
+    ctx.shadowColor = 'rgba(255, 240, 200, 0.45)';
     ctx.fillStyle = COLORS.spieler;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+    ctx.arc(0, 0, R, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
-    // Kapuzen-Ausschnitt in Blickrichtung
+    ctx.shadowBlur = 0;
+
+    // Gesicht: dunkler Keil in Blickrichtung
     ctx.fillStyle = COLORS.spielerKapuze;
     ctx.beginPath();
-    ctx.arc(p.x + d.dx * 3, p.y + d.dy * 3, 4, 0, Math.PI * 2);
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, R + 0.5, angle - halb, angle + halb);
+    ctx.closePath();
     ctx.fill();
+
+    // Zwei helle Augen im Ausschnitt
+    const ex = Math.cos(angle) * R * 0.55, ey = Math.sin(angle) * R * 0.55;
+    const qx = -Math.sin(angle) * 2.2, qy = Math.cos(angle) * 2.2;
+    ctx.fillStyle = COLORS.augen;
+    for (const s of [-1, 1]) {
+        ctx.beginPath();
+        ctx.arc(ex + s * qx, ey + s * qy, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
 }
 
 // Platzhalter, die echte Zombie-Zeichnung kommt in Phase 3.
@@ -1087,7 +1122,110 @@ function draw() {
 }
 
 // === SPIELER ===
-// folgt in Phase 2
+// Bewegung kachelbasiert mit Pixelposition: der Streuner laeuft immer auf der Linie
+// zwischen zwei benachbarten begehbaren Kachelmitten. An jeder Mitte wird gesnappt,
+// der Richtungswunsch (nextDir) geprueft und ggf. angehalten. Gegenrichtung ist
+// jederzeit erlaubt. Tunnel: x wird ueber die volle Breite gewrappt.
+
+// Kachel, in der der Spieler gerade steht (x ist immer in [0, W))
+function tileOf(x, y) {
+    return { col: Math.floor(x / TILE), row: Math.floor(y / TILE) };
+}
+
+// Kann man von (col,row) aus in Richtung dirKey einen Schritt machen?
+function canStep(col, row, dirKey) {
+    if (!dirKey) return false;
+    const d = DIRS[dirKey];
+    return isWalkable(col + d.dx, row + d.dy);
+}
+
+// Entscheidung auf einer Kachelmitte: 'turn' (Wunschrichtung uebernommen),
+// 'stop' (Wand voraus, stehen bleiben) oder 'go' (geradeaus weiter).
+function decideAtCenter(p, col, row) {
+    // (b) Wunschrichtung pruefen; bleibt gepuffert, bis sie moeglich ist
+    if (p.nextDir !== NONE) {
+        if (p.nextDir === p.dir) {
+            p.nextDir = NONE;
+        } else if (canStep(col, row, p.nextDir)) {
+            p.dir = p.nextDir;
+            p.nextDir = NONE;
+            return 'turn';
+        }
+    }
+    // (c) Wand voraus: stehen bleiben, Blickrichtung behalten
+    if (!canStep(col, row, p.dir)) {
+        p.walked = 0;                       // Ruhepose
+        return 'stop';
+    }
+    return 'go';
+}
+
+function updatePlayer(dt) {
+    const p = state.player;
+    let move = p.speed * dt;
+
+    // (a) Gegenrichtung: jederzeit, auch zwischen zwei Kacheln
+    if (p.nextDir !== NONE && p.dir !== NONE && p.nextDir === OPPOSITE[p.dir]) {
+        p.dir = p.nextDir;
+        p.nextDir = NONE;
+    }
+
+    // Steht er ohne Richtung? Dann nur losgehen, wenn ein Wunsch erfuellbar ist.
+    if (p.dir === NONE) {
+        const t = tileOf(p.x, p.y);
+        if (!canStep(t.col, t.row, p.nextDir)) return;
+        p.dir = p.nextDir;
+        p.nextDir = NONE;
+    }
+
+    // Schrittweite ist durch die dt-Kappung < TILE; die Schleife faengt trotzdem
+    // den Fall "Mitte erreicht und noch Rest uebrig" sauber ab.
+    for (let guard = 0; guard < 3 && move > 0; guard++) {
+        const t = tileOf(p.x, p.y);
+        const c = tileCenter(t.col, t.row);
+        let d = DIRS[p.dir];
+        // Abstand zur naechsten Kachelmitte entlang der Laufrichtung
+        let dist = (c.x - p.x) * d.dx + (c.y - p.y) * d.dy;
+        let target;
+
+        if (Math.abs(dist) <= 0.001) {
+            // Genau auf einer Mitte: hier wird entschieden
+            p.x = c.x;
+            p.y = c.y;
+            const what = decideAtCenter(p, t.col, t.row);
+            if (what === 'stop') return;
+            if (what === 'turn') break;      // Restbewegung nach Richtungswechsel verfaellt
+            d = DIRS[p.dir];
+            target = { col: t.col + d.dx, row: t.row + d.dy };
+            dist = TILE;
+        } else if (dist < 0) {
+            // Mitte schon hinter uns: naechste Mitte anpeilen
+            target = { col: t.col + d.dx, row: t.row + d.dy };
+            dist += TILE;
+        } else {
+            target = { col: t.col, row: t.row };
+        }
+
+        if (move < dist) {
+            // Mitte in diesem Frame nicht erreicht: einfach weiterlaufen
+            p.x += d.dx * move;
+            p.y += d.dy * move;
+            p.walked += move;
+            move = 0;
+            break;
+        }
+
+        // Mitte erreicht oder ueberschritten: snappen (Tunnel: Spalte wrappen).
+        // Die Entscheidung folgt im naechsten Durchlauf bzw. im naechsten Frame.
+        p.x = (wrapCol(target.col) + 0.5) * TILE;
+        p.y = (target.row + 0.5) * TILE;
+        p.walked += dist;
+        move -= dist;
+    }
+
+    // Tunnel: ueber den Rand hinaus und auf der anderen Seite wieder rein (x immer in [0, W))
+    if (p.x < 0 || p.x >= W) p.x = ((p.x % W) + W) % W;
+}
 
 // === ZOMBIES ===
 // folgt in Phase 3
@@ -1140,7 +1278,30 @@ function togglePause() {
 }
 
 // === EINGABE ===
-// folgt in Phase 2 (Tastatur) und Phase 6 (Touch)
+
+const KEY_DIRS = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    w: 'up', s: 'down', a: 'left', d: 'right'
+};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        if (state.mode === 'play' || state.mode === 'pause') togglePause();
+        return;
+    }
+    if (e.key === 'Escape') {
+        resetGame();
+        return;
+    }
+    const dir = KEY_DIRS[e.key] || KEY_DIRS[e.key.toLowerCase()];
+    if (!dir) return;
+    if (e.key.startsWith('Arrow')) e.preventDefault();     // Seite nicht scrollen
+    if (state.mode !== 'play') return;                     // im Startbildschirm startet keine Taste das Spiel
+    state.player.nextDir = dir;                            // wird gepuffert, bis die Richtung frei ist
+});
+
+// Touch (Swipe auf dem Canvas + D-Pad) folgt in Phase 6.
 
 // === SOUND ===
 
@@ -1160,7 +1321,8 @@ let rafId = null;
 let lastTime = 0;
 
 function update(dt) {
-    // Bewegung, Zombies, Timer folgen in den Phasen 2 bis 5
+    if (state.mode === 'play') updatePlayer(dt);
+    // Zombies, Punkte und Timer folgen in den Phasen 3 bis 5
 }
 
 function loop(now) {
