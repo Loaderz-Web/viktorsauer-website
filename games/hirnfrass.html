@@ -70,6 +70,75 @@
             touch-action: none;
         }
 
+        /* Spielfeld: Canvas und Steuerkreuz (Hochformat untereinander, Querformat nebeneinander) */
+        .spielfeld {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Steuerkreuz: nur auf Touch-Geraeten sichtbar (siehe @media pointer: coarse) */
+        #dpad {
+            display: none;
+            grid-template-columns: 56px 56px 56px;
+            grid-template-rows: 56px 56px 56px;
+            grid-template-areas: ". hoch ." "links pause rechts" ". runter .";
+            gap: 6px;
+            margin: 0 auto;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+        }
+
+        #dpad button {
+            width: 56px;
+            height: 56px;
+            padding: 0;
+            font-size: 26px;
+            line-height: 1;
+            border-radius: 10px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: none;
+        }
+
+        /* kein haengender Hover-Zustand auf Touch, dafuer klares Aufleuchten beim Druecken */
+        #dpad button:hover {
+            transform: none;
+            box-shadow: none;
+            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+            color: #ff6666;
+        }
+
+        #dpad button:active {
+            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.6);
+        }
+
+        #dpad .dpad-hoch   { grid-area: hoch; }
+        #dpad .dpad-links  { grid-area: links; }
+        #dpad .dpad-rechts { grid-area: rechts; }
+        #dpad .dpad-runter { grid-area: runter; }
+
+        #dpad .dpad-pause {
+            grid-area: pause;
+            width: 44px;
+            height: 44px;
+            align-self: center;
+            justify-self: center;
+            border-radius: 50%;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #aa4444;
+        }
+
         .hud {
             display: flex;
             justify-content: center;
@@ -82,7 +151,7 @@
             text-transform: uppercase;
         }
 
-        .hud span span {
+        .hud .hud-wert {
             display: inline-block;
             min-width: 30px;
             color: #ff3333;
@@ -91,6 +160,8 @@
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
             text-transform: none;
         }
+
+        .hud-kurz { display: none; }     /* Kurzform der Beschriftung, nur auf dem Handy */
 
         #lives {
             color: #e8e0c8;
@@ -144,6 +215,8 @@
         }
 
         .overlay p strong { color: #ff6666; }
+
+        .overlay button { min-height: 44px; }
 
         .legend {
             margin: 20px 0;
@@ -240,7 +313,7 @@
         /* Mobile Responsive */
         @media (max-width: 850px) {
             .game-container {
-                padding: 15px 20px;
+                padding: 10px;
                 margin: 10px;
                 border-width: 2px;
             }
@@ -249,23 +322,34 @@
                 font-size: 32px;
             }
 
+            .subtitle {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+
+            /* Breite und Hoehe begrenzt, Seitenverhaeltnis bleibt (width/height auto) */
             canvas {
-                width: 100%;
+                width: auto;
                 height: auto;
-                max-width: 504px;
+                max-width: 100%;
+                max-height: calc(100vh - 300px);
+                margin: 8px auto;
             }
 
             .hud {
-                font-size: 12px;
-                gap: 14px;
+                font-size: 11px;
+                gap: 10px;
+                margin: 6px 0;
             }
 
-            .hud span span {
+            .hud .hud-wert {
                 font-size: 16px;
+                min-width: 20px;
             }
 
             .controls {
                 font-size: 11px;
+                margin: 6px 0;
             }
 
             .overlay {
@@ -273,6 +357,8 @@
                 min-width: auto;
                 max-width: none;
                 padding: 25px 20px;
+                max-height: 90vh;
+                overflow-y: auto;
             }
 
             .button-row {
@@ -302,7 +388,7 @@
                 gap: 12px;
             }
 
-            .hud span span {
+            .hud .hud-wert {
                 font-size: 14px;
             }
 
@@ -310,6 +396,7 @@
                 margin: 8px auto;
                 max-height: 60vh;
                 width: auto;
+                height: auto;
             }
 
             .controls {
@@ -369,6 +456,76 @@
             .keyboard-hint {
                 display: none;
             }
+            #dpad {
+                display: grid;
+            }
+        }
+
+        /* Handy mit Touch, Hochformat: Titel, HUD, Spielfeld und Steuerkreuz ohne Scrollen.
+           Die Knopfzeile entfaellt, weil das Steuerkreuz einen Pause-Knopf hat. */
+        @media (pointer: coarse) and (max-width: 850px) {
+            .subtitle,
+            .button-row,
+            .hud-lang {
+                display: none;
+            }
+
+            .hud-kurz {
+                display: inline;
+            }
+
+            /* HUD in einer Zeile, auch mit fuenfstelligen Zahlen */
+            .hud {
+                gap: 8px;
+                font-size: 10px;
+                letter-spacing: 0;
+            }
+
+            .hud .hud-wert {
+                font-size: 14px;
+                min-width: 0;
+            }
+
+            #lives {
+                letter-spacing: 1px;
+            }
+
+            canvas {
+                max-height: calc(100vh - 390px);
+                min-height: 180px;
+            }
+
+            .controls {
+                margin: 4px 0;
+            }
+
+            .footer-note {
+                margin-top: 6px;
+            }
+        }
+
+        /* Handy mit Touch, Querformat: Steuerkreuz rechts neben dem Spielfeld, Titel weg */
+        @media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
+            .game-container {
+                padding: 6px 12px;
+            }
+
+            .game-title,
+            .controls,
+            .footer-note,
+            .button-row {
+                display: none;
+            }
+
+            .spielfeld {
+                flex-direction: row;
+                gap: 16px;
+            }
+
+            canvas {
+                max-height: 80vh;
+                margin: 4px 0;
+            }
         }
     </style>
 </head>
@@ -380,17 +537,26 @@
         <div class="subtitle">Nachts in Grauburg. Bleib leise. Bleib satt.</div>
 
         <div class="hud">
-            <span>Punkte <span id="score">0</span></span>
-            <span>Highscore <span id="highscore">0</span></span>
-            <span>Level <span id="level">1</span></span>
-            <span>Leben <span id="lives">3</span></span>
+            <span>Punkte <span class="hud-wert" id="score">0</span></span>
+            <span><span class="hud-lang">Highscore</span><span class="hud-kurz">Rekord</span> <span class="hud-wert" id="highscore">0</span></span>
+            <span>Level <span class="hud-wert" id="level">1</span></span>
+            <span>Leben <span class="hud-wert" id="lives">3</span></span>
         </div>
 
-        <canvas id="gameCanvas" width="504" height="552"></canvas>
+        <div class="spielfeld">
+            <canvas id="gameCanvas" width="504" height="552"></canvas>
+            <div id="dpad" aria-label="Steuerkreuz">
+                <button type="button" class="dpad-hoch" data-dir="up" aria-label="Hoch">▲</button>
+                <button type="button" class="dpad-links" data-dir="left" aria-label="Links">◀</button>
+                <button type="button" class="dpad-pause" id="dpadPause" aria-label="Pause">II</button>
+                <button type="button" class="dpad-rechts" data-dir="right" aria-label="Rechts">▶</button>
+                <button type="button" class="dpad-runter" data-dir="down" aria-label="Runter">▼</button>
+            </div>
+        </div>
 
         <div class="controls">
             <span class="keyboard-hint"><strong>Steuerung:</strong> Pfeile / WASD = Schleichen | SPACE = Pause | ESC = Neustart</span>
-            <span class="touch-hint"><strong>Touch:</strong> Auf dem Spielfeld wischen = Richtung</span>
+            <span class="touch-hint"><strong>Touch:</strong> Wischen oder Steuerkreuz = Richtung | Tippen = Weiter</span>
         </div>
 
         <div class="button-row">
@@ -455,6 +621,7 @@ const livesEl = document.getElementById('lives');
 const finalStatsEl = document.getElementById('finalStats');
 const pauseBtn = document.getElementById('pauseBtn');
 const resetBtn = document.getElementById('resetBtn');
+const dpadPauseBtn = document.getElementById('dpadPause');
 
 // === KONFIG ===
 
@@ -1274,7 +1441,7 @@ function drawPauseOverlay() {
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#888';
     ctx.font = "16px 'Share Tech Mono', monospace";
-    ctx.fillText('SPACE oder Knopf zum Weiterschleichen', W / 2, H / 2 + 30);
+    ctx.fillText('SPACE, Knopf oder Tippen zum Weiterschleichen', W / 2, H / 2 + 30);
 }
 
 // Meldung auf dem Spielfeld ("Bleib leise...", "Noch nicht tot.", "Gasse leergeraeumt."):
@@ -1929,6 +2096,7 @@ function startReady(text) {
     state.player.nextDir = NONE;          // keine alte Eingabe nachwirken lassen
     setMazeBright(false);
     pauseBtn.textContent = '⏸ Pause';
+    updateDpadPause();
 }
 
 function updateReady(dt) {
@@ -1999,6 +2167,7 @@ function resetGame() {
     updateHud();
     pauseBtn.disabled = true;
     pauseBtn.textContent = '⏸ Pause';
+    updateDpadPause();
     gameOverScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
     draw();
@@ -2018,6 +2187,7 @@ function gameOver() {
     updateHud();
     pauseBtn.disabled = true;
     pauseBtn.textContent = '⏸ Pause';
+    updateDpadPause();
     gameOverScreen.classList.remove('hidden');
     stopLoop();
     draw();
@@ -2033,6 +2203,7 @@ function togglePause() {
         pauseBtn.textContent = '⏸ Pause';
         lastTime = 0;
     }
+    updateDpadPause();
 }
 
 // === EINGABE ===
@@ -2064,7 +2235,84 @@ document.addEventListener('visibilitychange', () => {
     if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
 });
 
-// Touch (Swipe auf dem Canvas + D-Pad) folgt in Phase 6.
+// Richtungswunsch aus Touch/Steuerkreuz: nur im Spiel und in der Ready-Phase (wie die Tastatur)
+function setNextDir(dir) {
+    if (!dir) return;
+    if (state.mode !== 'play' && state.mode !== 'ready') return;
+    state.player.nextDir = dir;
+}
+
+// --- Wischen auf dem Spielfeld ---
+// touchstart merkt den Startpunkt. Sobald der Finger SWIPE_MIN Bildschirm-Pixel in eine
+// Richtung gewandert ist, wird die dominante Achse als Richtungswunsch uebernommen und
+// der Bezugspunkt auf die aktuelle Fingerposition gesetzt: mehrere Wischer ohne Loslassen.
+// Ein Tipp ohne Bewegung setzt ein pausiertes Spiel fort (Start und Game Over haben Knoepfe).
+const SWIPE_MIN = 20;
+let swipe = null;      // { id, x, y, moved } solange der erste Finger auf dem Canvas liegt
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();                       // kein Scrollen, kein Zoom, kein nachgereichter Mausklick
+    if (swipe !== null) return;               // nur der erste Finger zaehlt
+    const t = e.changedTouches[0];
+    swipe = { id: t.identifier, x: t.clientX, y: t.clientY, moved: false };
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (swipe === null) return;
+    for (const t of e.changedTouches) {
+        if (t.identifier !== swipe.id) continue;
+        const dx = t.clientX - swipe.x;
+        const dy = t.clientY - swipe.y;
+        if (Math.abs(dx) < SWIPE_MIN && Math.abs(dy) < SWIPE_MIN) continue;
+        const dir = Math.abs(dx) >= Math.abs(dy)
+            ? (dx > 0 ? 'right' : 'left')
+            : (dy > 0 ? 'down' : 'up');
+        setNextDir(dir);
+        swipe.moved = true;
+        swipe.x = t.clientX;                  // neuer Bezugspunkt fuer den naechsten Wischer
+        swipe.y = t.clientY;
+    }
+}, { passive: false });
+
+function endSwipe(e) {
+    if (swipe === null) return;
+    for (const t of e.changedTouches) {
+        if (t.identifier !== swipe.id) continue;
+        if (!swipe.moved && e.type === 'touchend' && state.mode === 'pause') togglePause();
+        swipe = null;
+    }
+}
+canvas.addEventListener('touchend', endSwipe);
+canvas.addEventListener('touchcancel', endSwipe);
+
+// --- Steuerkreuz ---
+// pointerdown statt click: sofort, ohne 300-ms-Verzoegerung. Die Tastatur bleibt daneben aktiv
+// (Desktop mit Touchscreen). Aeltere Browser ohne PointerEvent: touchstart + mousedown.
+const dpad = document.getElementById('dpad');
+
+function dpadPress(e) {
+    const btn = e.target && e.target.closest ? e.target.closest('button') : null;
+    if (!btn) return;
+    e.preventDefault();                       // kein Fokusrahmen, keine Textauswahl, kein Doppeltipp-Zoom
+    if (btn.dataset.dir) {
+        setNextDir(btn.dataset.dir);
+    } else if (btn === dpadPauseBtn && (state.mode === 'play' || state.mode === 'pause')) {
+        togglePause();
+    }
+}
+
+if (window.PointerEvent) {
+    dpad.addEventListener('pointerdown', dpadPress);
+} else {
+    dpad.addEventListener('touchstart', dpadPress, { passive: false });
+    dpad.addEventListener('mousedown', dpadPress);
+}
+dpad.addEventListener('contextmenu', (e) => e.preventDefault());   // kein Kontextmenue bei langem Druck
+
+function updateDpadPause() {
+    dpadPauseBtn.textContent = state.mode === 'pause' ? '▶' : 'II';
+}
 
 // === SOUND ===
 
