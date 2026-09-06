@@ -92,6 +92,12 @@
             text-transform: none;
         }
 
+        #lives {
+            color: #e8e0c8;
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px rgba(232, 224, 200, 0.5);
+        }
+
         .controls {
             font-size: 13px;
             margin: 10px 0;
@@ -549,7 +555,19 @@ const ZOMBIE_DEFS = [
     { key: 'schlurfer', name: 'Der Schlurfer', color: COLORS.zombies.schlurfer, home: { col: 1,        row: ROWS - 2 }, release: 8 }
 ];
 
-const PUNKTE = { vorrat: 10, adrenalin: 50 };
+const PUNKTE = { vorrat: 10, adrenalin: 50, bonus: 100, zombie: 200, extraLeben: 10000 };
+
+// Erste-Hilfe-Kasten: erscheint auf der Startkachel bei so vielen gefressenen Vorraeten, bleibt `dauer` Sekunden
+const BONUS = { schwellen: [70, 170], dauer: 10 };
+
+// Zeiten in Sekunden
+const ZEITEN = {
+    freeze: 0.6,        // Einfrier-Pause nach erledigtem Zombie
+    sterben: 1.2,       // Sterbeanimation
+    floating: 0.8,      // schwebende Punktezahl
+    bremsen: 0.05,      // kurzes Bremsen nach einem Vorrat
+    herzschlag: 0.5     // Puls waehrend der Panik (Sound)
+};
 
 // === KARTE ===
 // '#' Wand, '.' Vorrat, 'o' Adrenalin, ' ' begehbar ohne Punkt, '-' Friedhofstor,
@@ -741,20 +759,24 @@ const state = {
     level: 1,
     lives: 3,
     dotsLeft: 0,
-    dotsEaten: 0,
-    player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0 },   // walked = zurueckgelegte Pixel (Animationsphase)
+    dotsEaten: 0,           // gefressene Vorraete in diesem Level (steuert den Erste-Hilfe-Kasten)
+    player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0, slow: 0 },   // walked = Animationsphase, slow = Restzeit Bremsen
     zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside, wait, walked, bobPhase, decidedAt }]
     timers: {
         ready: 0,           // Sekunden bis Levelstart (Phase 5)
         modus: 0,           // Zeit im aktuellen streunen/jagen-Abschnitt (pausiert waehrend Panik)
         panik: 0,           // verbleibende Panikdauer
         freeze: 0,          // kurze Pause nach erledigtem Zombie
-        bonus: 0,           // Anzeigedauer Erste-Hilfe-Kasten
+        dying: 0,           // Restdauer der Sterbeanimation
+        herz: 0,            // bis zum naechsten Herzschlag-Puls (Panik-Sound)
         blink: 0            // Wandblinken bei Levelende
     },
     modusIndex: 0,          // Position im streunen/jagen-Zeitplan
     panikKette: 0,          // wie viele Zombies in Folge erledigt
-    bonusAktiv: false
+    bonus: null,            // Erste-Hilfe-Kasten: { col, row, timer } oder null
+    bonusGezeigt: 0,        // wie viele Kaesten in diesem Level schon erschienen sind
+    floatingTexts: [],      // schwebende Punktezahlen [{ x, y, text, timer }]
+    extraLifeGiven: false
 };
 
 function tileCenter(col, row) {
@@ -769,6 +791,8 @@ function resetEntities() {
     state.player.nextDir = NONE;
     state.player.speed = speedsFor(state.level).spieler * TILE;
     state.player.walked = 0;
+    state.player.slow = 0;
+    state.timers.freeze = 0;
 
     // Modus-Zeitplan und Panik von vorn
     state.modusIndex = 0;
@@ -804,6 +828,8 @@ function resetDots() {
     parseMap();
     state.dotsLeft = dotsTotal;
     state.dotsEaten = 0;
+    state.bonus = null;
+    state.bonusGezeigt = 0;
 }
 
 function loadHighscore() {
@@ -819,7 +845,9 @@ function updateHud() {
     scoreEl.textContent = state.score;
     highscoreEl.textContent = state.highscore;
     levelEl.textContent = state.level;
-    livesEl.textContent = state.lives;
+    // Leben als kleine Kapuzen (Punkte in Spielerfarbe, Farbe per CSS #lives)
+    livesEl.textContent = state.lives > 0 ? '\u25CF'.repeat(Math.min(state.lives, 8)) : '\u2013';
+    livesEl.title = state.lives + ' Leben';
 }
 
 // === RENDER ===
@@ -1233,8 +1261,11 @@ function draw() {
     const now = performance.now();
     ctx.drawImage(mazeLayer, 0, 0);
     drawDots(now);
+    if (state.bonus) drawBonus(now);
     for (const z of state.zombies) drawZombie(z);
-    drawPlayer(state.player);
+    if (state.mode === 'dying' || state.mode === 'gameover') drawDyingPlayer();
+    else drawPlayer(state.player);
+    drawFloatingTexts();
     if (state.mode === 'pause') drawPauseOverlay();
 }
 
@@ -1280,6 +1311,10 @@ function decideAtCenter(p, col, row) {
 function updatePlayer(dt) {
     const p = state.player;
     let move = p.speed * dt;
+    if (p.slow > 0) {                  // kurz nach einem Vorrat: Sammeln fuehlt sich "schwer" an
+        p.slow -= dt;
+        move *= 0.8;
+    }
 
     // (a) Gegenrichtung: jederzeit, auch zwischen zwei Kacheln
     if (p.nextDir !== NONE && p.dir !== NONE && p.nextDir === OPPOSITE[p.dir]) {
@@ -1584,14 +1619,264 @@ function eatZombie(z) {
 }
 
 // === PUNKTE/LEBEN ===
-// folgt in Phase 4
+// Einsammeln (Vorrat, Adrenalin, Erste-Hilfe-Kasten), Kollision Streuner/Zombie,
+// Sterben, Extra-Leben, Highscore und schwebende Punktezahlen.
 
-// === LEVEL/GAMEOVER ===
-
-function startGame() {
+function resetScoreState() {
     state.score = 0;
     state.level = 1;
     state.lives = 3;
+    state.extraLifeGiven = false;
+    state.floatingTexts = [];
+    state.bonus = null;
+    state.bonusGezeigt = 0;
+    state.panikKette = 0;
+    state.timers.freeze = 0;
+    state.timers.dying = 0;
+    state.timers.herz = 0;
+}
+
+function saveHighscore() {
+    try {
+        localStorage.setItem('hirnfrass_highscore', String(state.highscore));
+    } catch (e) {}
+}
+
+function addScore(n) {
+    state.score += n;
+    if (state.score > state.highscore) {
+        state.highscore = state.score;
+        saveHighscore();
+    }
+    if (!state.extraLifeGiven && state.score >= PUNKTE.extraLeben) {
+        state.extraLifeGiven = true;
+        state.lives++;
+        addFloatingText(state.player.x, state.player.y - TILE * 0.6, '+1 Leben');
+        playSound('extraleben');
+    }
+    updateHud();
+}
+
+// --- Schwebende Punktezahlen ---
+
+function addFloatingText(x, y, text) {
+    state.floatingTexts.push({ x: x, y: y, text: text, timer: ZEITEN.floating });
+}
+
+function updateFloatingTexts(dt) {
+    if (!state.floatingTexts.length) return;
+    for (const f of state.floatingTexts) f.timer -= dt;
+    state.floatingTexts = state.floatingTexts.filter(f => f.timer > 0);
+}
+
+function drawFloatingTexts() {
+    if (!state.floatingTexts.length) return;
+    ctx.save();
+    ctx.font = "bold 13px 'Share Tech Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = '#000';
+    ctx.fillStyle = '#ffffff';
+    for (const f of state.floatingTexts) {
+        const p = 1 - f.timer / ZEITEN.floating;       // 0 (frisch) .. 1 (weg)
+        ctx.globalAlpha = Math.max(0, Math.min(1, f.timer / 0.3));
+        ctx.fillText(f.text, f.x, f.y - p * 10);
+    }
+    ctx.restore();
+}
+
+// --- Einsammeln ---
+
+// Prueft die Kachel des Streuners: Vorrat, Adrenalin, Erste-Hilfe-Kasten
+function collectAt() {
+    const p = state.player;
+    const t = tileOf(p.x, p.y);
+    if (t.row < 0 || t.row >= ROWS || t.col < 0 || t.col >= COLS) return;
+    const v = dots[t.row][t.col];
+    if (v === 1) {
+        dots[t.row][t.col] = 0;
+        state.dotsLeft--;
+        state.dotsEaten++;
+        p.slow = ZEITEN.bremsen;
+        addScore(PUNKTE.vorrat);
+        playSound('vorrat');
+        maybeSpawnBonus();
+    } else if (v === 2) {
+        dots[t.row][t.col] = 0;
+        state.dotsLeft--;
+        addScore(PUNKTE.adrenalin);
+        startPanic(speedsFor(state.level).panikDauer);
+        state.timers.herz = 0;
+        playSound('adrenalin');
+    }
+    if (state.bonus && state.bonus.col === t.col && state.bonus.row === t.row) {
+        const c = tileCenter(t.col, t.row);
+        const pts = PUNKTE.bonus * state.level;
+        state.bonus = null;
+        addScore(pts);
+        addFloatingText(c.x, c.y - TILE * 0.5, String(pts));
+        playSound('bonus');
+    }
+}
+
+// Erste-Hilfe-Kasten: erscheint auf der Startkachel, sobald genug Vorraete weg sind (je Schwelle einmal pro Level)
+function maybeSpawnBonus() {
+    if (state.bonus) return;
+    if (state.bonusGezeigt >= BONUS.schwellen.length) return;
+    if (state.dotsEaten < BONUS.schwellen[state.bonusGezeigt]) return;
+    state.bonusGezeigt++;
+    state.bonus = { col: playerStart.col, row: playerStart.row, timer: BONUS.dauer };
+}
+
+function updateBonus(dt) {
+    if (!state.bonus) return;
+    state.bonus.timer -= dt;
+    if (state.bonus.timer <= 0) state.bonus = null;
+}
+
+// Kleines weisses Kaestchen mit rotem Kreuz, pulsiert, blinkt kurz vor dem Verschwinden
+function drawBonus(now) {
+    const b = state.bonus;
+    if (b.timer < 2 && Math.floor(b.timer / 0.15) % 2 === 1) return;
+    const c = tileCenter(b.col, b.row);
+    const s = 1 + 0.08 * Math.sin(now / 180);
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(s, s);
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillStyle = '#f4f4f4';
+    ctx.fillRect(-7, -6, 14, 12);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#d01818';
+    ctx.fillRect(-1.5, -4, 3, 8);
+    ctx.fillRect(-4, -1.5, 8, 3);
+    ctx.restore();
+}
+
+// --- Kollision Streuner/Zombie ---
+
+// Nur wer frei in den Gassen ist, kann beissen oder gebissen werden
+function zombieTouchable(z) {
+    if (z.mode === 'friedhof' || z.mode === 'heimweg') return false;
+    const t = tileOf(z.x, z.y);
+    return !inGraveyardArea(t.col, t.row);
+}
+
+function distanceToPlayer(z) {
+    let dx = Math.abs(z.x - state.player.x);
+    if (dx > W / 2) dx = W - dx;                  // Tunnel: kurzer Weg ueber den Rand
+    return Math.hypot(dx, z.y - state.player.y);
+}
+
+function checkCollisions() {
+    for (const z of state.zombies) {
+        if (!zombieTouchable(z)) continue;
+        if (distanceToPlayer(z) >= TILE * 0.5) continue;
+        if (z.mode === 'panik') {
+            killZombie(z);
+        } else {
+            killPlayer();
+            return;
+        }
+    }
+}
+
+// Zombie in Panik erwischt: 200/400/800/1600 in Folge, kurze Einfrier-Pause mit Punktezahl
+function killZombie(z) {
+    const x = z.x, y = z.y;
+    eatZombie(z);
+    state.panikKette++;
+    const pts = PUNKTE.zombie * Math.pow(2, state.panikKette - 1);
+    addScore(pts);
+    addFloatingText(x, y - TILE * 0.5, String(pts));
+    state.timers.freeze = ZEITEN.freeze;
+    playSound('erledigt');
+}
+
+// Gebissen: Sterbeanimation, die Zombies bleiben stehen
+function killPlayer() {
+    state.mode = 'dying';
+    state.timers.dying = ZEITEN.sterben;
+    state.player.nextDir = NONE;
+    state.bonus = null;
+    playSound('tot');
+}
+
+function updateDying(dt) {
+    updateFloatingTexts(dt);
+    state.timers.dying -= dt;
+    if (state.timers.dying > 0) return;
+    state.timers.dying = 0;
+    afterDeath();
+}
+
+// Nach der Sterbeanimation: Leben abziehen und entscheiden, wie es weitergeht
+// (Phase 5 haengt hier die Ready-Phase ein statt direkt 'play').
+function afterDeath() {
+    state.lives--;
+    updateHud();
+    if (state.lives > 0) {
+        resetEntities();
+        state.floatingTexts = [];
+        state.mode = 'play';
+    } else {
+        gameOver();
+    }
+}
+
+// Sterbeanimation: der Streuner dreht sich, schrumpft und bleibt als roter Fleck liegen.
+// Nach Game Over bleibt der Fleck stehen.
+function drawDyingPlayer() {
+    const p = state.player;
+    const t = state.mode === 'dying' ? 1 - state.timers.dying / ZEITEN.sterben : 1;   // 0 .. 1
+    const R = TILE * 0.4;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+
+    // Fleck: waechst in der zweiten Haelfte
+    if (t > 0.45) {
+        const f = Math.min(1, (t - 0.45) / 0.4);
+        ctx.fillStyle = 'rgba(150, 0, 0, ' + (0.85 * f).toFixed(3) + ')';
+        ctx.beginPath();
+        const n = 9;
+        for (let i = 0; i < n; i++) {
+            const a = (i / n) * Math.PI * 2;
+            const r = R * f * (0.75 + 0.2 * ((i * 7) % 3));
+            if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+            else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Streuner: dreht sich und schrumpft weg
+    if (t < 0.85) {
+        const s = Math.max(0.05, 1 - t * 1.1);
+        ctx.rotate(t * Math.PI * 6);
+        ctx.scale(s, s);
+        ctx.fillStyle = COLORS.spieler;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = COLORS.spielerKapuze;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, R + 0.5, -0.5, 0.5);
+        ctx.closePath();
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// === LEVEL/GAMEOVER ===
+
+let highscoreBeimStart = 0;
+
+function startGame() {
+    resetScoreState();
+    highscoreBeimStart = state.highscore;
     resetDots();
     resetEntities();
     updateHud();
@@ -1606,9 +1891,7 @@ function startGame() {
 function resetGame() {
     stopLoop();
     state.mode = 'start';
-    state.score = 0;
-    state.level = 1;
-    state.lives = 3;
+    resetScoreState();
     resetDots();
     resetEntities();
     updateHud();
@@ -1616,6 +1899,23 @@ function resetGame() {
     pauseBtn.textContent = '⏸ Pause';
     gameOverScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
+    draw();
+}
+
+function gameOver() {
+    state.mode = 'gameover';
+    if (state.score > state.highscore) state.highscore = state.score;
+    saveHighscore();
+    const neu = state.score > highscoreBeimStart;
+    finalStatsEl.innerHTML =
+        'Punkte: <strong>' + state.score + '</strong><br>' +
+        'Level: <strong>' + state.level + '</strong><br>' +
+        'Highscore: <strong>' + state.highscore + '</strong>' +
+        (neu ? '<br><br>Neuer Highscore. Grauburg merkt sich das.' : '');
+    updateHud();
+    pauseBtn.disabled = true;
+    gameOverScreen.classList.remove('hidden');
+    stopLoop();
     draw();
 }
 
@@ -1647,10 +1947,6 @@ document.addEventListener('keydown', (e) => {
         resetGame();
         return;
     }
-    if (e.key === 'p' && state.mode === 'play') {   // Debug, in Phase 4 durch Adrenalin ersetzt
-        startPanic(6);
-        return;
-    }
     const dir = KEY_DIRS[e.key] || KEY_DIRS[e.key.toLowerCase()];
     if (!dir) return;
     if (e.key.startsWith('Arrow')) e.preventDefault();     // Seite nicht scrollen
@@ -1662,14 +1958,97 @@ document.addEventListener('keydown', (e) => {
 
 // === SOUND ===
 
+// WebAudio, kurze synthetische Toene, Standard aus (Muster wie totpunkt.html).
+
+let audioCtx = null;
 let soundEnabled = false;
+let vorratTon = 0;      // der Vorrat-Klick wechselt zwischen zwei Tonhoehen
+
+function getAudioContext() {
+    if (!audioCtx) {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            return null;
+        }
+    }
+    return audioCtx;
+}
+
+// Ein Ton: Frequenz f0, optional Sweep nach f1, Dauer dur (s), Start nach delay (s)
+function tone(f0, f1, dur, delay, type, vol) {
+    const ac = getAudioContext();
+    if (!ac) return;
+    try {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        const t0 = ac.currentTime + (delay || 0);
+        osc.type = type || 'square';
+        osc.frequency.setValueAtTime(f0, t0);
+        if (f1 && f1 !== f0) osc.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+        gain.gain.setValueAtTime(vol || 0.08, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.02);
+    } catch (e) {}
+}
+
+function playSound(name) {
+    if (!soundEnabled) return;
+    switch (name) {
+        case 'vorrat':          // kurzer tiefer Klick, abwechselnd zwei Tonhoehen
+            vorratTon ^= 1;
+            tone(vorratTon ? 180 : 140, 0, 0.04, 0, 'square', 0.06);
+            break;
+        case 'adrenalin':       // aufsteigender Sweep
+            tone(200, 900, 0.3, 0, 'sawtooth', 0.07);
+            break;
+        case 'erledigt':        // zwei schnelle Toene
+            tone(500, 0, 0.07, 0, 'square', 0.08);
+            tone(750, 0, 0.1, 0.08, 'square', 0.08);
+            break;
+        case 'bonus':           // drei Toene hoch
+            tone(520, 0, 0.09, 0, 'triangle', 0.1);
+            tone(660, 0, 0.09, 0.1, 'triangle', 0.1);
+            tone(880, 0, 0.14, 0.2, 'triangle', 0.1);
+            break;
+        case 'tot':             // absteigender Sweep
+            tone(600, 60, 0.8, 0, 'sawtooth', 0.09);
+            break;
+        case 'extraleben':      // kurzer Dreiklang
+            tone(440, 0, 0.12, 0, 'square', 0.07);
+            tone(554, 0, 0.12, 0.1, 'square', 0.07);
+            tone(659, 0, 0.25, 0.2, 'square', 0.07);
+            break;
+        case 'herz':            // leiser Puls waehrend der Panik
+            tone(70, 45, 0.12, 0, 'sine', 0.12);
+            break;
+        default:
+            break;
+    }
+}
+
+// Waehrend der Panik alle 0.5 s ein leiser Herzschlag (keine Dauer-Sirene)
+function updateHeartbeat(dt) {
+    if (state.timers.panik <= 0) return;
+    state.timers.herz -= dt;
+    if (state.timers.herz > 0) return;
+    state.timers.herz = ZEITEN.herzschlag;
+    playSound('herz');
+}
 
 function toggleSound() {
-    // Stub, die Toene folgen in Phase 4
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('soundToggle');
     btn.textContent = soundEnabled ? '🔊' : '🔇';
     btn.style.background = soundEnabled ? 'rgba(220, 38, 38, 0.15)' : 'rgba(15, 15, 15, 0.85)';
+    if (soundEnabled) {
+        // AudioContext anstossen, falls noch nicht passiert
+        const ac = getAudioContext();
+        if (ac && ac.state === 'suspended') ac.resume();
+    }
 }
 
 // === SCHLEIFE ===
@@ -1678,18 +2057,31 @@ let rafId = null;
 let lastTime = 0;
 
 function update(dt) {
+    if (state.mode === 'dying') {
+        updateDying(dt);
+        return;
+    }
     if (state.mode !== 'play') return;
+    updateFloatingTexts(dt);
+    if (state.timers.freeze > 0) {          // Einfrier-Pause nach erledigtem Zombie: nichts bewegt sich
+        state.timers.freeze -= dt;
+        return;
+    }
     updatePlayer(dt);
+    collectAt();
     updateModeTimer(dt);
     updateZombies(dt);
-    // Punkte, Kollision und Level-Timer folgen in den Phasen 4 und 5
+    updateBonus(dt);
+    checkCollisions();
+    updateHeartbeat(dt);
+    // Level-Timer folgen in Phase 5
 }
 
 function loop(now) {
     let dt = lastTime === 0 ? 0 : (now - lastTime) / 1000;
     lastTime = now;
     dt = Math.min(dt, 0.05);
-    if (state.mode === 'play') update(dt);
+    if (state.mode === 'play' || state.mode === 'dying') update(dt);
     draw();
     rafId = requestAnimationFrame(loop);
 }
