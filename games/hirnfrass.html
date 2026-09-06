@@ -486,20 +486,49 @@ const COLORS = {
 };
 
 // Geschwindigkeiten in Kacheln pro Sekunde, pro Level (Index = Level, ab 6 konstant).
-// Platzhalter, Feinabstimmung folgt in Phase 3 bis 5.
+// Zombie-Sonderfaelle (Panik, Heimweg, Tunnel, Schlurfer) sind Faktoren davon, siehe ZOMBIE_TEMPO.
+// Feinabstimmung folgt in Phase 4 und 5.
 const SPEEDS = [
     null,
-    { spieler: 6.0, zombie: 5.5, panik: 3.5, heimweg: 10, schlurfer: 4.5, panikDauer: 7 },
-    { spieler: 6.5, zombie: 6.0, panik: 4.0, heimweg: 10, schlurfer: 5.0, panikDauer: 6 },
-    { spieler: 7.0, zombie: 6.5, panik: 4.5, heimweg: 10, schlurfer: 5.5, panikDauer: 5 },
-    { spieler: 7.0, zombie: 7.0, panik: 4.5, heimweg: 10, schlurfer: 6.0, panikDauer: 4 },
-    { spieler: 7.5, zombie: 7.5, panik: 5.0, heimweg: 10, schlurfer: 6.5, panikDauer: 3 },
-    { spieler: 8.0, zombie: 8.0, panik: 5.5, heimweg: 10, schlurfer: 7.0, panikDauer: 2 }
+    { spieler: 6.0, zombie: 5.5, panikDauer: 7 },
+    { spieler: 6.5, zombie: 6.0, panikDauer: 6 },
+    { spieler: 7.0, zombie: 6.5, panikDauer: 5 },
+    { spieler: 7.0, zombie: 7.0, panikDauer: 4 },
+    { spieler: 7.5, zombie: 7.5, panikDauer: 3 },
+    { spieler: 8.0, zombie: 8.0, panikDauer: 2 }
 ];
 
 function speedsFor(level) {
     return SPEEDS[Math.min(Math.max(level, 1), SPEEDS.length - 1)];
 }
+
+// Tempo-Faktoren relativ zu speedsFor(level).zombie
+const ZOMBIE_TEMPO = {
+    panik: 0.6,         // in Panik
+    heimweg: 2.0,       // nur noch Augen, rennt heim
+    tunnel: 0.6,        // im Tunnel (beide Muender)
+    schlurfer: 0.75     // der Schlurfer, dauerhaft
+};
+
+// Verhaltensparameter
+const ZOMBIE_KI = {
+    lauererVorsprung: 4,    // Kacheln vor dem Spieler
+    schlurferAbstand: 8,    // ab dieser Distanz (Kacheln) jagt der Schlurfer, darunter weicht er aus
+    torklerHang: 0.35,      // Wahrscheinlichkeit, dass der Torkler Richtung Spieler abbiegt
+    friedhofPause: 1.5,     // Wartezeit im Friedhof nach dem Heimweg (Sekunden)
+    panikBlink: 2,          // in den letzten Sekunden der Panik wird geblinkt
+    panikBlinkTakt: 0.25    // Blinkintervall (Sekunden)
+};
+
+// Globaler Zeitplan streunen/jagen (Sekunden), der letzte Eintrag gilt dauerhaft.
+const MODUS_PLAN = [
+    { mode: 'streunen', dauer: 7 },
+    { mode: 'jagen',    dauer: 20 },
+    { mode: 'streunen', dauer: 7 },
+    { mode: 'jagen',    dauer: 20 },
+    { mode: 'streunen', dauer: 5 },
+    { mode: 'jagen',    dauer: Infinity }
+];
 
 const DIRS = {
     up:    { dx: 0,  dy: -1 },
@@ -512,11 +541,12 @@ const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
 // Die vier Bewohner: Reihenfolge = Reihenfolge der Z-Startplaetze in der Karte
 // (der erste startet ueber dem Tor, die anderen drei im Friedhof).
+// release = Sekunden Wartezeit im Friedhof beim Levelstart.
 const ZOMBIE_DEFS = [
-    { key: 'gierige',   name: 'Der Gierige',   color: COLORS.zombies.gierige,   home: { col: COLS - 2, row: 1 } },
-    { key: 'lauerer',   name: 'Der Lauerer',   color: COLORS.zombies.lauerer,   home: { col: 1,        row: 1 } },
-    { key: 'torkler',   name: 'Der Torkler',   color: COLORS.zombies.torkler,   home: { col: COLS - 2, row: ROWS - 2 } },
-    { key: 'schlurfer', name: 'Der Schlurfer', color: COLORS.zombies.schlurfer, home: { col: 1,        row: ROWS - 2 } }
+    { key: 'gierige',   name: 'Der Gierige',   color: COLORS.zombies.gierige,   home: { col: COLS - 2, row: 1 },        release: 0 },
+    { key: 'lauerer',   name: 'Der Lauerer',   color: COLORS.zombies.lauerer,   home: { col: 1,        row: 1 },        release: 2 },
+    { key: 'torkler',   name: 'Der Torkler',   color: COLORS.zombies.torkler,   home: { col: COLS - 2, row: ROWS - 2 }, release: 5 },
+    { key: 'schlurfer', name: 'Der Schlurfer', color: COLORS.zombies.schlurfer, home: { col: 1,        row: ROWS - 2 }, release: 8 }
 ];
 
 const PUNKTE = { vorrat: 10, adrenalin: 50 };
@@ -713,10 +743,10 @@ const state = {
     dotsLeft: 0,
     dotsEaten: 0,
     player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0 },   // walked = zurueckgelegte Pixel (Animationsphase)
-    zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside }]
-    timers: {               // Platzhalter, werden ab Phase 3 gefuellt
-        ready: 0,           // Sekunden bis Levelstart
-        modus: 0,           // Zeit im aktuellen streunen/jagen-Abschnitt
+    zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside, wait, walked, bobPhase, decidedAt }]
+    timers: {
+        ready: 0,           // Sekunden bis Levelstart (Phase 5)
+        modus: 0,           // Zeit im aktuellen streunen/jagen-Abschnitt (pausiert waehrend Panik)
         panik: 0,           // verbleibende Panikdauer
         freeze: 0,          // kurze Pause nach erledigtem Zombie
         bonus: 0,           // Anzeigedauer Erste-Hilfe-Kasten
@@ -740,6 +770,12 @@ function resetEntities() {
     state.player.speed = speedsFor(state.level).spieler * TILE;
     state.player.walked = 0;
 
+    // Modus-Zeitplan und Panik von vorn
+    state.modusIndex = 0;
+    state.timers.modus = 0;
+    state.timers.panik = 0;
+    state.panikKette = 0;
+
     state.zombies = ZOMBIE_DEFS.map((def, i) => {
         const s = zombieStarts[i] || zombieStarts[0];
         const c = tileCenter(s.col, s.row);
@@ -750,12 +786,16 @@ function resetEntities() {
             x: c.x,
             y: c.y,
             dir: s.inside ? 'up' : 'left',
-            mode: s.inside ? 'friedhof' : 'streunen',   // 'friedhof' | 'streunen' | 'jagen' | 'panik' | 'heimweg'
+            // 'friedhof' | 'ausruecken' | 'streunen' | 'jagen' | 'panik' | 'heimweg'
+            mode: s.inside ? 'friedhof' : globalMode(),
             home: def.home,
             startCol: s.col,
             startRow: s.row,
             inside: s.inside,
-            wait: 0
+            wait: s.inside ? def.release : 0,   // Restwartezeit im Friedhof (laeuft nur im Spiel)
+            walked: 0,                          // zurueckgelegte Pixel (Animationsphase des Saums)
+            bobPhase: i * 1.7,                  // Wippen im Friedhof, pro Zombie versetzt
+            decidedAt: null                     // Kachel ("col,row") der letzten Richtungsentscheidung
         };
     });
 }
@@ -1069,31 +1109,108 @@ function drawPlayerAt(p, x, y) {
     ctx.restore();
 }
 
-// Platzhalter, die echte Zombie-Zeichnung kommt in Phase 3.
+// Zombie: Halbkreis-Kopf auf einem Rumpf mit zerfetztem Saum, zwei Augen mit Blick in
+// Laufrichtung. Panik: blau-grau, Zittern, wirre Augen, Blinken am Ende.
+// Heimweg: nur Augen und ein blasser Schaedel-Umriss. Friedhof: wippt.
 function drawZombie(z) {
-    const color = z.mode === 'panik' ? COLORS.panik : z.color;
-    ctx.save();
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = color;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(z.x, z.y, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-    // Augen
-    const d = DIRS[z.dir] || DIRS.left;
-    for (const side of [-1, 1]) {
-        const ex = z.x + side * 3.5 + d.dx * 1.5;
-        const ey = z.y - 2 + d.dy * 1.5;
-        ctx.fillStyle = COLORS.augen;
-        ctx.beginPath();
-        ctx.arc(ex, ey, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = COLORS.pupille;
-        ctx.beginPath();
-        ctx.arc(ex + d.dx, ey + d.dy, 1.1, 0, Math.PI * 2);
-        ctx.fill();
+    const now = performance.now();
+    drawZombieAt(z, z.x, z.y, now);
+    // Im Tunnel: die andere Haelfte am gegenueberliegenden Rand zeigen
+    if (z.x < TILE / 2) drawZombieAt(z, z.x + W, z.y, now);
+    else if (z.x > W - TILE / 2) drawZombieAt(z, z.x - W, z.y, now);
+}
+
+function drawZombieAt(z, x, y, now) {
+    const R = TILE * 0.4;
+    const d = DIRS[z.dir] || DIRS.up;
+    const panik = z.mode === 'panik';
+    const heimweg = z.mode === 'heimweg';
+    const top = -R * 0.15;          // Mittelpunkt des Halbkreises
+    const hem = R * 0.85;           // Unterkante des Rumpfs (ohne Zacken)
+
+    let ox = 0, oy = 0;
+    if (z.mode === 'friedhof') oy = Math.sin(now / 260 + z.bobPhase) * 1.5;
+    if (panik) {
+        ox = Math.random() * 2 - 1;
+        oy = Math.random() * 2 - 1;
     }
+
+    let color = z.color;
+    if (panik) {
+        const t = state.timers.panik;
+        const blink = t <= ZOMBIE_KI.panikBlink && Math.floor(t / ZOMBIE_KI.panikBlinkTakt) % 2 === 1;
+        color = blink ? COLORS.panikBlink : COLORS.panik;
+    }
+
+    ctx.save();
+    ctx.translate(x + ox, y + oy);
+
+    if (heimweg) {
+        // blasser Schaedel: Kalotte und Kiefer
+        ctx.strokeStyle = 'rgba(225, 225, 225, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(0, top, R * 0.85, Math.PI * 0.9, Math.PI * 2.1);
+        ctx.stroke();
+        ctx.strokeRect(-R * 0.45, top + R * 0.45, R * 0.9, R * 0.5);
+    } else {
+        // Koerper: Halbkreis oben, Rumpf, Saum mit 4 Zacken (Muster wechselt jede halbe Kachel)
+        const teeth = 4;
+        const step = (2 * R) / teeth;
+        const alt = Math.floor(z.walked / (TILE / 2)) % 2;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = color;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(0, top, R, Math.PI, 0);
+        ctx.lineTo(R, hem);
+        for (let i = 0; i < teeth; i++) {
+            const x0 = R - i * step;
+            const deep = ((i + alt) % 2 === 0) ? 4.5 : 2;
+            ctx.lineTo(x0 - step / 2, hem + deep);
+            ctx.lineTo(x0 - step, hem);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Mund: kleiner dunkler Strich, in Panik ein rundes "o"
+        ctx.fillStyle = COLORS.pupille;
+        if (panik) {
+            ctx.beginPath();
+            ctx.arc(0, top + R * 0.55, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            ctx.fillRect(-2.5, top + R * 0.5, 5, 1.6);
+        }
+    }
+
+    // Augen
+    const ey0 = top - R * 0.05;
+    for (const side of [-1, 1]) {
+        const ex = side * R * 0.4 + d.dx * 1.2;
+        const ey = ey0 + d.dy * 1.2;
+        if (panik) {
+            // wirre kleine Striche
+            const w = Math.sin(now / 90 + side) * 0.8;
+            ctx.strokeStyle = COLORS.augen;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(ex - 2, ey - 1.5 + w); ctx.lineTo(ex + 2, ey + 1.5 - w);
+            ctx.moveTo(ex - 2, ey + 1.5 - w); ctx.lineTo(ex + 2, ey - 1.5 + w);
+            ctx.stroke();
+        } else {
+            ctx.fillStyle = COLORS.augen;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 2.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = COLORS.pupille;
+            ctx.beginPath();
+            ctx.arc(ex + d.dx * 1.1, ey + d.dy * 1.1, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    ctx.restore();
 }
 
 function drawPauseOverlay() {
@@ -1178,24 +1295,31 @@ function updatePlayer(dt) {
         p.nextDir = NONE;
     }
 
-    // Schrittweite ist durch die dt-Kappung < TILE; die Schleife faengt trotzdem
-    // den Fall "Mitte erreicht und noch Rest uebrig" sauber ab.
+    advanceOnGrid(p, move, decideAtCenter);
+}
+
+// Bewegt eine Entitaet (Spieler oder Zombie) um `move` Pixel entlang e.dir.
+// An jeder Kachelmitte wird gesnappt und decide(e, col, row) gefragt:
+// 'go' geradeaus weiter, 'turn' neue Richtung (Restbewegung verfaellt), 'stop' stehen bleiben.
+// Schrittweite ist durch die dt-Kappung < TILE; die Schleife faengt trotzdem
+// den Fall "Mitte erreicht und noch Rest uebrig" sauber ab.
+function advanceOnGrid(e, move, decide) {
     for (let guard = 0; guard < 3 && move > 0; guard++) {
-        const t = tileOf(p.x, p.y);
+        const t = tileOf(e.x, e.y);
         const c = tileCenter(t.col, t.row);
-        let d = DIRS[p.dir];
+        let d = DIRS[e.dir];
         // Abstand zur naechsten Kachelmitte entlang der Laufrichtung
-        let dist = (c.x - p.x) * d.dx + (c.y - p.y) * d.dy;
+        let dist = (c.x - e.x) * d.dx + (c.y - e.y) * d.dy;
         let target;
 
         if (Math.abs(dist) <= 0.001) {
             // Genau auf einer Mitte: hier wird entschieden
-            p.x = c.x;
-            p.y = c.y;
-            const what = decideAtCenter(p, t.col, t.row);
+            e.x = c.x;
+            e.y = c.y;
+            const what = decide(e, t.col, t.row);
             if (what === 'stop') return;
             if (what === 'turn') break;      // Restbewegung nach Richtungswechsel verfaellt
-            d = DIRS[p.dir];
+            d = DIRS[e.dir];
             target = { col: t.col + d.dx, row: t.row + d.dy };
             dist = TILE;
         } else if (dist < 0) {
@@ -1208,27 +1332,256 @@ function updatePlayer(dt) {
 
         if (move < dist) {
             // Mitte in diesem Frame nicht erreicht: einfach weiterlaufen
-            p.x += d.dx * move;
-            p.y += d.dy * move;
-            p.walked += move;
+            e.x += d.dx * move;
+            e.y += d.dy * move;
+            e.walked += move;
             move = 0;
             break;
         }
 
         // Mitte erreicht oder ueberschritten: snappen (Tunnel: Spalte wrappen).
         // Die Entscheidung folgt im naechsten Durchlauf bzw. im naechsten Frame.
-        p.x = (wrapCol(target.col) + 0.5) * TILE;
-        p.y = (target.row + 0.5) * TILE;
-        p.walked += dist;
+        e.x = (wrapCol(target.col) + 0.5) * TILE;
+        e.y = (target.row + 0.5) * TILE;
+        e.walked += dist;
         move -= dist;
     }
 
     // Tunnel: ueber den Rand hinaus und auf der anderen Seite wieder rein (x immer in [0, W))
-    if (p.x < 0 || p.x >= W) p.x = ((p.x % W) + W) % W;
+    if (e.x < 0 || e.x >= W) e.x = ((e.x % W) + W) % W;
 }
 
 // === ZOMBIES ===
-// folgt in Phase 3
+// Vier Bewohner mit eigenem Charakter. Zustaende (z.mode):
+//   'friedhof'   wartet im Friedhof und wippt; z.wait laeuft nur im Spiel
+//   'ausruecken' erst waagrecht zur Torspalte, dann hoch durchs Tor bis zur Kachel darueber
+//   'streunen'   Scatter: Ziel = eigene Heim-Ecke
+//   'jagen'      Chase: Ziel je nach Charakter (siehe chaseTarget / decideZombie)
+//   'panik'      Frightened: langsam, an jeder Kreuzung Zufall, blinkt am Ende
+//   'heimweg'    Eaten: nur Augen, rennt zur Kachel ueber dem Tor, hinein, wartet, rueckt wieder aus
+// Bewegung ueber advanceOnGrid wie beim Spieler, die Richtungswahl passiert an der Kachelmitte.
+
+const DIR_ORDER = ['up', 'left', 'down', 'right'];   // Tie-Break-Reihenfolge
+
+function globalMode() {
+    return MODUS_PLAN[Math.min(state.modusIndex, MODUS_PLAN.length - 1)].mode;
+}
+
+// Innerhalb des Zauns (inkl. Zaun- und Torkachel)?
+function inGraveyardArea(col, row) {
+    return graveyard !== null && col >= graveyard.c0 && col <= graveyard.c1 && row >= graveyard.r0 && row <= graveyard.r1;
+}
+
+function isGate(col, row) {
+    return gate !== null && col === gate.col && row === gate.row;
+}
+
+// Kachel ueber dem Tor (Ausgang) und Wartekachel im Friedhof (unter dem Tor)
+function gateExitTile() {
+    return { col: gate.col, row: gate.row - 1 };
+}
+function graveyardHomeTile() {
+    return { col: gate.col, row: Math.min(gate.row + 2, graveyard.r1 - 1) };
+}
+
+// Begehbarkeit fuer Zombies: wie isWalkable, aber das Tor ist beim Ausruecken, auf dem
+// Heimweg und fuer alle, die gerade noch hinter dem Zaun stehen, passierbar.
+function zombieCanStep(z, col, row, dirKey) {
+    if (!dirKey) return false;
+    const d = DIRS[dirKey];
+    const nc = col + d.dx, nr = row + d.dy;
+    if (isGate(nc, nr)) return z.mode === 'ausruecken' || z.mode === 'heimweg' || inGraveyardArea(col, row);
+    return isWalkable(nc, nr);
+}
+
+// Freie Richtungen ohne Gegenrichtung, in Tie-Break-Reihenfolge
+function freeDirs(z, col, row) {
+    return DIR_ORDER.filter(k => k !== OPPOSITE[z.dir] && zombieCanStep(z, col, row, k));
+}
+
+// Richtung, deren Nachbarkachel dem Ziel am naechsten liegt (euklidisch).
+// Gegenrichtung nur in der Sackgasse. null, wenn gar nichts geht.
+function dirTowards(z, col, row, target) {
+    let best = null, bestD = Infinity;
+    for (const k of freeDirs(z, col, row)) {
+        const d = DIRS[k];
+        const dc = col + d.dx - target.col, dr = row + d.dy - target.row;
+        const dist = dc * dc + dr * dr;
+        if (dist < bestD) { best = k; bestD = dist; }
+    }
+    if (best === null && zombieCanStep(z, col, row, OPPOSITE[z.dir])) best = OPPOSITE[z.dir];
+    return best;
+}
+
+function randomDir(z, col, row) {
+    const free = freeDirs(z, col, row);
+    if (free.length) return free[Math.floor(Math.random() * free.length)];
+    return zombieCanStep(z, col, row, OPPOSITE[z.dir]) ? OPPOSITE[z.dir] : null;
+}
+
+function playerTile() {
+    return tileOf(state.player.x, state.player.y);
+}
+
+// Jagd-Ziel je Charakter (der Torkler wuerfelt in decideZombie)
+function chaseTarget(z, col, row) {
+    const pt = playerTile();
+    switch (z.key) {
+        case 'lauerer': {
+            const d = DIRS[state.player.dir];
+            if (!d) return pt;
+            return { col: pt.col + d.dx * ZOMBIE_KI.lauererVorsprung, row: pt.row + d.dy * ZOMBIE_KI.lauererVorsprung };
+        }
+        case 'schlurfer': {
+            const dc = pt.col - col, dr = pt.row - row;
+            const far = dc * dc + dr * dr > ZOMBIE_KI.schlurferAbstand * ZOMBIE_KI.schlurferAbstand;
+            return far ? pt : z.home;
+        }
+        default:
+            return pt;
+    }
+}
+
+// Richtung setzen und das Ergebnis fuer advanceOnGrid liefern
+function setDir(z, k) {
+    if (k === null) return 'stop';
+    if (k === z.dir) return 'go';
+    z.dir = k;
+    return 'turn';
+}
+
+// Weg aus dem Friedhof: erst waagrecht zur Torspalte, dann hoch durchs Tor
+function exitStep(z, col, row) {
+    if (col !== gate.col) return setDir(z, col < gate.col ? 'right' : 'left');
+    return setDir(z, 'up');
+}
+
+// Entscheidung an der Kachelmitte (Rueckgabe wie decideAtCenter: 'go' | 'turn' | 'stop').
+// Pro Kachelmitte wird nur einmal entschieden (z.decidedAt): nach einem 'turn' steht der
+// Zombie noch auf der Mitte, und eine zweite Entscheidung (Zufall, bewegtes Ziel) wuerde
+// ihn sonst frameweise auf der Stelle drehen lassen.
+function decideZombie(z, col, row) {
+    const key = col + ',' + row;
+    if (z.decidedAt === key && zombieCanStep(z, col, row, z.dir)) return 'go';
+    z.decidedAt = key;
+
+    if (z.mode === 'heimweg') {
+        const homeTile = graveyardHomeTile();
+        if (inGraveyardArea(col, row)) {
+            if (row < homeTile.row) return setDir(z, 'down');
+            z.mode = 'friedhof';
+            z.wait = ZOMBIE_KI.friedhofPause;
+            z.dir = 'up';
+            z.walked = 0;
+            z.decidedAt = null;
+            return 'stop';
+        }
+        const exit = gateExitTile();
+        if (col === exit.col && row === exit.row) return setDir(z, 'down');
+        return setDir(z, dirTowards(z, col, row, exit));
+    }
+
+    // Noch hinter dem Zaun (auch wenn unterwegs Panik oder ein Moduswechsel kam): raus hier
+    if (inGraveyardArea(col, row)) return exitStep(z, col, row);
+
+    // Kachel ueber dem Tor erreicht: ab jetzt normal
+    if (z.mode === 'ausruecken') z.mode = state.timers.panik > 0 ? 'panik' : globalMode();
+
+    switch (z.mode) {
+        case 'panik':
+            return setDir(z, randomDir(z, col, row));
+        case 'streunen':
+            return setDir(z, dirTowards(z, col, row, z.home));
+        case 'jagen':
+            if (z.key === 'torkler') {
+                if (Math.random() < ZOMBIE_KI.torklerHang) return setDir(z, dirTowards(z, col, row, playerTile()));
+                return setDir(z, randomDir(z, col, row));
+            }
+            return setDir(z, dirTowards(z, col, row, chaseTarget(z, col, row)));
+        default:
+            return 'stop';
+    }
+}
+
+function inTunnel(e) {
+    return tunnelRow >= 0 && Math.floor(e.y / TILE) === tunnelRow && (e.x < TILE * 1.5 || e.x > W - TILE * 1.5);
+}
+
+// Geschwindigkeit in Pixel pro Sekunde
+function zombieSpeed(z) {
+    let f = 1;
+    if (z.mode === 'heimweg') f = ZOMBIE_TEMPO.heimweg;
+    else if (z.mode === 'panik') f = ZOMBIE_TEMPO.panik;
+    else if (z.key === 'schlurfer') f = ZOMBIE_TEMPO.schlurfer;
+    if (inTunnel(z)) f *= ZOMBIE_TEMPO.tunnel;
+    return speedsFor(state.level).zombie * TILE * f;
+}
+
+function updateZombies(dt) {
+    for (const z of state.zombies) {
+        if (z.mode === 'friedhof') {
+            z.wait -= dt;
+            if (z.wait > 0) continue;
+            z.wait = 0;
+            z.mode = 'ausruecken';
+        }
+        advanceOnGrid(z, zombieSpeed(z) * dt, decideZombie);
+    }
+}
+
+// Globaler Zeitplan streunen/jagen; bei Wechsel drehen alle Zombies in diesen Modi um.
+// Pausiert waehrend der Panik.
+function updateModeTimer(dt) {
+    if (state.timers.panik > 0) {
+        state.timers.panik -= dt;
+        if (state.timers.panik <= 0) endPanic();
+        return;
+    }
+    const plan = MODUS_PLAN[state.modusIndex];
+    if (!plan || plan.dauer === Infinity) return;
+    state.timers.modus += dt;
+    if (state.timers.modus < plan.dauer) return;
+    state.timers.modus -= plan.dauer;
+    state.modusIndex++;
+    const mode = globalMode();
+    for (const z of state.zombies) {
+        if (z.mode === 'streunen' || z.mode === 'jagen') {
+            z.mode = mode;
+            z.dir = OPPOSITE[z.dir] || z.dir;
+            z.decidedAt = null;
+        }
+    }
+}
+
+// Panik ausloesen (Phase 4: beim Adrenalin). Zombies im Friedhof oder auf dem Heimweg bleiben.
+function startPanic(seconds) {
+    state.timers.panik = seconds;
+    state.panikKette = 0;
+    for (const z of state.zombies) {
+        if (z.mode === 'streunen' || z.mode === 'jagen') {
+            z.mode = 'panik';
+            z.dir = OPPOSITE[z.dir] || z.dir;
+            z.decidedAt = null;
+        } else if (z.mode === 'ausruecken') {
+            z.mode = 'panik';   // noch hinter dem Zaun: keine Umkehr, der Weg raus bleibt
+        }
+    }
+}
+
+function endPanic() {
+    state.timers.panik = 0;
+    const mode = globalMode();
+    for (const z of state.zombies) {
+        if (z.mode === 'panik') z.mode = mode;
+    }
+}
+
+// Zombie erledigt (Phase 4: Kollision in Panik): nur noch Augen, ab nach Hause
+function eatZombie(z) {
+    if (z.mode === 'friedhof' || z.mode === 'heimweg') return;
+    z.mode = 'heimweg';
+    z.decidedAt = null;
+}
 
 // === PUNKTE/LEBEN ===
 // folgt in Phase 4
@@ -1294,6 +1647,10 @@ document.addEventListener('keydown', (e) => {
         resetGame();
         return;
     }
+    if (e.key === 'p' && state.mode === 'play') {   // Debug, in Phase 4 durch Adrenalin ersetzt
+        startPanic(6);
+        return;
+    }
     const dir = KEY_DIRS[e.key] || KEY_DIRS[e.key.toLowerCase()];
     if (!dir) return;
     if (e.key.startsWith('Arrow')) e.preventDefault();     // Seite nicht scrollen
@@ -1321,8 +1678,11 @@ let rafId = null;
 let lastTime = 0;
 
 function update(dt) {
-    if (state.mode === 'play') updatePlayer(dt);
-    // Zombies, Punkte und Timer folgen in den Phasen 3 bis 5
+    if (state.mode !== 'play') return;
+    updatePlayer(dt);
+    updateModeTimer(dt);
+    updateZombies(dt);
+    // Punkte, Kollision und Level-Timer folgen in den Phasen 4 und 5
 }
 
 function loop(now) {
