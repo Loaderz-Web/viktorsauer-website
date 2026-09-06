@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HIRNFRASS - Viktor Sauer</title>
+
+    <meta name="description" content="Labyrinth-Arcade in Schwarz-Rot: Vorräte sammeln, Zombies ausweichen, nicht gefressen werden. Nachts in Grauburg ist jeder Punkt eine Mahlzeit. Die Frage ist nur, für wen.">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="HIRNFRASS - Viktor Sauer">
+    <meta property="og:description" content="Labyrinth-Arcade in Schwarz-Rot: Vorräte sammeln, Zombies ausweichen, nicht gefressen werden. Nachts in Grauburg ist jeder Punkt eine Mahlzeit. Die Frage ist nur, für wen.">
+    <meta property="og:url" content="https://viktorsauer.org/games/hirnfrass.html">
+    <meta property="og:image" content="https://viktorsauer.org/images/og-image.jpg">
+    <meta property="og:locale" content="de_DE">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Share+Tech+Mono&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            background-image:
+                radial-gradient(ellipse at top, #1a0000 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, #000a0a 0%, transparent 50%);
+            overscroll-behavior: none;
+        }
+
+        .game-container {
+            text-align: center;
+            border: 3px solid #8b0000;
+            padding: 25px 50px;
+            background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 100%);
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.4), inset 0 0 60px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .game-title {
+            font-family: 'Creepster', cursive;
+            font-size: 42px;
+            color: #cc0000;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            margin: 0 0 5px 0;
+            letter-spacing: 4px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        canvas {
+            border: 2px solid #8b0000;
+            background: #000;
+            display: block;
+            margin: 15px auto;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.3), inset 0 0 100px rgba(139, 0, 0, 0.05);
+            touch-action: none;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            flex-wrap: wrap;
+            font-size: 15px;
+            margin: 10px 0;
+            color: #aa4444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hud span span {
+            display: inline-block;
+            min-width: 30px;
+            color: #ff3333;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            text-transform: none;
+        }
+
+        .controls {
+            font-size: 13px;
+            margin: 10px 0;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .controls strong { color: #aa4444; }
+
+        .button-row {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 0, 0, 0.97);
+            padding: 40px;
+            border: 3px solid #8b0000;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.5), inset 0 0 30px rgba(139, 0, 0, 0.1);
+            z-index: 100;
+            min-width: 350px;
+            max-width: 460px;
+        }
+
+        .overlay h2 {
+            font-family: 'Creepster', cursive;
+            color: #cc0000;
+            font-size: 28px;
+            margin-top: 0;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+
+        .overlay p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .overlay p strong { color: #ff6666; }
+
+        .legend {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #3a1a1a;
+            border-radius: 8px;
+            background: rgba(139, 0, 0, 0.05);
+            text-align: left;
+            font-size: 12px;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .legend-row:last-child { margin-bottom: 0; }
+
+        .legend-dot {
+            flex: 0 0 auto;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-top: 2px;
+            border: 1px solid #000;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .legend-name {
+            color: #ddd;
+            font-weight: bold;
+        }
+
+        button {
+            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+            color: #ff6666;
+            border: 2px solid #8b0000;
+            padding: 12px 24px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.6);
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.small-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .hidden { display: none !important; }
+
+        .gameover-text {
+            font-family: 'Creepster', cursive;
+            font-size: 24px;
+            color: #ff3333;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+
+        .footer-note {
+            font-size: 10px;
+            color: #444;
+            margin-top: 15px;
+        }
+
+        .footer-note a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .footer-note a:hover {
+            color: #8b0000;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 850px) {
+            .game-container {
+                padding: 15px 20px;
+                margin: 10px;
+                border-width: 2px;
+            }
+
+            .game-title {
+                font-size: 32px;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+                max-width: 504px;
+            }
+
+            .hud {
+                font-size: 12px;
+                gap: 14px;
+            }
+
+            .hud span span {
+                font-size: 16px;
+            }
+
+            .controls {
+                font-size: 11px;
+            }
+
+            .overlay {
+                width: 90%;
+                min-width: auto;
+                max-width: none;
+                padding: 25px 20px;
+            }
+
+            .button-row {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Landscape Mobile - alles kompakter */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-container {
+                padding: 8px 40px;
+                margin: 5px;
+            }
+
+            .game-title {
+                font-size: 24px;
+                margin-bottom: 2px;
+            }
+
+            .subtitle {
+                display: none;
+            }
+
+            .hud {
+                font-size: 11px;
+                margin: 4px 0;
+                gap: 12px;
+            }
+
+            .hud span span {
+                font-size: 14px;
+            }
+
+            canvas {
+                margin: 8px auto;
+                max-height: 60vh;
+                width: auto;
+            }
+
+            .controls {
+                font-size: 10px;
+                margin: 5px 0;
+            }
+
+            .button-row {
+                margin-top: 8px;
+            }
+
+            .button-row button {
+                padding: 5px 12px;
+                font-size: 11px;
+            }
+
+            .overlay {
+                padding: 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .overlay h2 {
+                font-size: 22px;
+                margin-bottom: 10px;
+            }
+
+            .overlay p {
+                font-size: 12px;
+                margin: 8px 0;
+            }
+
+            .legend {
+                margin: 10px 0;
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .footer-note {
+                margin-top: 8px;
+            }
+        }
+
+        /* Touch Controls Indicator */
+        .touch-hint {
+            display: none;
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (pointer: coarse) {
+            .touch-hint {
+                display: block;
+            }
+            .keyboard-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<a href="./" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
+<button id="soundToggle" onclick="toggleSound()" title="Sound ein/aus" style="position:fixed;top:1rem;right:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:'Share Tech Mono',monospace;border-radius:0;line-height:1;">🔇</button>
+    <div class="game-container">
+        <h1 class="game-title">☠ HIRNFRASS ☠</h1>
+        <div class="subtitle">Nachts in Grauburg. Bleib leise. Bleib satt.</div>
+
+        <div class="hud">
+            <span>Punkte <span id="score">0</span></span>
+            <span>Highscore <span id="highscore">0</span></span>
+            <span>Level <span id="level">1</span></span>
+            <span>Leben <span id="lives">3</span></span>
+        </div>
+
+        <canvas id="gameCanvas" width="504" height="552"></canvas>
+
+        <div class="controls">
+            <span class="keyboard-hint"><strong>Steuerung:</strong> Pfeile / WASD = Schleichen | SPACE = Pause | ESC = Neustart</span>
+            <span class="touch-hint"><strong>Touch:</strong> Auf dem Spielfeld wischen = Richtung</span>
+        </div>
+
+        <div class="button-row">
+            <button class="small-btn" onclick="resetGame()" id="resetBtn">↺ Neustart</button>
+            <button class="small-btn" onclick="togglePause()" id="pauseBtn" disabled>⏸ Pause</button>
+        </div>
+
+        <!-- START SCREEN -->
+        <div id="startScreen" class="overlay">
+            <h2>☠ HIRNFRASS ☠</h2>
+            <p>Grauburg ist gefallen, die Gassen sind leer und die Vorräte liegen noch herum. Du bist <strong>der Streuner</strong>: Sammle alles ein, bevor dich einer der vier Bewohner erwischt. Das <strong>Adrenalin</strong> in den Ecken dreht den Spiess kurz um. Dann beisst du zurück.</p>
+
+            <div class="legend">
+                <div class="legend-row">
+                    <span class="legend-dot" style="background:#ff2a2a;color:#ff2a2a;"></span>
+                    <span><span class="legend-name">Der Gierige</span> – Rennt dir direkt hinterher. Kein Plan, aber Ausdauer.</span>
+                </div>
+                <div class="legend-row">
+                    <span class="legend-dot" style="background:#b04cff;color:#b04cff;"></span>
+                    <span><span class="legend-name">Der Lauerer</span> – Wartet dort, wo du gleich sein wirst.</span>
+                </div>
+                <div class="legend-row">
+                    <span class="legend-dot" style="background:#3ddc3d;color:#3ddc3d;"></span>
+                    <span><span class="legend-name">Der Torkler</span> – Weiss selbst nicht, wohin. Genau das macht ihn gefährlich.</span>
+                </div>
+                <div class="legend-row">
+                    <span class="legend-dot" style="background:#d9a21b;color:#d9a21b;"></span>
+                    <span><span class="legend-name">Der Schlurfer</span> – Langsam, feige, hartnäckig. Hält sich meist in seiner Ecke.</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()">🧟 Loslaufen</button>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <h2 id="gameOverText" class="gameover-text">Hirn ist aus.</h2>
+            <p id="finalStats"></p>
+            <button onclick="resetGame()">☠ Nochmal wagen</button>
+        </div>
+
+        <div class="footer-note">
+            Ein Zeitvertreib von <a href="https://viktorsauer.org" target="_blank">Viktor Sauer</a>
+        </div>
+    </div>
+
+    <script>
+// ============================================
+// HIRNFRASS - Nachts in Grauburg
+// ============================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// UI-Elemente
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const scoreEl = document.getElementById('score');
+const highscoreEl = document.getElementById('highscore');
+const levelEl = document.getElementById('level');
+const livesEl = document.getElementById('lives');
+const finalStatsEl = document.getElementById('finalStats');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+// === KONFIG ===
+
+const TILE = 24;
+const COLS = 21;
+const ROWS = 23;
+const W = TILE * COLS;   // 504
+const H = TILE * ROWS;   // 552
+
+const COLORS = {
+    hintergrund: '#000000',
+    vignette: 'rgba(90, 0, 0, 0.35)',
+    wand: '#3a0000',            // Mauerfuellung
+    wandRand: '#8b0000',        // heller Rand der Mauer
+    wandGlow: 'rgba(220, 0, 0, 0.55)',
+    vorrat: '#c9b48a',          // Konserven, blass
+    adrenalin: '#ff2222',
+    adrenalinGlow: '#ff0000',
+    spieler: '#e8e0c8',
+    spielerKapuze: '#2a2020',
+    zaun: '#6d6d6d',
+    tor: '#f0e6d0',
+    friedhofBoden: '#0b0f0b',
+    grabstein: '#4a4a4a',
+    zombies: {
+        gierige:   '#ff2a2a',   // rot
+        lauerer:   '#b04cff',   // violett
+        torkler:   '#3ddc3d',   // gruen
+        schlurfer: '#d9a21b'    // ocker
+    },
+    panik: '#5f7191',           // blau-grau
+    panikBlink: '#d8dde8',
+    augen: '#ffffff',
+    pupille: '#100000'
+};
+
+// Geschwindigkeiten in Kacheln pro Sekunde, pro Level (Index = Level, ab 6 konstant).
+// Platzhalter, Feinabstimmung folgt in Phase 3 bis 5.
+const SPEEDS = [
+    null,
+    { spieler: 6.0, zombie: 5.5, panik: 3.5, heimweg: 10, schlurfer: 4.5, panikDauer: 7 },
+    { spieler: 6.5, zombie: 6.0, panik: 4.0, heimweg: 10, schlurfer: 5.0, panikDauer: 6 },
+    { spieler: 7.0, zombie: 6.5, panik: 4.5, heimweg: 10, schlurfer: 5.5, panikDauer: 5 },
+    { spieler: 7.0, zombie: 7.0, panik: 4.5, heimweg: 10, schlurfer: 6.0, panikDauer: 4 },
+    { spieler: 7.5, zombie: 7.5, panik: 5.0, heimweg: 10, schlurfer: 6.5, panikDauer: 3 },
+    { spieler: 8.0, zombie: 8.0, panik: 5.5, heimweg: 10, schlurfer: 7.0, panikDauer: 2 }
+];
+
+function speedsFor(level) {
+    return SPEEDS[Math.min(Math.max(level, 1), SPEEDS.length - 1)];
+}
+
+const DIRS = {
+    up:    { dx: 0,  dy: -1 },
+    down:  { dx: 0,  dy: 1 },
+    left:  { dx: -1, dy: 0 },
+    right: { dx: 1,  dy: 0 }
+};
+
+// Die vier Bewohner: Reihenfolge = Reihenfolge der Z-Startplaetze in der Karte
+// (der erste startet ueber dem Tor, die anderen drei im Friedhof).
+const ZOMBIE_DEFS = [
+    { key: 'gierige',   name: 'Der Gierige',   color: COLORS.zombies.gierige,   home: { col: COLS - 2, row: 1 } },
+    { key: 'lauerer',   name: 'Der Lauerer',   color: COLORS.zombies.lauerer,   home: { col: 1,        row: 1 } },
+    { key: 'torkler',   name: 'Der Torkler',   color: COLORS.zombies.torkler,   home: { col: COLS - 2, row: ROWS - 2 } },
+    { key: 'schlurfer', name: 'Der Schlurfer', color: COLORS.zombies.schlurfer, home: { col: 1,        row: ROWS - 2 } }
+];
+
+const PUNKTE = { vorrat: 10, adrenalin: 50 };
+
+// === KARTE ===
+// '#' Wand, '.' Vorrat, 'o' Adrenalin, ' ' begehbar ohne Punkt, '-' Friedhofstor,
+// 'G' Friedhof innen, 'P' Spielerstart, 'Z' Zombiestart, 'T' Tunnel (Wrap-around).
+// 21 Spalten x 23 Zeilen, spiegelsymmetrisch.
+
+const MAP = [
+    "#####################",
+    "#........###........#",
+    "#.###.##.###.##.###.#",
+    "#o###.##.###.##.###o#",
+    "#...................#",
+    "#.####.###.###.####.#",
+    "#.####.###.###.####.#",
+    "#......###.###......#",
+    "#.####....Z....####.#",
+    "#.####.###-###.####.#",
+    "#.####.#GGGGG#.####.#",
+    "T......#ZGZGZ#......T",
+    "#.####.#GGGGG#.####.#",
+    "#.####.#######.####.#",
+    "#.####....P....####.#",
+    "#......###.###......#",
+    "#.########.########.#",
+    "#.########.########.#",
+    "#...................#",
+    "#.##.###.###.###.##.#",
+    "#o##.###.###.###.##o#",
+    "#...................#",
+    "#####################"
+];
+
+// Aus der Karte abgeleitet (parseMap fuellt das):
+let walls = [];          // [row][col] true = fuer den Spieler gesperrt (Mauer oder Zaun)
+let fence = [];          // [row][col] true = Zaunstueck des Friedhofs (wird anders gezeichnet)
+let dots = [];           // [row][col] 0 nichts, 1 Vorrat, 2 Adrenalin
+let playerStart = null;  // { col, row }
+let zombieStarts = [];   // [{ col, row, inside }]
+let tunnelRow = -1;
+let graveyard = null;    // { c0, r0, c1, r1 } inkl. Zaun
+let gate = null;         // { col, row }
+let dotsTotal = 0;
+
+function parseMap() {
+    console.assert(MAP.length === ROWS, 'HIRNFRASS: Karte hat ' + MAP.length + ' Zeilen, erwartet ' + ROWS);
+    walls = [];
+    fence = [];
+    dots = [];
+    zombieStarts = [];
+    playerStart = null;
+    tunnelRow = -1;
+    gate = null;
+    dotsTotal = 0;
+
+    // Friedhof-Innenraum: Bounding-Box aller 'G'-Zellen, plus 1 Kachel Zaun rundherum.
+    let gMinC = COLS, gMaxC = -1, gMinR = ROWS, gMaxR = -1;
+    for (let r = 0; r < ROWS; r++) {
+        console.assert(MAP[r].length === COLS, 'HIRNFRASS: Zeile ' + r + ' hat ' + MAP[r].length + ' Zeichen, erwartet ' + COLS);
+        for (let c = 0; c < COLS; c++) {
+            if (MAP[r][c] === 'G') {
+                gMinC = Math.min(gMinC, c); gMaxC = Math.max(gMaxC, c);
+                gMinR = Math.min(gMinR, r); gMaxR = Math.max(gMaxR, r);
+            }
+        }
+    }
+    graveyard = { c0: gMinC - 1, r0: gMinR - 1, c1: gMaxC + 1, r1: gMaxR + 1 };
+
+    for (let r = 0; r < ROWS; r++) {
+        walls[r] = [];
+        fence[r] = [];
+        dots[r] = [];
+        for (let c = 0; c < COLS; c++) {
+            const ch = MAP[r][c];
+            const inGraveyardRect = c >= graveyard.c0 && c <= graveyard.c1 && r >= graveyard.r0 && r <= graveyard.r1;
+            const inGraveyardInner = c > graveyard.c0 && c < graveyard.c1 && r > graveyard.r0 && r < graveyard.r1;
+            walls[r][c] = false;
+            fence[r][c] = false;
+            dots[r][c] = 0;
+            switch (ch) {
+                case '#':
+                    walls[r][c] = true;
+                    fence[r][c] = inGraveyardRect;
+                    break;
+                case '.':
+                    dots[r][c] = 1;
+                    dotsTotal++;
+                    break;
+                case 'o':
+                    dots[r][c] = 2;
+                    dotsTotal++;
+                    break;
+                case '-':
+                    gate = { col: c, row: r };
+                    break;
+                case 'P':
+                    playerStart = { col: c, row: r };
+                    break;
+                case 'Z':
+                    zombieStarts.push({ col: c, row: r, inside: inGraveyardInner });
+                    break;
+                case 'T':
+                    tunnelRow = r;
+                    break;
+                case 'G':
+                case ' ':
+                default:
+                    break;
+            }
+        }
+    }
+
+    console.assert(playerStart !== null, 'HIRNFRASS: kein Spielerstart (P) in der Karte');
+    console.assert(zombieStarts.length === 4, 'HIRNFRASS: erwartet 4 Zombiestarts, gefunden ' + zombieStarts.length);
+    console.assert(gate !== null, 'HIRNFRASS: kein Friedhofstor (-) in der Karte');
+    console.assert(tunnelRow >= 0, 'HIRNFRASS: keine Tunnelzeile (T) in der Karte');
+}
+
+// Kachel fuer den Spieler betretbar? (Tunnel-Wrap wird ueber die Spalte geregelt)
+function isWalkable(col, row) {
+    if (row < 0 || row >= ROWS) return false;
+    if (col < 0 || col >= COLS) return row === tunnelRow;   // Tunnelmund
+    if (walls[row][col]) return false;
+    if (gate && col === gate.col && row === gate.row) return false;
+    return true;
+}
+
+function wrapCol(col) {
+    return ((col % COLS) + COLS) % COLS;
+}
+
+// Liegt (col,row) im Friedhof-Innenraum?
+function inGraveyard(col, row) {
+    return graveyard && col > graveyard.c0 && col < graveyard.c1 && row > graveyard.r0 && row < graveyard.r1;
+}
+
+// Flood-Fill vom Spielerstart: alle Vorraete erreichbar? Sackgassen?
+function validateMap() {
+    const seen = [];
+    for (let r = 0; r < ROWS; r++) seen[r] = new Array(COLS).fill(false);
+
+    const stack = [[playerStart.col, playerStart.row]];
+    seen[playerStart.row][playerStart.col] = true;
+    let reached = 0;
+    while (stack.length) {
+        const [c, r] = stack.pop();
+        reached++;
+        for (const d of Object.values(DIRS)) {
+            let nc = c + d.dx, nr = r + d.dy;
+            if (r === tunnelRow && (nc < 0 || nc >= COLS)) nc = wrapCol(nc);
+            if (!isWalkable(nc, nr)) continue;
+            if (seen[nr][nc]) continue;
+            seen[nr][nc] = true;
+            stack.push([nc, nr]);
+        }
+    }
+
+    let unreachableDots = 0, unreachableCells = 0, deadEnds = 0;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (!isWalkable(c, r) || inGraveyard(c, r)) continue;
+            if (!seen[r][c]) {
+                unreachableCells++;
+                if (dots[r][c] > 0) unreachableDots++;
+            }
+            let n = 0;
+            for (const d of Object.values(DIRS)) {
+                let nc = c + d.dx, nr = r + d.dy;
+                if (r === tunnelRow && (nc < 0 || nc >= COLS)) nc = wrapCol(nc);
+                if (isWalkable(nc, nr)) n++;
+            }
+            if (n < 2) deadEnds++;
+        }
+    }
+
+    console.assert(unreachableDots === 0, 'HIRNFRASS: ' + unreachableDots + ' Vorraete sind vom Spielerstart aus nicht erreichbar');
+    console.assert(unreachableCells === 0, 'HIRNFRASS: ' + unreachableCells + ' begehbare Kacheln sind nicht erreichbar');
+    console.assert(deadEnds === 0, 'HIRNFRASS: ' + deadEnds + ' Sackgassen ausserhalb des Friedhofs');
+    const adrenalin = MAP.join('').split('o').length - 1;
+    console.log('HIRNFRASS: Karte ' + COLS + 'x' + ROWS + ', ' + dotsTotal + ' Vorraete (davon ' + adrenalin + ' Adrenalin), ' +
+        reached + ' Kacheln erreichbar, ' + deadEnds + ' Sackgassen, Tunnel in Zeile ' + tunnelRow);
+}
+
+// === ZUSTAND ===
+
+const state = {
+    mode: 'start',          // 'start' | 'ready' | 'play' | 'pause' | 'dying' | 'levelclear' | 'gameover'
+    score: 0,
+    highscore: 0,
+    level: 1,
+    lives: 3,
+    dotsLeft: 0,
+    dotsEaten: 0,
+    player: { x: 0, y: 0, dir: 'left', nextDir: 'left', speed: 0 },
+    zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside }]
+    timers: {               // Platzhalter, werden ab Phase 3 gefuellt
+        ready: 0,           // Sekunden bis Levelstart
+        modus: 0,           // Zeit im aktuellen streunen/jagen-Abschnitt
+        panik: 0,           // verbleibende Panikdauer
+        freeze: 0,          // kurze Pause nach erledigtem Zombie
+        bonus: 0,           // Anzeigedauer Erste-Hilfe-Kasten
+        blink: 0            // Wandblinken bei Levelende
+    },
+    modusIndex: 0,          // Position im streunen/jagen-Zeitplan
+    panikKette: 0,          // wie viele Zombies in Folge erledigt
+    bonusAktiv: false
+};
+
+function tileCenter(col, row) {
+    return { x: (col + 0.5) * TILE, y: (row + 0.5) * TILE };
+}
+
+function resetEntities() {
+    const p = tileCenter(playerStart.col, playerStart.row);
+    state.player.x = p.x;
+    state.player.y = p.y;
+    state.player.dir = 'left';
+    state.player.nextDir = 'left';
+    state.player.speed = speedsFor(state.level).spieler * TILE;
+
+    state.zombies = ZOMBIE_DEFS.map((def, i) => {
+        const s = zombieStarts[i] || zombieStarts[0];
+        const c = tileCenter(s.col, s.row);
+        return {
+            key: def.key,
+            name: def.name,
+            color: def.color,
+            x: c.x,
+            y: c.y,
+            dir: s.inside ? 'up' : 'left',
+            mode: s.inside ? 'friedhof' : 'streunen',   // 'friedhof' | 'streunen' | 'jagen' | 'panik' | 'heimweg'
+            home: def.home,
+            startCol: s.col,
+            startRow: s.row,
+            inside: s.inside,
+            wait: 0
+        };
+    });
+}
+
+function resetDots() {
+    parseMap();
+    state.dotsLeft = dotsTotal;
+    state.dotsEaten = 0;
+}
+
+function loadHighscore() {
+    try {
+        const v = parseInt(localStorage.getItem('hirnfrass_highscore') || '0', 10);
+        state.highscore = isNaN(v) ? 0 : v;
+    } catch (e) {
+        state.highscore = 0;
+    }
+}
+
+function updateHud() {
+    scoreEl.textContent = state.score;
+    highscoreEl.textContent = state.highscore;
+    levelEl.textContent = state.level;
+    livesEl.textContent = state.lives;
+}
+
+// === RENDER ===
+
+let mazeLayer = null;   // vorgezeichnete Mauern + Friedhof, wird pro Frame nur kopiert
+
+function isSolidWall(col, row) {
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return true;   // Aussenrand zaehlt als Mauer
+    return walls[row][col] && !fence[row][col];
+}
+
+// Rechteck einer Mauerkachel: an offenen Seiten eingerueckt, zu Nachbarmauern durchgehend.
+function wallRect(col, row, inset) {
+    const L = isSolidWall(col - 1, row), R = isSolidWall(col + 1, row);
+    const U = isSolidWall(col, row - 1), D = isSolidWall(col, row + 1);
+    const x0 = col * TILE + (L ? 0 : inset);
+    const x1 = (col + 1) * TILE - (R ? 0 : inset);
+    const y0 = row * TILE + (U ? 0 : inset);
+    const y1 = (row + 1) * TILE - (D ? 0 : inset);
+    return [x0, y0, x1 - x0, y1 - y0];
+}
+
+function buildWallShape() {
+    const shape = document.createElement('canvas');
+    shape.width = W;
+    shape.height = H;
+    const s = shape.getContext('2d');
+    const m = 3;      // Abstand Mauer zu Gasse
+    const rim = 2;    // Breite des hellen Rands
+
+    // Rand (hell)
+    s.fillStyle = COLORS.wandRand;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (isSolidWall(c, r) && r >= 0) s.fillRect(...wallRect(c, r, m));
+        }
+    }
+    // Fuellung (dunkel)
+    s.fillStyle = COLORS.wand;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (isSolidWall(c, r)) s.fillRect(...wallRect(c, r, m + rim));
+        }
+    }
+    // Innenecken: kleine Kerbe, damit der Rand sauber um die Ecke laeuft
+    const k = m + rim;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (!isSolidWall(c, r)) continue;
+            for (const dx of [-1, 1]) {
+                for (const dy of [-1, 1]) {
+                    if (isSolidWall(c + dx, r) && isSolidWall(c, r + dy) && !isSolidWall(c + dx, r + dy)) {
+                        const px = dx > 0 ? (c + 1) * TILE : c * TILE;
+                        const py = dy > 0 ? (r + 1) * TILE : r * TILE;
+                        s.fillStyle = COLORS.wandRand;
+                        s.fillRect(dx > 0 ? px - k : px, dy > 0 ? py - k : py, k, k);
+                        s.clearRect(dx > 0 ? px - m : px, dy > 0 ? py - m : py, m, m);
+                    }
+                }
+            }
+        }
+    }
+    return shape;
+}
+
+function drawGraveyard(g) {
+    const gy = graveyard;
+    const T = TILE;
+
+    // Boden innen
+    g.fillStyle = COLORS.friedhofBoden;
+    g.fillRect((gy.c0 + 1) * T, (gy.r0 + 1) * T, (gy.c1 - gy.c0 - 1) * T, (gy.r1 - gy.r0 - 1) * T);
+
+    // Grabsteine (Andeutung)
+    const stones = [
+        { col: gy.c0 + 1, row: gy.r0 + 1, off: 0.35 },
+        { col: gy.c0 + 3, row: gy.r0 + 1, off: 0.5 },
+        { col: gy.c1 - 1, row: gy.r0 + 1, off: 0.65 },
+        { col: gy.c0 + 2, row: gy.r1 - 1, off: 0.55 },
+        { col: gy.c1 - 2, row: gy.r1 - 1, off: 0.45 }
+    ];
+    for (const st of stones) {
+        const x = (st.col + st.off) * T;
+        const y = (st.row + 0.55) * T;
+        g.fillStyle = COLORS.grabstein;
+        g.beginPath();
+        g.moveTo(x - 4, y + 5);
+        g.lineTo(x - 4, y - 2);
+        g.arc(x, y - 2, 4, Math.PI, 0);
+        g.lineTo(x + 4, y + 5);
+        g.closePath();
+        g.fill();
+        g.strokeStyle = '#2a2a2a';
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(x, y - 3); g.lineTo(x, y + 2);
+        g.moveTo(x - 2, y - 1); g.lineTo(x + 2, y - 1);
+        g.stroke();
+    }
+
+    // Zaun: Pfaehle und Latten
+    g.strokeStyle = COLORS.zaun;
+    g.fillStyle = COLORS.zaun;
+    g.lineWidth = 1.5;
+    for (let r = gy.r0; r <= gy.r1; r++) {
+        for (let c = gy.c0; c <= gy.c1; c++) {
+            if (!fence[r][c]) continue;
+            const cx = (c + 0.5) * T, cy = (r + 0.5) * T;
+            const top = r === gy.r0, bottom = r === gy.r1, left = c === gy.c0, right = c === gy.c1;
+            if (top || bottom) {
+                const xa = left ? cx : c * T;
+                const xb = right ? cx : (c + 1) * T;
+                g.beginPath();
+                g.moveTo(xa, cy - 4); g.lineTo(xb, cy - 4);
+                g.moveTo(xa, cy + 4); g.lineTo(xb, cy + 4);
+                g.stroke();
+            }
+            if (left || right) {
+                const ya = top ? cy : r * T;
+                const yb = bottom ? cy : (r + 1) * T;
+                g.beginPath();
+                g.moveTo(cx - 4, ya); g.lineTo(cx - 4, yb);
+                g.moveTo(cx + 4, ya); g.lineTo(cx + 4, yb);
+                g.stroke();
+            }
+            // Pfahl
+            g.fillRect(cx - 1.5, cy - 8, 3, 16);
+            g.beginPath();
+            g.moveTo(cx - 1.5, cy - 8); g.lineTo(cx, cy - 11); g.lineTo(cx + 1.5, cy - 8);
+            g.fill();
+        }
+    }
+
+    // Tor: helle Linie
+    if (gate) {
+        const cx = (gate.col + 0.5) * T, cy = (gate.row + 0.5) * T;
+        g.save();
+        g.shadowBlur = 6;
+        g.shadowColor = COLORS.tor;
+        g.strokeStyle = COLORS.tor;
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(gate.col * T + 2, cy);
+        g.lineTo((gate.col + 1) * T - 2, cy);
+        g.stroke();
+        g.restore();
+    }
+}
+
+function buildMazeLayer() {
+    mazeLayer = document.createElement('canvas');
+    mazeLayer.width = W;
+    mazeLayer.height = H;
+    const g = mazeLayer.getContext('2d');
+
+    // Hintergrund mit roter Vignette
+    g.fillStyle = COLORS.hintergrund;
+    g.fillRect(0, 0, W, H);
+    const grad = g.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, H * 0.8);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(1, COLORS.vignette);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, W, H);
+
+    // Mauern mit Glow
+    const shape = buildWallShape();
+    g.save();
+    g.shadowBlur = 10;
+    g.shadowColor = COLORS.wandGlow;
+    g.drawImage(shape, 0, 0);
+    g.restore();
+
+    // Tunnelmuender: leichtes Verlaufen ins Dunkel
+    if (tunnelRow >= 0) {
+        const y = tunnelRow * TILE;
+        const gl = g.createLinearGradient(0, 0, TILE * 1.5, 0);
+        gl.addColorStop(0, 'rgba(60, 0, 0, 0.8)');
+        gl.addColorStop(1, 'rgba(60, 0, 0, 0)');
+        g.fillStyle = gl;
+        g.fillRect(0, y, TILE * 1.5, TILE);
+        const gr = g.createLinearGradient(W, 0, W - TILE * 1.5, 0);
+        gr.addColorStop(0, 'rgba(60, 0, 0, 0.8)');
+        gr.addColorStop(1, 'rgba(60, 0, 0, 0)');
+        g.fillStyle = gr;
+        g.fillRect(W - TILE * 1.5, y, TILE * 1.5, TILE);
+    }
+
+    drawGraveyard(g);
+}
+
+function drawAdrenalin(cx, cy, pulse) {
+    // pulsierende Spritze
+    const scale = 0.9 + 0.25 * pulse;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-Math.PI / 4);
+    ctx.scale(scale, scale);
+    ctx.shadowBlur = 8 + 8 * pulse;
+    ctx.shadowColor = COLORS.adrenalinGlow;
+    // Kolben
+    ctx.fillStyle = COLORS.adrenalin;
+    ctx.fillRect(-5, -2.5, 10, 5);
+    // Griff
+    ctx.fillRect(-7, -4, 2, 8);
+    // Stempel
+    ctx.strokeStyle = COLORS.adrenalin;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-7, 0); ctx.lineTo(-10, 0);
+    ctx.stroke();
+    // Nadel
+    ctx.strokeStyle = '#ffd0d0';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(5, 0); ctx.lineTo(10, 0);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawDots(now) {
+    const pulse = 0.5 + 0.5 * Math.sin(now / 1000 * Math.PI * 2 * 1.3);
+    ctx.fillStyle = COLORS.vorrat;
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const v = dots[r][c];
+            if (v === 0) continue;
+            const cx = (c + 0.5) * TILE, cy = (r + 0.5) * TILE;
+            if (v === 1) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                drawAdrenalin(cx, cy, pulse);
+                ctx.fillStyle = COLORS.vorrat;
+            }
+        }
+    }
+}
+
+// Platzhalter, die echte Zeichnung des Streuners kommt in Phase 2.
+function drawPlayer(p) {
+    const d = DIRS[p.dir] || DIRS.left;
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(255, 240, 200, 0.5)';
+    ctx.fillStyle = COLORS.spieler;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    // Kapuzen-Ausschnitt in Blickrichtung
+    ctx.fillStyle = COLORS.spielerKapuze;
+    ctx.beginPath();
+    ctx.arc(p.x + d.dx * 3, p.y + d.dy * 3, 4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Platzhalter, die echte Zombie-Zeichnung kommt in Phase 3.
+function drawZombie(z) {
+    const color = z.mode === 'panik' ? COLORS.panik : z.color;
+    ctx.save();
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = color;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(z.x, z.y, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    // Augen
+    const d = DIRS[z.dir] || DIRS.left;
+    for (const side of [-1, 1]) {
+        const ex = z.x + side * 3.5 + d.dx * 1.5;
+        const ey = z.y - 2 + d.dy * 1.5;
+        ctx.fillStyle = COLORS.augen;
+        ctx.beginPath();
+        ctx.arc(ex, ey, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = COLORS.pupille;
+        ctx.beginPath();
+        ctx.arc(ex + d.dx, ey + d.dy, 1.1, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function drawPauseOverlay() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#cc0000';
+    ctx.font = "bold 48px 'Creepster', cursive";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = '#000';
+    ctx.fillText('PAUSE', W / 2, H / 2 - 20);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#888';
+    ctx.font = "16px 'Share Tech Mono', monospace";
+    ctx.fillText('SPACE oder Knopf zum Weiterschleichen', W / 2, H / 2 + 30);
+}
+
+function draw() {
+    const now = performance.now();
+    ctx.drawImage(mazeLayer, 0, 0);
+    drawDots(now);
+    for (const z of state.zombies) drawZombie(z);
+    drawPlayer(state.player);
+    if (state.mode === 'pause') drawPauseOverlay();
+}
+
+// === SPIELER ===
+// folgt in Phase 2
+
+// === ZOMBIES ===
+// folgt in Phase 3
+
+// === PUNKTE/LEBEN ===
+// folgt in Phase 4
+
+// === LEVEL/GAMEOVER ===
+
+function startGame() {
+    state.score = 0;
+    state.level = 1;
+    state.lives = 3;
+    resetDots();
+    resetEntities();
+    updateHud();
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = '⏸ Pause';
+    state.mode = 'play';    // Ready-Phase folgt in Phase 5
+    startLoop();
+}
+
+function resetGame() {
+    stopLoop();
+    state.mode = 'start';
+    state.score = 0;
+    state.level = 1;
+    state.lives = 3;
+    resetDots();
+    resetEntities();
+    updateHud();
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸ Pause';
+    gameOverScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+    draw();
+}
+
+function togglePause() {
+    if (state.mode === 'play') {
+        state.mode = 'pause';
+        pauseBtn.textContent = '▶ Weiter';
+    } else if (state.mode === 'pause') {
+        state.mode = 'play';
+        pauseBtn.textContent = '⏸ Pause';
+        lastTime = 0;
+    }
+}
+
+// === EINGABE ===
+// folgt in Phase 2 (Tastatur) und Phase 6 (Touch)
+
+// === SOUND ===
+
+let soundEnabled = false;
+
+function toggleSound() {
+    // Stub, die Toene folgen in Phase 4
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('soundToggle');
+    btn.textContent = soundEnabled ? '🔊' : '🔇';
+    btn.style.background = soundEnabled ? 'rgba(220, 38, 38, 0.15)' : 'rgba(15, 15, 15, 0.85)';
+}
+
+// === SCHLEIFE ===
+
+let rafId = null;
+let lastTime = 0;
+
+function update(dt) {
+    // Bewegung, Zombies, Timer folgen in den Phasen 2 bis 5
+}
+
+function loop(now) {
+    let dt = lastTime === 0 ? 0 : (now - lastTime) / 1000;
+    lastTime = now;
+    dt = Math.min(dt, 0.05);
+    if (state.mode === 'play') update(dt);
+    draw();
+    rafId = requestAnimationFrame(loop);
+}
+
+function startLoop() {
+    stopLoop();
+    lastTime = 0;
+    rafId = requestAnimationFrame(loop);
+}
+
+function stopLoop() {
+    if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+    lastTime = 0;
+}
+
+// Initialisierung
+parseMap();
+validateMap();
+buildMazeLayer();
+loadHighscore();
+state.dotsLeft = dotsTotal;
+resetEntities();
+updateHud();
+draw();
+    </script>
+</body>
+</html>
