@@ -1404,8 +1404,10 @@ function drawPlayerAt(p, x, y) {
     ctx.restore();
 }
 
-// Zombie: Halbkreis-Kopf auf einem Rumpf mit zerfetztem Saum, zwei Augen mit Blick in
-// Laufrichtung. Panik: blau-grau, Zittern, wirre Augen, Blinken am Ende.
+// Zombie: schiefer, leicht eckiger Kopf auf einem schmalen Rumpf (Schultern), zwei
+// ausgestreckte Arme in Laufrichtung, die beim Gehen wackeln. Zwei ungleiche Augen mit
+// Blick in Laufrichtung, kleiner Mund mit Zahnstrichen, Risse auf dem Rumpf.
+// Panik: blau-grau, Arme hoch, Zittern, wirre Augen, Blinken am Ende.
 // Heimweg: nur Augen und ein blasser Schaedel-Umriss. Friedhof: wippt.
 function drawZombie(z) {
     const now = performance.now();
@@ -1416,12 +1418,17 @@ function drawZombie(z) {
 }
 
 function drawZombieAt(z, x, y, now) {
-    const R = TILE * 0.4;
     const d = DIRS[z.dir] || DIRS.up;
     const panik = z.mode === 'panik';
     const heimweg = z.mode === 'heimweg';
-    const top = -R * 0.15;          // Mittelpunkt des Halbkreises
-    const hem = R * 0.85;           // Unterkante des Rumpfs (ohne Zacken)
+    const hr = TILE * 0.28;         // Kopfradius
+    const hy = -TILE * 0.17;        // Kopfmitte, nach oben versetzt
+    const sw = TILE * 0.22;         // halbe Schulterbreite
+    const sy = hy + hr * 0.85;      // Schulterlinie (Rumpf-Oberkante, unter dem Kinn)
+    const by = TILE * 0.42;         // Rumpf-Unterkante
+    const bw = TILE * 0.15;         // halbe Breite an der Unterkante
+    const KONTUR = 'rgba(0, 0, 0, 0.8)';
+    const SCHATTEN = 'rgba(0, 0, 0, 0.28)';
 
     let ox = 0, oy = 0;
     if (z.mode === 'friedhof') oy = Math.sin(now / 260 + z.bobPhase) * 1.5;
@@ -1439,9 +1446,15 @@ function drawZombieAt(z, x, y, now) {
 
     ctx.save();
     ctx.translate(x + ox, y + oy);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
+    // Augenpositionen (Heimweg: wie der alte Schaedel, sonst am Kopf)
+    let eyeY, eyeX;
     if (heimweg) {
         // Schaedel: Kalotte, Kiefer und eine kleine Zahnreihe, deutlich sichtbar
+        const R = TILE * 0.4;
+        const top = -R * 0.15;
         ctx.strokeStyle = 'rgba(235, 235, 235, 0.75)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -1455,43 +1468,119 @@ function drawZombieAt(z, x, y, now) {
             ctx.moveTo(tx, jy); ctx.lineTo(tx, jy + jh);
         }
         ctx.stroke();
+        eyeY = top - R * 0.05;
+        eyeX = R * 0.4;
     } else {
-        // Koerper: Halbkreis oben, Rumpf, Saum mit 4 Zacken (Muster wechselt jede halbe Kachel)
-        const teeth = 4;
-        const step = (2 * R) / teeth;
-        const alt = Math.floor(z.walked / (TILE / 2)) % 2;
+        const phase = (z.walked / TILE) * Math.PI * 2;
+        const horiz = d.dy === 0;
+
+        // Arme: zwei duenne Balken (3 px). Normal nach vorn in Laufrichtung, wackelnd;
+        // in Panik beide hoch ueber den Kopf.
+        ctx.fillStyle = color;
+        ctx.strokeStyle = KONTUR;
+        ctx.lineWidth = 1.5;
+        const arm = (x0, y0, x1, y1) => {
+            const rx = Math.min(x0, x1), ry = Math.min(y0, y1);
+            const rw = Math.abs(x1 - x0) || 3, rh = Math.abs(y1 - y0) || 3;
+            ctx.fillRect(rx, ry, rw, rh);
+            ctx.strokeRect(rx, ry, rw, rh);
+            // dunkle Hand am Ende
+            ctx.fillStyle = SCHATTEN;
+            if (rw > rh) ctx.fillRect(x1 > x0 ? x1 - 2.5 : x1, ry, 2.5, rh);
+            else ctx.fillRect(rx, y1 > y0 ? y1 - 2.5 : y1, rw, 2.5);
+            ctx.fillStyle = color;
+        };
+        for (const k of [-1, 1]) {
+            const wob = Math.sin(phase + k * Math.PI / 2) * 1.3;
+            if (panik) {
+                // Arme hoch: schraeg nach aussen ueber den Kopf (V-Pose), mit dunkler Kontur
+                const x0 = k * sw, y0 = sy + 1;
+                const x1 = k * (sw + 4.5) + wob * 0.5, y1 = -TILE * 0.46 + wob;
+                ctx.strokeStyle = KONTUR;
+                ctx.lineWidth = 4.5;
+                ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                ctx.strokeStyle = KONTUR;
+                ctx.lineWidth = 1.5;
+            } else if (horiz) {
+                // Arme uebereinander, vom vorderen Rumpfrand nach vorn
+                const ay = sy + 2 + k * 2 + wob;
+                const ax = d.dx * sw * 0.4;
+                arm(ax, ay - 1.5, ax + d.dx * TILE * 0.42, ay + 1.5);
+            } else {
+                // Arme nebeneinander, am Kopf vorbei nach vorn
+                const ax = k * (hr + 2.2);
+                arm(ax - 1.5, sy, ax + 1.5, sy + d.dy * (TILE * 0.38 + wob));
+            }
+        }
+
+        // Rumpf: kurzes Trapez (Schultern breiter als unten), dunkler als der Kopf
         ctx.shadowBlur = 8;
         ctx.shadowColor = color;
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(0, top, R, Math.PI, 0);
-        ctx.lineTo(R, hem);
-        for (let i = 0; i < teeth; i++) {
-            const x0 = R - i * step;
-            const deep = ((i + alt) % 2 === 0) ? 4.5 : 2;
-            ctx.lineTo(x0 - step / 2, hem + deep);
-            ctx.lineTo(x0 - step, hem);
+        ctx.moveTo(-sw, sy);
+        ctx.lineTo(sw, sy);
+        ctx.lineTo(bw, by);
+        ctx.lineTo(-bw, by);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = SCHATTEN;
+        ctx.fill();
+        ctx.stroke();
+
+        // Risse / Flecken auf dem Rumpf
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-2.5, sy + 2.5); ctx.lineTo(-0.5, sy + 5);
+        ctx.moveTo(2, sy + 4.5);    ctx.lineTo(2.5, sy + 7);
+        ctx.stroke();
+
+        // Kopf: schiefer, leicht eckiger Kreis (unregelmaessiges Polygon)
+        const bumps = [1, 0.93, 1.04, 0.96, 1.02, 0.9, 1.05, 0.95, 1];
+        const tilt = 0.35;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = color;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (let i = 0; i < bumps.length; i++) {
+            const a = tilt + (i / bumps.length) * Math.PI * 2;
+            const r = hr * bumps[i];
+            const px = Math.cos(a) * r * 1.05, py = Math.sin(a) * r * 0.95;
+            if (i === 0) ctx.moveTo(px, hy + py); else ctx.lineTo(px, hy + py);
         }
         ctx.closePath();
         ctx.fill();
         ctx.shadowBlur = 0;
+        ctx.strokeStyle = KONTUR;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-        // Mund: kleiner dunkler Strich, in Panik ein rundes "o"
+        // Mund: kleiner dunkler Strich mit zwei hellen Zahnstrichen, in Panik ein "o"
         ctx.fillStyle = COLORS.pupille;
         if (panik) {
             ctx.beginPath();
-            ctx.arc(0, top + R * 0.55, 1.6, 0, Math.PI * 2);
+            ctx.arc(0.5, hy + hr * 0.55, 1.6, 0, Math.PI * 2);
             ctx.fill();
         } else {
-            ctx.fillRect(-2.5, top + R * 0.5, 5, 1.6);
+            const mx = -2 + d.dx * 1, my = hy + hr * 0.45;
+            ctx.fillRect(mx, my, 5.5, 2.2);
+            ctx.fillStyle = COLORS.augen;
+            ctx.fillRect(mx + 1.2, my, 1, 1.3);
+            ctx.fillRect(mx + 3.3, my, 1, 1.3);
         }
+        eyeY = hy - hr * 0.12;
+        eyeX = hr * 0.42;
     }
 
     // Augen
-    const ey0 = top - R * 0.05;
     for (const side of [-1, 1]) {
-        const ex = side * R * 0.4 + d.dx * 1.2;
-        const ey = ey0 + d.dy * 1.2;
+        const ex = side * eyeX + d.dx * 1.2;
+        const ey = eyeY + d.dy * 1.2;
         if (panik) {
             // wirre kleine Striche
             const w = Math.sin(now / 90 + side) * 0.8;
@@ -1502,15 +1591,16 @@ function drawZombieAt(z, x, y, now) {
             ctx.moveTo(ex - 2, ey + 1.5 - w); ctx.lineTo(ex + 2, ey - 1.5 + w);
             ctx.stroke();
         } else {
-            // auf dem Heimweg sind die Augen das einzig Deutliche: etwas groesser
-            const er = heimweg ? 3 : 2.4;
+            // auf dem Heimweg sind die Augen das einzig Deutliche: etwas groesser;
+            // sonst ein Auge etwas groesser als das andere (schiefer Blick)
+            const er = heimweg ? 3 : (side < 0 ? 2.6 : 2.0);
             ctx.fillStyle = COLORS.augen;
             ctx.beginPath();
             ctx.arc(ex, ey, er, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = COLORS.pupille;
             ctx.beginPath();
-            ctx.arc(ex + d.dx * 1.2, ey + d.dy * 1.2, heimweg ? 1.4 : 1.2, 0, Math.PI * 2);
+            ctx.arc(ex + d.dx * 1.2, ey + d.dy * 1.2, heimweg ? 1.4 : (side < 0 ? 1.3 : 1.0), 0, Math.PI * 2);
             ctx.fill();
         }
     }
