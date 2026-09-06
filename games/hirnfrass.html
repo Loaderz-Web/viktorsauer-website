@@ -429,7 +429,7 @@
         <div id="gameOverScreen" class="overlay hidden">
             <h2 id="gameOverText" class="gameover-text">Hirn ist aus.</h2>
             <p id="finalStats"></p>
-            <button onclick="resetGame()">☠ Nochmal wagen</button>
+            <button onclick="startGame()">☠ Nochmal wagen</button>
         </div>
 
         <div class="footer-note">
@@ -470,6 +470,9 @@ const COLORS = {
     wand: '#3a0000',            // Mauerfuellung
     wandRand: '#8b0000',        // heller Rand der Mauer
     wandGlow: 'rgba(220, 0, 0, 0.55)',
+    wandHell: '#7a1010',        // Mauerfuellung beim Blinken (Level geschafft)
+    wandRandHell: '#ff4a4a',    // heller Rand beim Blinken
+    wandGlowHell: 'rgba(255, 80, 80, 0.8)',
     vorrat: '#c9b48a',          // Konserven, blass
     adrenalin: '#ff2222',
     adrenalinGlow: '#ff0000',
@@ -493,15 +496,15 @@ const COLORS = {
 
 // Geschwindigkeiten in Kacheln pro Sekunde, pro Level (Index = Level, ab 6 konstant).
 // Zombie-Sonderfaelle (Panik, Heimweg, Tunnel, Schlurfer) sind Faktoren davon, siehe ZOMBIE_TEMPO.
-// Feinabstimmung folgt in Phase 4 und 5.
+// Die Zombies bleiben immer knapp unter dem Streuner: Entkommen geht, aber nur mit Vorsprung.
 const SPEEDS = [
     null,
-    { spieler: 6.0, zombie: 5.5, panikDauer: 7 },
-    { spieler: 6.5, zombie: 6.0, panikDauer: 6 },
-    { spieler: 7.0, zombie: 6.5, panikDauer: 5 },
-    { spieler: 7.0, zombie: 7.0, panikDauer: 4 },
-    { spieler: 7.5, zombie: 7.5, panikDauer: 3 },
-    { spieler: 8.0, zombie: 8.0, panikDauer: 2 }
+    { spieler: 5.0, zombie: 4.6, panikDauer: 7 },
+    { spieler: 5.1, zombie: 4.8, panikDauer: 6 },
+    { spieler: 5.2, zombie: 5.0, panikDauer: 5 },
+    { spieler: 5.3, zombie: 5.2, panikDauer: 4 },
+    { spieler: 5.5, zombie: 5.4, panikDauer: 4 },
+    { spieler: 5.5, zombie: 5.4, panikDauer: 3 }
 ];
 
 function speedsFor(level) {
@@ -566,7 +569,11 @@ const ZEITEN = {
     sterben: 1.2,       // Sterbeanimation
     floating: 0.8,      // schwebende Punktezahl
     bremsen: 0.05,      // kurzes Bremsen nach einem Vorrat
-    herzschlag: 0.5     // Puls waehrend der Panik (Sound)
+    herzschlag: 0.5,    // Puls waehrend der Panik (Sound)
+    ready: 2.0,         // Ready-Phase ("Bleib leise..." / "Noch nicht tot.")
+    levelclear: 2.5,    // Mauerblinken und "Gasse leergeraeumt."
+    blinkTakt: 0.3,     // Wechsel der Wandfarbe beim Levelende
+    blinkAnzahl: 4      // so oft leuchten die Mauern hell auf
 };
 
 // === KARTE ===
@@ -754,6 +761,7 @@ function validateMap() {
 
 const state = {
     mode: 'start',          // 'start' | 'ready' | 'play' | 'pause' | 'dying' | 'levelclear' | 'gameover'
+    meldung: '',            // Text auf dem Spielfeld in 'ready' und 'levelclear'
     score: 0,
     highscore: 0,
     level: 1,
@@ -763,13 +771,13 @@ const state = {
     player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0, slow: 0 },   // walked = Animationsphase, slow = Restzeit Bremsen
     zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside, wait, walked, bobPhase, decidedAt }]
     timers: {
-        ready: 0,           // Sekunden bis Levelstart (Phase 5)
+        ready: 0,           // Restdauer der Ready-Phase
         modus: 0,           // Zeit im aktuellen streunen/jagen-Abschnitt (pausiert waehrend Panik)
         panik: 0,           // verbleibende Panikdauer
         freeze: 0,          // kurze Pause nach erledigtem Zombie
         dying: 0,           // Restdauer der Sterbeanimation
         herz: 0,            // bis zum naechsten Herzschlag-Puls (Panik-Sound)
-        blink: 0            // Wandblinken bei Levelende
+        levelclear: 0       // Restdauer von Blinken und Meldung nach dem Level
     },
     modusIndex: 0,          // Position im streunen/jagen-Zeitplan
     panikKette: 0,          // wie viele Zombies in Folge erledigt
@@ -852,7 +860,9 @@ function updateHud() {
 
 // === RENDER ===
 
-let mazeLayer = null;   // vorgezeichnete Mauern + Friedhof, wird pro Frame nur kopiert
+let mazeLayer = null;        // aktuell gezeichnete Ebene (Mauern + Friedhof), wird pro Frame nur kopiert
+let mazeLayerNormal = null;  // Mauern in Normalfarbe
+let mazeLayerHell = null;    // Mauern hell (Blinken bei Levelende), wird beim ersten Bedarf gebaut
 
 function isSolidWall(col, row) {
     if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return true;   // Aussenrand zaehlt als Mauer
@@ -870,23 +880,25 @@ function wallRect(col, row, inset) {
     return [x0, y0, x1 - x0, y1 - y0];
 }
 
-function buildWallShape() {
+function buildWallShape(hell) {
     const shape = document.createElement('canvas');
     shape.width = W;
     shape.height = H;
     const s = shape.getContext('2d');
     const m = 3;      // Abstand Mauer zu Gasse
     const rim = 2;    // Breite des hellen Rands
+    const wand = hell ? COLORS.wandHell : COLORS.wand;
+    const wandRand = hell ? COLORS.wandRandHell : COLORS.wandRand;
 
     // Rand (hell)
-    s.fillStyle = COLORS.wandRand;
+    s.fillStyle = wandRand;
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             if (isSolidWall(c, r) && r >= 0) s.fillRect(...wallRect(c, r, m));
         }
     }
     // Fuellung (dunkel)
-    s.fillStyle = COLORS.wand;
+    s.fillStyle = wand;
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             if (isSolidWall(c, r)) s.fillRect(...wallRect(c, r, m + rim));
@@ -902,7 +914,7 @@ function buildWallShape() {
                     if (isSolidWall(c + dx, r) && isSolidWall(c, r + dy) && !isSolidWall(c + dx, r + dy)) {
                         const px = dx > 0 ? (c + 1) * TILE : c * TILE;
                         const py = dy > 0 ? (r + 1) * TILE : r * TILE;
-                        s.fillStyle = COLORS.wandRand;
+                        s.fillStyle = wandRand;
                         s.fillRect(dx > 0 ? px - k : px, dy > 0 ? py - k : py, k, k);
                         s.clearRect(dx > 0 ? px - m : px, dy > 0 ? py - m : py, m, m);
                     }
@@ -997,11 +1009,12 @@ function drawGraveyard(g) {
     }
 }
 
-function buildMazeLayer() {
-    mazeLayer = document.createElement('canvas');
-    mazeLayer.width = W;
-    mazeLayer.height = H;
-    const g = mazeLayer.getContext('2d');
+// Baut die Ebene mit Hintergrund, Mauern und Friedhof. hell = Blinkfarbe (Levelende).
+function buildMazeLayer(hell) {
+    const layer = document.createElement('canvas');
+    layer.width = W;
+    layer.height = H;
+    const g = layer.getContext('2d');
 
     // Hintergrund mit roter Vignette
     g.fillStyle = COLORS.hintergrund;
@@ -1013,10 +1026,10 @@ function buildMazeLayer() {
     g.fillRect(0, 0, W, H);
 
     // Mauern mit Glow
-    const shape = buildWallShape();
+    const shape = buildWallShape(hell);
     g.save();
     g.shadowBlur = 10;
-    g.shadowColor = COLORS.wandGlow;
+    g.shadowColor = hell ? COLORS.wandGlowHell : COLORS.wandGlow;
     g.drawImage(shape, 0, 0);
     g.restore();
 
@@ -1036,6 +1049,13 @@ function buildMazeLayer() {
     }
 
     drawGraveyard(g);
+    return layer;
+}
+
+// Mauern normal oder hell zeichnen (Blinken bei Levelende); die helle Ebene wird nur einmal gebaut
+function setMazeBright(hell) {
+    if (hell && !mazeLayerHell) mazeLayerHell = buildMazeLayer(true);
+    mazeLayer = hell ? mazeLayerHell : mazeLayerNormal;
 }
 
 function drawAdrenalin(cx, cy, pulse) {
@@ -1257,15 +1277,40 @@ function drawPauseOverlay() {
     ctx.fillText('SPACE oder Knopf zum Weiterschleichen', W / 2, H / 2 + 30);
 }
 
+// Meldung auf dem Spielfeld ("Bleib leise...", "Noch nicht tot.", "Gasse leergeraeumt."):
+// mittig ueber der untersten Friedhofszeile, unterhalb des Tors, rot mit schwarzem Rand.
+function drawMeldung(text) {
+    if (!text) return;
+    const y = (graveyard.r1 - 0.5) * TILE;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.fillRect(0, y - 16, W, 32);
+    ctx.font = "bold 26px 'Creepster', 'Share Tech Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#000';
+    ctx.strokeText(text, W / 2, y);
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(255, 0, 0, 0.6)';
+    ctx.fillStyle = '#ff2a2a';
+    ctx.fillText(text, W / 2, y);
+    ctx.restore();
+}
+
 function draw() {
     const now = performance.now();
     ctx.drawImage(mazeLayer, 0, 0);
     drawDots(now);
     if (state.bonus) drawBonus(now);
-    for (const z of state.zombies) drawZombie(z);
+    if (state.mode !== 'levelclear') {          // nach dem Level sind die Zombies weg
+        for (const z of state.zombies) drawZombie(z);
+    }
     if (state.mode === 'dying' || state.mode === 'gameover') drawDyingPlayer();
     else drawPlayer(state.player);
     drawFloatingTexts();
+    if (state.mode === 'ready' || state.mode === 'levelclear') drawMeldung(state.meldung);
     if (state.mode === 'pause') drawPauseOverlay();
 }
 
@@ -1631,9 +1676,8 @@ function resetScoreState() {
     state.bonus = null;
     state.bonusGezeigt = 0;
     state.panikKette = 0;
-    state.timers.freeze = 0;
-    state.timers.dying = 0;
-    state.timers.herz = 0;
+    state.meldung = '';
+    for (const k in state.timers) state.timers[k] = 0;
 }
 
 function saveHighscore() {
@@ -1812,15 +1856,14 @@ function updateDying(dt) {
     afterDeath();
 }
 
-// Nach der Sterbeanimation: Leben abziehen und entscheiden, wie es weitergeht
-// (Phase 5 haengt hier die Ready-Phase ein statt direkt 'play').
+// Nach der Sterbeanimation: Leben abziehen, dann Ready-Phase oder Game Over
 function afterDeath() {
     state.lives--;
     updateHud();
     if (state.lives > 0) {
         resetEntities();
         state.floatingTexts = [];
-        state.mode = 'play';
+        startReady('Noch nicht tot.');
     } else {
         gameOver();
     }
@@ -1871,9 +1914,67 @@ function drawDyingPlayer() {
 }
 
 // === LEVEL/GAMEOVER ===
+// Ablauf: start -> ready ("Bleib leise...") -> play -> levelclear ("Gasse leergeraeumt.")
+// -> naechstes Level -> ready. Leben verloren: dying -> ready ("Noch nicht tot.").
+// Letztes Leben weg: dying -> gameover (Overlay "Hirn ist aus.").
 
 let highscoreBeimStart = 0;
 
+// Ready-Phase: alles steht an seinem Platz, die Meldung haengt ueber dem Friedhof
+function startReady(text) {
+    state.mode = 'ready';
+    state.meldung = text;
+    state.timers.ready = ZEITEN.ready;
+    state.timers.freeze = 0;
+    state.player.nextDir = NONE;          // keine alte Eingabe nachwirken lassen
+    setMazeBright(false);
+    pauseBtn.textContent = '⏸ Pause';
+}
+
+function updateReady(dt) {
+    state.timers.ready -= dt;
+    if (state.timers.ready > 0) return;
+    state.timers.ready = 0;
+    state.meldung = '';
+    state.mode = 'play';
+}
+
+// Alle Vorraete weg: Zombies verschwinden, Mauern blinken, Meldung, dann das naechste Level
+function levelClear() {
+    state.mode = 'levelclear';
+    state.meldung = 'Gasse leergeräumt.';
+    state.timers.levelclear = ZEITEN.levelclear;
+    state.timers.panik = 0;
+    state.timers.freeze = 0;
+    state.bonus = null;
+    state.floatingTexts = [];
+    state.player.nextDir = NONE;
+    state.player.walked = 0;              // Ruhepose
+    playSound('levelclear');
+}
+
+function updateLevelClear(dt) {
+    state.timers.levelclear -= dt;
+    const vergangen = ZEITEN.levelclear - state.timers.levelclear;
+    const phase = Math.floor(vergangen / ZEITEN.blinkTakt);
+    // ungerade Phasen hell, insgesamt blinkAnzahl mal, danach wieder normal
+    setMazeBright(phase % 2 === 1 && phase < ZEITEN.blinkAnzahl * 2);
+    if (state.timers.levelclear > 0) return;
+    state.timers.levelclear = 0;
+    nextLevel();
+}
+
+function nextLevel() {
+    state.level++;
+    resetDots();
+    resetEntities();                      // uebernimmt die Geschwindigkeiten des neuen Levels
+    state.floatingTexts = [];
+    state.bonus = null;
+    updateHud();
+    startReady('Bleib leise...');
+}
+
+// Startknopf "Loslaufen" und "Nochmal wagen": alles zurueck, dann Ready-Phase
 function startGame() {
     resetScoreState();
     highscoreBeimStart = state.highscore;
@@ -1883,17 +1984,18 @@ function startGame() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     pauseBtn.disabled = false;
-    pauseBtn.textContent = '⏸ Pause';
-    state.mode = 'play';    // Ready-Phase folgt in Phase 5
+    startReady('Bleib leise...');
     startLoop();
 }
 
+// Neustart-Knopf und Esc: zurueck zum Startbildschirm, nicht direkt ins Spiel
 function resetGame() {
     stopLoop();
     state.mode = 'start';
     resetScoreState();
     resetDots();
     resetEntities();
+    setMazeBright(false);
     updateHud();
     pauseBtn.disabled = true;
     pauseBtn.textContent = '⏸ Pause';
@@ -1904,6 +2006,7 @@ function resetGame() {
 
 function gameOver() {
     state.mode = 'gameover';
+    state.meldung = '';
     if (state.score > state.highscore) state.highscore = state.score;
     saveHighscore();
     const neu = state.score > highscoreBeimStart;
@@ -1914,11 +2017,13 @@ function gameOver() {
         (neu ? '<br><br>Neuer Highscore. Grauburg merkt sich das.' : '');
     updateHud();
     pauseBtn.disabled = true;
+    pauseBtn.textContent = '⏸ Pause';
     gameOverScreen.classList.remove('hidden');
     stopLoop();
     draw();
 }
 
+// Pause nur im laufenden Spiel (nicht in ready/dying/levelclear)
 function togglePause() {
     if (state.mode === 'play') {
         state.mode = 'pause';
@@ -1950,8 +2055,13 @@ document.addEventListener('keydown', (e) => {
     const dir = KEY_DIRS[e.key] || KEY_DIRS[e.key.toLowerCase()];
     if (!dir) return;
     if (e.key.startsWith('Arrow')) e.preventDefault();     // Seite nicht scrollen
-    if (state.mode !== 'play') return;                     // im Startbildschirm startet keine Taste das Spiel
-    state.player.nextDir = dir;                            // wird gepuffert, bis die Richtung frei ist
+    if (state.mode !== 'play' && state.mode !== 'ready') return;   // im Startbildschirm startet keine Taste das Spiel
+    state.player.nextDir = dir;                            // wird gepuffert, bis die Richtung frei ist (auch schon in der Ready-Phase)
+});
+
+// Tab gewechselt oder Handy-Bildschirm aus: automatisch pausieren, damit das keine Leben kostet
+document.addEventListener('visibilitychange', () => {
+    if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
 });
 
 // Touch (Swipe auf dem Canvas + D-Pad) folgt in Phase 6.
@@ -2025,6 +2135,12 @@ function playSound(name) {
         case 'herz':            // leiser Puls waehrend der Panik
             tone(70, 45, 0.12, 0, 'sine', 0.12);
             break;
+        case 'levelclear':      // kurzes aufsteigendes Motiv
+            tone(392, 0, 0.1, 0, 'triangle', 0.09);
+            tone(523, 0, 0.1, 0.12, 'triangle', 0.09);
+            tone(659, 0, 0.1, 0.24, 'triangle', 0.09);
+            tone(784, 0, 0.3, 0.36, 'triangle', 0.1);
+            break;
         default:
             break;
     }
@@ -2057,11 +2173,13 @@ let rafId = null;
 let lastTime = 0;
 
 function update(dt) {
-    if (state.mode === 'dying') {
-        updateDying(dt);
-        return;
+    switch (state.mode) {
+        case 'ready':      updateReady(dt);      return;
+        case 'dying':      updateDying(dt);      return;
+        case 'levelclear': updateLevelClear(dt); return;
+        case 'play':       break;
+        default:           return;               // start, pause, gameover: nichts bewegt sich
     }
-    if (state.mode !== 'play') return;
     updateFloatingTexts(dt);
     if (state.timers.freeze > 0) {          // Einfrier-Pause nach erledigtem Zombie: nichts bewegt sich
         state.timers.freeze -= dt;
@@ -2069,25 +2187,29 @@ function update(dt) {
     }
     updatePlayer(dt);
     collectAt();
+    if (state.dotsLeft <= 0) {              // Gasse leer: Level geschafft, bevor noch jemand beisst
+        levelClear();
+        return;
+    }
     updateModeTimer(dt);
     updateZombies(dt);
     updateBonus(dt);
     checkCollisions();
     updateHeartbeat(dt);
-    // Level-Timer folgen in Phase 5
 }
 
 function loop(now) {
     let dt = lastTime === 0 ? 0 : (now - lastTime) / 1000;
     lastTime = now;
     dt = Math.min(dt, 0.05);
-    if (state.mode === 'play' || state.mode === 'dying') update(dt);
+    update(dt);
     draw();
     rafId = requestAnimationFrame(loop);
 }
 
+// Startet die Schleife nur, wenn sie nicht schon laeuft (nie zwei parallel)
 function startLoop() {
-    stopLoop();
+    if (rafId !== null) return;
     lastTime = 0;
     rafId = requestAnimationFrame(loop);
 }
@@ -2103,7 +2225,8 @@ function stopLoop() {
 // Initialisierung
 parseMap();
 validateMap();
-buildMazeLayer();
+mazeLayerNormal = buildMazeLayer(false);
+mazeLayer = mazeLayerNormal;
 loadHighscore();
 state.dotsLeft = dotsTotal;
 resetEntities();
