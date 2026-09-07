@@ -84,7 +84,7 @@
             display: none;
             grid-template-columns: 56px 56px 56px;
             grid-template-rows: 56px 56px 56px;
-            grid-template-areas: ". hoch reset" "links pause rechts" ". runter .";
+            grid-template-areas: ". hoch ." "links pause rechts" ". runter .";
             gap: 6px;
             margin: 0 auto;
             user-select: none;
@@ -139,16 +139,37 @@
             color: #aa4444;
         }
 
-        /* Neustart-Knopf in der freien Ecke oben rechts (die Knopfzeile ist auf dem Handy ausgeblendet) */
-        #dpad .dpad-reset {
-            grid-area: reset;
-            width: 40px;
-            height: 40px;
-            align-self: center;
-            justify-self: center;
-            border-radius: 50%;
-            font-size: 20px;
+        /* Touch-Bedienung: Steuerkreuz plus Neustart mit Abstand darunter (nur auf Touch-Geraeten sichtbar) */
+        .touch-controls {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+
+        /* Neustart-Knopf bewusst weit weg vom Steuerkreuz; fragt beim ersten Tippen "Sicher?" */
+        .touch-reset {
+            padding: 8px 18px;
+            font-size: 12px;
+            border-radius: 20px;
             color: #aa4444;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: none;
+        }
+
+        .touch-reset:hover {
+            transform: none;
+            box-shadow: none;
+            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+            color: #aa4444;
+        }
+
+        .touch-reset.sicher {
+            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+            color: #fff;
         }
 
         .hud {
@@ -519,6 +540,9 @@
             #dpad {
                 display: grid;
             }
+            .touch-controls {
+                display: flex;
+            }
         }
 
         /* Handy mit Touch, Hochformat: Titel, HUD, Spielfeld und Steuerkreuz ohne Scrollen.
@@ -605,13 +629,15 @@
 
         <div class="spielfeld">
             <canvas id="gameCanvas" width="504" height="552"></canvas>
-            <div id="dpad" aria-label="Steuerkreuz">
-                <button type="button" class="dpad-hoch" data-dir="up" aria-label="Hoch">▲</button>
-                <button type="button" class="dpad-reset" id="dpadReset" aria-label="Neustart">↺</button>
-                <button type="button" class="dpad-links" data-dir="left" aria-label="Links">◀</button>
-                <button type="button" class="dpad-pause" id="dpadPause" aria-label="Pause">II</button>
-                <button type="button" class="dpad-rechts" data-dir="right" aria-label="Rechts">▶</button>
-                <button type="button" class="dpad-runter" data-dir="down" aria-label="Runter">▼</button>
+            <div class="touch-controls">
+                <div id="dpad" aria-label="Steuerkreuz">
+                    <button type="button" class="dpad-hoch" data-dir="up" aria-label="Hoch">▲</button>
+                    <button type="button" class="dpad-links" data-dir="left" aria-label="Links">◀</button>
+                    <button type="button" class="dpad-pause" id="dpadPause" aria-label="Pause">II</button>
+                    <button type="button" class="dpad-rechts" data-dir="right" aria-label="Rechts">▶</button>
+                    <button type="button" class="dpad-runter" data-dir="down" aria-label="Runter">▼</button>
+                </div>
+                <button type="button" class="touch-reset" id="dpadReset" aria-label="Neustart">↺ Neustart</button>
             </div>
         </div>
 
@@ -2510,8 +2536,6 @@ function dpadPress(e) {
         setNextDir(btn.dataset.dir);
     } else if (btn === dpadPauseBtn && (state.mode === 'play' || state.mode === 'pause')) {
         togglePause();
-    } else if (btn === dpadResetBtn) {
-        resetGame();                          // zurueck zum Start-Overlay
     }
 }
 
@@ -2523,8 +2547,42 @@ if (window.PointerEvent) {
 }
 dpad.addEventListener('contextmenu', (e) => e.preventDefault());   // kein Kontextmenue bei langem Druck
 
+// Neustart auf dem Handy: erster Druck fragt "Sicher?", zweiter Druck innerhalb von 2,5 s setzt zurueck.
+// Im Spiel wird beim ersten Druck pausiert, damit die Zombies nicht weiterfressen, waehrend man ueberlegt.
+let resetSicherTimer = null;
+
+function resetSicherAus() {
+    if (resetSicherTimer) clearTimeout(resetSicherTimer);
+    resetSicherTimer = null;
+    dpadResetBtn.classList.remove('sicher');
+    dpadResetBtn.textContent = '\u21BA Neustart';
+}
+
+function dpadResetPress(e) {
+    e.preventDefault();
+    if (state.mode === 'start') return;                 // schon auf dem Startbildschirm
+    if (resetSicherTimer) {
+        resetSicherAus();
+        resetGame();                                    // zurueck zum Start-Overlay
+        return;
+    }
+    if (state.mode === 'play') togglePause();
+    dpadResetBtn.classList.add('sicher');
+    dpadResetBtn.textContent = 'Sicher?';
+    resetSicherTimer = setTimeout(resetSicherAus, 2500);
+}
+
+if (window.PointerEvent) {
+    dpadResetBtn.addEventListener('pointerdown', dpadResetPress);
+} else {
+    dpadResetBtn.addEventListener('touchstart', dpadResetPress, { passive: false });
+    dpadResetBtn.addEventListener('mousedown', dpadResetPress);
+}
+dpadResetBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+
 function updateDpadPause() {
     dpadPauseBtn.textContent = state.mode === 'pause' ? '▶' : 'II';
+    resetSicherAus();                         // offene "Sicher?"-Abfrage bei jedem Moduswechsel verwerfen
 }
 
 // === SOUND ===
