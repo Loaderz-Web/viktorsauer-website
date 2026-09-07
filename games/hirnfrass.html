@@ -72,6 +72,7 @@
 
         /* Spielfeld: Canvas und Steuerkreuz (Hochformat untereinander, Querformat nebeneinander) */
         .spielfeld {
+            position: relative;         /* Anker fuer den Neustart-Eckknopf auf Touch-Geraeten */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -139,19 +140,27 @@
             color: #aa4444;
         }
 
-        /* Touch-Bedienung: Steuerkreuz plus Neustart mit Abstand darunter (nur auf Touch-Geraeten sichtbar) */
+        /* Touch-Bedienung: Steuerkreuz (nur auf Touch-Geraeten sichtbar) */
         .touch-controls {
             display: none;
             flex-direction: column;
             align-items: center;
-            gap: 18px;
         }
 
-        /* Neustart-Knopf bewusst weit weg vom Steuerkreuz; fragt beim ersten Tippen "Sicher?" */
+        /* Neustart-Knopf bewusst weit weg vom Steuerkreuz, in der Ecke des Spielfeld-Wrappers.
+           Hochformat: rechts aussen auf Hoehe der oberen Kreuztaste. Querformat: unten rechts.
+           Fragt beim ersten Tippen nach (rot, "?"), erst der zweite Tipp startet neu. */
         .touch-reset {
-            padding: 8px 18px;
-            font-size: 12px;
-            border-radius: 20px;
+            display: none;
+            position: absolute;
+            right: 0;
+            bottom: 136px;              /* 180px Kreuz minus 44px Knopf = oben buendig mit dem Kreuz */
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 22px;
+            line-height: 1;
             color: #aa4444;
             user-select: none;
             -webkit-user-select: none;
@@ -170,6 +179,7 @@
         .touch-reset.sicher {
             background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
             color: #fff;
+            box-shadow: 0 0 16px rgba(255, 0, 0, 0.7);
         }
 
         .hud {
@@ -543,6 +553,9 @@
             .touch-controls {
                 display: flex;
             }
+            .touch-reset {
+                display: block;
+            }
         }
 
         /* Handy mit Touch, Hochformat: Titel, HUD, Spielfeld und Steuerkreuz ohne Scrollen.
@@ -606,6 +619,11 @@
                 gap: 16px;
             }
 
+            .touch-reset {
+                right: -6px;
+                bottom: -6px;           /* untere rechte Ecke, knapp innerhalb des Rahmens */
+            }
+
             canvas {
                 max-height: 80vh;
                 margin: 4px 0;
@@ -637,8 +655,8 @@
                     <button type="button" class="dpad-rechts" data-dir="right" aria-label="Rechts">▶</button>
                     <button type="button" class="dpad-runter" data-dir="down" aria-label="Runter">▼</button>
                 </div>
-                <button type="button" class="touch-reset" id="dpadReset" aria-label="Neustart">↺ Neustart</button>
             </div>
+            <button type="button" class="touch-reset" id="dpadReset" aria-label="Neustart">↺</button>
         </div>
 
         <div class="controls">
@@ -1025,6 +1043,7 @@ const state = {
     lives: 3,
     dotsLeft: 0,
     dotsEaten: 0,           // gefressene Vorraete in diesem Level (steuert den Erste-Hilfe-Kasten)
+    resetFrage: false,      // Touch-Neustart wartet auf den zweiten Tipp (Hinweis im PAUSE-Overlay)
     player: { x: 0, y: 0, dir: 'left', nextDir: null, speed: 0, walked: 0, slow: 0 },   // walked = Animationsphase, slow = Restzeit Bremsen
     zombies: [],            // [{ name, key, color, x, y, dir, mode, home, startCol, startRow, inside, wait, walked, bobPhase, decidedAt }]
     timers: {
@@ -1646,7 +1665,12 @@ function drawPauseOverlay() {
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#888';
     ctx.font = "16px 'Share Tech Mono', monospace";
-    ctx.fillText('SPACE, Knopf oder Tippen zum Weiterschleichen', W / 2, H / 2 + 30);
+    if (state.resetFrage) {
+        ctx.fillStyle = '#ff6666';
+        ctx.fillText('Neustart? Nochmal \u21BA tippen.', W / 2, H / 2 + 30);
+    } else {
+        ctx.fillText('SPACE, Knopf oder Tippen zum Weiterschleichen', W / 2, H / 2 + 30);
+    }
 }
 
 // Meldung auf dem Spielfeld ("Bleib leise...", "Noch nicht tot.", "Gasse leergeraeumt."):
@@ -2555,7 +2579,8 @@ function resetSicherAus() {
     if (resetSicherTimer) clearTimeout(resetSicherTimer);
     resetSicherTimer = null;
     dpadResetBtn.classList.remove('sicher');
-    dpadResetBtn.textContent = '\u21BA Neustart';
+    dpadResetBtn.textContent = '\u21BA';
+    state.resetFrage = false;
 }
 
 function dpadResetPress(e) {
@@ -2568,8 +2593,10 @@ function dpadResetPress(e) {
     }
     if (state.mode === 'play') togglePause();
     dpadResetBtn.classList.add('sicher');
-    dpadResetBtn.textContent = 'Sicher?';
-    resetSicherTimer = setTimeout(resetSicherAus, 2500);
+    dpadResetBtn.textContent = '?';
+    state.resetFrage = true;                            // Hinweis im PAUSE-Overlay
+    resetSicherTimer = setTimeout(() => { resetSicherAus(); draw(); }, 2500);
+    draw();
 }
 
 if (window.PointerEvent) {
