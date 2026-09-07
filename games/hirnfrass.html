@@ -541,6 +541,7 @@
 
             canvas {
                 max-height: calc(100vh - 230px);
+                max-height: calc(100svh - 230px);  /* svh: Hoehe ohne Browser-Adressleiste */
                 min-height: 180px;
             }
 
@@ -575,7 +576,8 @@
             }
 
             canvas {
-                max-height: calc(100vh - 60px);
+                max-height: calc(100vh - 90px);
+                max-height: calc(100svh - 90px);   /* svh: Hoehe ohne Browser-Adressleiste */
                 margin: 4px 0;
             }
         }
