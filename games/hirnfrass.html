@@ -503,7 +503,7 @@
 
         /* Handy mit Touch, Hochformat: Titel, HUD und Spielfeld ohne Scrollen.
            Die Knopfzeile entfaellt, Pause und Neustart sind feste Eckknoepfe. */
-        @media (pointer: coarse) and (max-width: 1000px) {
+        @media (pointer: coarse) and (max-width: 850px) {
             /* Spielfeld oben andocken, der Leerraum liegt unten bei den Eckknoepfen */
             body {
                 align-items: flex-start;
@@ -576,17 +576,17 @@
             }
 
             canvas {
-                width: auto;                       /* Seitenverhaeltnis halten, Hoehe bestimmt die Breite */
-                height: auto;
-                max-width: 100%;
-                max-height: calc(100vh - 130px);   /* Startwert; JS (querLayout) setzt die exakte Hoehe */
+                /* bewusst 25 % kleiner als die volle Hoehe (100svh - 130px), damit die Browserleisten
+                   nie das untere Ende des Spielfelds verdecken */
+                max-height: calc(75vh - 98px);
+                max-height: calc(75svh - 98px);    /* svh: Hoehe ohne Browser-Adressleiste */
                 margin: 4px 0;
             }
         }
     </style>
 </head>
 <body>
-<a href="./" id="zurueckLink" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
+<a href="./" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
 <button type="button" class="touch-btn touch-pause" id="dpadPause" aria-label="Pause">II</button>
 <button type="button" class="touch-btn touch-reset" id="dpadReset" aria-label="Neustart">↺</button>
 <button id="soundToggle" onclick="toggleSound(); this.blur()" title="Sound ein/aus" style="position:fixed;top:1rem;right:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:'Share Tech Mono',monospace;border-radius:0;line-height:1;">🔇</button>
@@ -2438,59 +2438,6 @@ document.addEventListener('keyup', (e) => {
 });
 
 // Tab gewechselt oder Handy-Bildschirm aus: automatisch pausieren, damit das keine Leben kostet
-// Querformat am Handy: die Browserleiste kommt und geht, CSS-Einheiten (vh/svh) sind dafuer nicht
-// zuverlaessig. Deshalb wird die Spielfeldhoehe aus der tatsaechlich sichtbaren Fensterhoehe berechnet
-// (window.innerHeight) und bei jeder Aenderung neu gesetzt. Zurueck-Link und Sound-Knopf ruecken dabei
-// auf die Oberkante des Spielfelds, damit sie nicht in der Luft haengen.
-const querMedia = window.matchMedia('(pointer: coarse) and (max-height: 500px) and (orientation: landscape)');
-const zurueckLink = document.getElementById('zurueckLink');
-const soundBtnEl = document.getElementById('soundToggle');
-const gameContainerEl = document.querySelector('.game-container');
-
-function sichtbareHoehe() {
-    // visualViewport ist auf Android das Mass der tatsaechlich sichtbaren Flaeche (Leisten abgezogen)
-    if (window.visualViewport && window.visualViewport.height) return window.visualViewport.height;
-    return window.innerHeight;
-}
-
-function querLayout() {
-    if (!querMedia.matches) {
-        canvas.style.maxHeight = '';
-        zurueckLink.style.top = '';
-        soundBtnEl.style.top = '';
-        return;
-    }
-    canvas.style.maxHeight = '';                                     // erst neutral messen
-    const overhead = gameContainerEl.offsetHeight - canvas.offsetHeight;  // HUD, Rahmen, Abstaende
-    const h = Math.max(150, Math.floor(sichtbareHoehe() - overhead - 6));
-    canvas.style.maxHeight = h + 'px';
-    const top = Math.round(gameContainerEl.getBoundingClientRect().top);  // Oberkante des roten Rahmens
-    zurueckLink.style.top = top + 'px';
-    soundBtnEl.style.transition = 'none';     // Button-Regel hat transition: all, hier soll er sofort sitzen
-    soundBtnEl.style.top = top + 'px';
-}
-let querAktiv = null;                      // zuletzt angewendeter Zustand (true = Querformat-Layout)
-function querLayoutPruefen() {
-    querLayout();
-    querAktiv = querMedia.matches;
-}
-querLayoutPruefen();
-window.addEventListener('resize', () => { querLayoutPruefen(); setTimeout(querLayoutPruefen, 150); });
-window.addEventListener('orientationchange', () => setTimeout(querLayoutPruefen, 150));
-if (querMedia.addEventListener) querMedia.addEventListener('change', querLayoutPruefen);
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', querLayoutPruefen);
-    window.visualViewport.addEventListener('scroll', querLayoutPruefen);
-}
-let querLetzteHoehe = sichtbareHoehe();
-setInterval(() => {                                                   // Sicherheitsnetz: Leiste kam/ging
-    const hoehe = sichtbareHoehe();
-    if (querMedia.matches !== querAktiv || Math.abs(hoehe - querLetzteHoehe) > 2) {
-        querLetzteHoehe = hoehe;
-        querLayoutPruefen();
-    }
-}, 400);
-
 document.addEventListener('visibilitychange', () => {
     if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
 });
