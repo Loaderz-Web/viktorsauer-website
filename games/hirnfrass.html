@@ -503,7 +503,7 @@
 
         /* Handy mit Touch, Hochformat: Titel, HUD und Spielfeld ohne Scrollen.
            Die Knopfzeile entfaellt, Pause und Neustart sind feste Eckknoepfe. */
-        @media (pointer: coarse) and (max-width: 850px) {
+        @media (pointer: coarse) and (max-width: 1000px) {
             /* Spielfeld oben andocken, der Leerraum liegt unten bei den Eckknoepfen */
             body {
                 align-items: flex-start;
@@ -576,6 +576,9 @@
             }
 
             canvas {
+                width: auto;                       /* Seitenverhaeltnis halten, Hoehe bestimmt die Breite */
+                height: auto;
+                max-width: 100%;
                 max-height: calc(100vh - 130px);   /* Startwert; JS (querLayout) setzt die exakte Hoehe */
                 margin: 4px 0;
             }
@@ -2444,6 +2447,12 @@ const zurueckLink = document.getElementById('zurueckLink');
 const soundBtnEl = document.getElementById('soundToggle');
 const gameContainerEl = document.querySelector('.game-container');
 
+function sichtbareHoehe() {
+    // visualViewport ist auf Android das Mass der tatsaechlich sichtbaren Flaeche (Leisten abgezogen)
+    if (window.visualViewport && window.visualViewport.height) return window.visualViewport.height;
+    return window.innerHeight;
+}
+
 function querLayout() {
     if (!querMedia.matches) {
         canvas.style.maxHeight = '';
@@ -2453,9 +2462,9 @@ function querLayout() {
     }
     canvas.style.maxHeight = '';                                     // erst neutral messen
     const overhead = gameContainerEl.offsetHeight - canvas.offsetHeight;  // HUD, Rahmen, Abstaende
-    const h = Math.max(150, window.innerHeight - overhead - 8);
+    const h = Math.max(150, Math.floor(sichtbareHoehe() - overhead - 16));
     canvas.style.maxHeight = h + 'px';
-    const top = Math.round(canvas.getBoundingClientRect().top);
+    const top = Math.round(gameContainerEl.getBoundingClientRect().top);  // Oberkante des roten Rahmens
     zurueckLink.style.top = top + 'px';
     soundBtnEl.style.transition = 'none';     // Button-Regel hat transition: all, hier soll er sofort sitzen
     soundBtnEl.style.top = top + 'px';
@@ -2469,7 +2478,18 @@ querLayoutPruefen();
 window.addEventListener('resize', () => { querLayoutPruefen(); setTimeout(querLayoutPruefen, 150); });
 window.addEventListener('orientationchange', () => setTimeout(querLayoutPruefen, 150));
 if (querMedia.addEventListener) querMedia.addEventListener('change', querLayoutPruefen);
-setInterval(() => { if (querMedia.matches !== querAktiv) querLayoutPruefen(); }, 500);   // Sicherheitsnetz
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', querLayoutPruefen);
+    window.visualViewport.addEventListener('scroll', querLayoutPruefen);
+}
+let querLetzteHoehe = sichtbareHoehe();
+setInterval(() => {                                                   // Sicherheitsnetz: Leiste kam/ging
+    const hoehe = sichtbareHoehe();
+    if (querMedia.matches !== querAktiv || Math.abs(hoehe - querLetzteHoehe) > 2) {
+        querLetzteHoehe = hoehe;
+        querLayoutPruefen();
+    }
+}, 400);
 
 document.addEventListener('visibilitychange', () => {
     if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
