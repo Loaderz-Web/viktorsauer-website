@@ -2462,7 +2462,7 @@ function querLayout() {
     }
     canvas.style.maxHeight = '';                                     // erst neutral messen
     const overhead = gameContainerEl.offsetHeight - canvas.offsetHeight;  // HUD, Rahmen, Abstaende
-    const h = Math.max(150, Math.floor(sichtbareHoehe() - overhead - 16));
+    const h = Math.max(150, Math.floor(sichtbareHoehe() - overhead - 6));
     canvas.style.maxHeight = h + 'px';
     const top = Math.round(gameContainerEl.getBoundingClientRect().top);  // Oberkante des roten Rahmens
     zurueckLink.style.top = top + 'px';
