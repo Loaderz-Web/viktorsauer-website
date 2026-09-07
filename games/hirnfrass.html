@@ -70,9 +70,8 @@
             touch-action: none;
         }
 
-        /* Spielfeld: Canvas und Steuerkreuz (Hochformat untereinander, Querformat nebeneinander) */
+        /* Spielfeld: Wrapper um den Canvas (haelt ihn zentriert) */
         .spielfeld {
-            position: relative;         /* Anker fuer den Neustart-Eckknopf auf Touch-Geraeten */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -80,88 +79,21 @@
             gap: 8px;
         }
 
-        /* Steuerkreuz: nur auf Touch-Geraeten sichtbar (siehe @media pointer: coarse) */
-        #dpad {
+        /* Touch-Bedienung: gewischt wird auf dem ganzen Bildschirm. Nur zwei runde Eckknoepfe
+           (Pause unten links, Neustart unten rechts), fest am Bildschirmrand, nur auf Touch-Geraeten. */
+        .touch-btn {
             display: none;
-            grid-template-columns: 56px 56px 56px;
-            grid-template-rows: 56px 56px 56px;
-            grid-template-areas: ". hoch ." "links pause rechts" ". runter .";
-            gap: 6px;
-            margin: 0 auto;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            touch-action: none;
-        }
-
-        #dpad button {
-            width: 56px;
-            height: 56px;
-            padding: 0;
-            font-size: 26px;
-            line-height: 1;
-            border-radius: 10px;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
-            transition: none;
-        }
-
-        /* kein haengender Hover-Zustand auf Touch, dafuer klares Aufleuchten beim Druecken */
-        #dpad button:hover {
-            transform: none;
-            box-shadow: none;
-            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
-            color: #ff6666;
-        }
-
-        #dpad button:active {
-            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
-            color: #fff;
-            box-shadow: 0 0 20px rgba(139, 0, 0, 0.6);
-        }
-
-        #dpad .dpad-hoch   { grid-area: hoch; }
-        #dpad .dpad-links  { grid-area: links; }
-        #dpad .dpad-rechts { grid-area: rechts; }
-        #dpad .dpad-runter { grid-area: runter; }
-
-        #dpad .dpad-pause {
-            grid-area: pause;
-            width: 44px;
-            height: 44px;
-            align-self: center;
-            justify-self: center;
-            border-radius: 50%;
-            font-size: 15px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: #aa4444;
-        }
-
-        /* Touch-Bedienung: Steuerkreuz (nur auf Touch-Geraeten sichtbar) */
-        .touch-controls {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Neustart-Knopf bewusst weit weg vom Steuerkreuz, in der Ecke des Spielfeld-Wrappers.
-           Hochformat: rechts aussen auf Hoehe der oberen Kreuztaste. Querformat: unten rechts.
-           Fragt beim ersten Tippen nach (rot, "?"), erst der zweite Tipp startet neu. */
-        .touch-reset {
-            display: none;
-            position: absolute;
-            right: 0;
-            bottom: 136px;              /* 180px Kreuz minus 44px Knopf = oben buendig mit dem Kreuz */
-            width: 44px;
-            height: 44px;
+            position: fixed;
+            bottom: 14px;
+            z-index: 9999;
+            width: 48px;
+            height: 48px;
             padding: 0;
             border-radius: 50%;
             font-size: 22px;
             line-height: 1;
             color: #aa4444;
+            background: rgba(20, 8, 8, 0.9);
             user-select: none;
             -webkit-user-select: none;
             touch-action: none;
@@ -169,11 +101,28 @@
             transition: none;
         }
 
-        .touch-reset:hover {
+        .touch-btn:hover {
             transform: none;
             box-shadow: none;
-            background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+            background: rgba(20, 8, 8, 0.9);
             color: #aa4444;
+        }
+
+        .touch-btn:active {
+            background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
+            color: #fff;
+        }
+
+        .touch-pause {
+            left: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* Neustart fragt beim ersten Tippen nach (rot, "?"), erst der zweite Tipp startet neu */
+        .touch-reset {
+            right: 14px;
         }
 
         .touch-reset.sicher {
@@ -547,20 +496,23 @@
             .keyboard-hint {
                 display: none;
             }
-            #dpad {
-                display: grid;
-            }
-            .touch-controls {
-                display: flex;
-            }
-            .touch-reset {
+            .touch-btn {
                 display: block;
             }
         }
 
-        /* Handy mit Touch, Hochformat: Titel, HUD, Spielfeld und Steuerkreuz ohne Scrollen.
-           Die Knopfzeile entfaellt, weil das Steuerkreuz einen Pause-Knopf hat. */
+        /* Handy mit Touch, Hochformat: Titel, HUD und Spielfeld ohne Scrollen.
+           Die Knopfzeile entfaellt, Pause und Neustart sind feste Eckknoepfe. */
         @media (pointer: coarse) and (max-width: 850px) {
+            /* Spielfeld oben andocken, der Leerraum liegt unten bei den Eckknoepfen */
+            body {
+                align-items: flex-start;
+            }
+
+            .game-container {
+                margin-top: 58px;
+            }
+
             .subtitle,
             .button-row,
             .hud-lang {
@@ -588,7 +540,7 @@
             }
 
             canvas {
-                max-height: calc(100vh - 390px);
+                max-height: calc(100vh - 230px);
                 min-height: 180px;
             }
 
@@ -601,7 +553,7 @@
             }
         }
 
-        /* Handy mit Touch, Querformat: Steuerkreuz rechts neben dem Spielfeld, Titel weg */
+        /* Handy mit Touch, Querformat: Spielfeld so gross wie moeglich, Titel weg */
         @media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
             .game-container {
                 padding: 6px 12px;
@@ -614,18 +566,16 @@
                 display: none;
             }
 
-            .spielfeld {
-                flex-direction: row;
-                gap: 16px;
+            body {
+                align-items: center;    /* Hochformat-Regel (oben andocken) hier wieder aufheben */
             }
 
-            .touch-reset {
-                right: -6px;
-                bottom: -6px;           /* untere rechte Ecke, knapp innerhalb des Rahmens */
+            .game-container {
+                margin-top: 0;
             }
 
             canvas {
-                max-height: 80vh;
+                max-height: calc(100vh - 60px);
                 margin: 4px 0;
             }
         }
@@ -633,6 +583,8 @@
 </head>
 <body>
 <a href="./" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
+<button type="button" class="touch-btn touch-pause" id="dpadPause" aria-label="Pause">II</button>
+<button type="button" class="touch-btn touch-reset" id="dpadReset" aria-label="Neustart">↺</button>
 <button id="soundToggle" onclick="toggleSound(); this.blur()" title="Sound ein/aus" style="position:fixed;top:1rem;right:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;font-size:0.85rem;cursor:pointer;font-family:'Share Tech Mono',monospace;border-radius:0;line-height:1;">🔇</button>
     <div class="game-container">
         <h1 class="game-title">☠ HIRNFRASS ☠</h1>
@@ -647,21 +599,11 @@
 
         <div class="spielfeld">
             <canvas id="gameCanvas" width="504" height="552"></canvas>
-            <div class="touch-controls">
-                <div id="dpad" aria-label="Steuerkreuz">
-                    <button type="button" class="dpad-hoch" data-dir="up" aria-label="Hoch">▲</button>
-                    <button type="button" class="dpad-links" data-dir="left" aria-label="Links">◀</button>
-                    <button type="button" class="dpad-pause" id="dpadPause" aria-label="Pause">II</button>
-                    <button type="button" class="dpad-rechts" data-dir="right" aria-label="Rechts">▶</button>
-                    <button type="button" class="dpad-runter" data-dir="down" aria-label="Runter">▼</button>
-                </div>
-            </div>
-            <button type="button" class="touch-reset" id="dpadReset" aria-label="Neustart">↺</button>
         </div>
 
         <div class="controls">
             <span class="keyboard-hint"><strong>Steuerung:</strong> Pfeile / WASD = Schleichen | SPACE = Pause | ESC = Neustart</span>
-            <span class="touch-hint"><strong>Touch:</strong> Wischen oder Steuerkreuz = Richtung | Tippen = Weiter</span>
+            <span class="touch-hint"><strong>Touch:</strong> Irgendwo wischen = Richtung | Tippen = Weiter</span>
         </div>
 
         <div class="button-row">
@@ -2496,31 +2438,37 @@ document.addEventListener('visibilitychange', () => {
     if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
 });
 
-// Richtungswunsch aus Touch/Steuerkreuz: nur im Spiel und in der Ready-Phase (wie die Tastatur)
+// Richtungswunsch aus Touch (Wischen): nur im Spiel und in der Ready-Phase (wie die Tastatur)
 function setNextDir(dir) {
     if (!dir) return;
     if (state.mode !== 'play' && state.mode !== 'ready') return;
     state.player.nextDir = dir;
 }
 
-// --- Wischen auf dem Spielfeld ---
-// touchstart merkt den Startpunkt. Sobald der Finger SWIPE_MIN Bildschirm-Pixel in eine
-// Richtung gewandert ist, wird die dominante Achse als Richtungswunsch uebernommen und
-// der Bezugspunkt auf die aktuelle Fingerposition gesetzt: mehrere Wischer ohne Loslassen.
+// --- Wischen auf dem ganzen Bildschirm ---
+// touchstart merkt den Startpunkt (ausser auf Knoepfen, Links und Overlays, die sollen normal
+// bedienbar und scrollbar bleiben). Sobald der Finger SWIPE_MIN Bildschirm-Pixel in eine Richtung
+// gewandert ist, wird die dominante Achse als Richtungswunsch uebernommen und der Bezugspunkt auf
+// die aktuelle Fingerposition gesetzt: mehrere Wischer ohne Loslassen.
 // Ein Tipp ohne Bewegung setzt ein pausiertes Spiel fort (Start und Game Over haben Knoepfe).
 const SWIPE_MIN = 20;
-let swipe = null;      // { id, x, y, moved } solange der erste Finger auf dem Canvas liegt
+let swipe = null;      // { id, x, y, moved } solange der erste Finger auf dem Bildschirm liegt
 
-canvas.addEventListener('touchstart', (e) => {
+function touchIgnorieren(target) {
+    return !!(target && target.closest && target.closest('button, a, select, .overlay'));
+}
+
+document.addEventListener('touchstart', (e) => {
+    if (touchIgnorieren(e.target)) return;
     e.preventDefault();                       // kein Scrollen, kein Zoom, kein nachgereichter Mausklick
     if (swipe !== null) return;               // nur der erste Finger zaehlt
     const t = e.changedTouches[0];
     swipe = { id: t.identifier, x: t.clientX, y: t.clientY, moved: false };
 }, { passive: false });
 
-canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
+document.addEventListener('touchmove', (e) => {
     if (swipe === null) return;
+    e.preventDefault();
     for (const t of e.changedTouches) {
         if (t.identifier !== swipe.id) continue;
         const dx = t.clientX - swipe.x;
@@ -2544,32 +2492,23 @@ function endSwipe(e) {
         swipe = null;
     }
 }
-canvas.addEventListener('touchend', endSwipe);
-canvas.addEventListener('touchcancel', endSwipe);
+document.addEventListener('touchend', endSwipe);
+document.addEventListener('touchcancel', endSwipe);
 
-// --- Steuerkreuz ---
-// pointerdown statt click: sofort, ohne 300-ms-Verzoegerung. Die Tastatur bleibt daneben aktiv
-// (Desktop mit Touchscreen). Aeltere Browser ohne PointerEvent: touchstart + mousedown.
-const dpad = document.getElementById('dpad');
-
-function dpadPress(e) {
-    const btn = e.target && e.target.closest ? e.target.closest('button') : null;
-    if (!btn) return;
-    e.preventDefault();                       // kein Fokusrahmen, keine Textauswahl, kein Doppeltipp-Zoom
-    if (btn.dataset.dir) {
-        setNextDir(btn.dataset.dir);
-    } else if (btn === dpadPauseBtn && (state.mode === 'play' || state.mode === 'pause')) {
-        togglePause();
-    }
+// --- Pause-Eckknopf (Touch) ---
+// pointerdown statt click: sofort, ohne 300-ms-Verzoegerung. Die Tastatur bleibt daneben aktiv.
+function dpadPausePress(e) {
+    e.preventDefault();                       // kein Fokusrahmen, kein Doppeltipp-Zoom
+    if (state.mode === 'play' || state.mode === 'pause') togglePause();
 }
 
 if (window.PointerEvent) {
-    dpad.addEventListener('pointerdown', dpadPress);
+    dpadPauseBtn.addEventListener('pointerdown', dpadPausePress);
 } else {
-    dpad.addEventListener('touchstart', dpadPress, { passive: false });
-    dpad.addEventListener('mousedown', dpadPress);
+    dpadPauseBtn.addEventListener('touchstart', dpadPausePress, { passive: false });
+    dpadPauseBtn.addEventListener('mousedown', dpadPausePress);
 }
-dpad.addEventListener('contextmenu', (e) => e.preventDefault());   // kein Kontextmenue bei langem Druck
+dpadPauseBtn.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // Neustart auf dem Handy: erster Druck fragt "Sicher?", zweiter Druck innerhalb von 2,5 s setzt zurueck.
 // Im Spiel wird beim ersten Druck pausiert, damit die Zombies nicht weiterfressen, waehrend man ueberlegt.
