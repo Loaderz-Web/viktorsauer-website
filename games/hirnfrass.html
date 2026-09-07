@@ -389,7 +389,7 @@
         }
 
         /* Landscape Mobile - alles kompakter */
-        @media (pointer: fine) and (max-height: 500px) and (orientation: landscape) {
+        @media (max-height: 500px) and (orientation: landscape) {
             .game-container {
                 padding: 8px 40px;
                 margin: 5px;
@@ -501,9 +501,9 @@
             }
         }
 
-        /* Handy mit Touch (Hochformat, im Querformat zurueckgedreht): Titel, HUD und Spielfeld ohne Scrollen.
+        /* Handy mit Touch, Hochformat: Titel, HUD und Spielfeld ohne Scrollen.
            Die Knopfzeile entfaellt, Pause und Neustart sind feste Eckknoepfe. */
-        @media (pointer: coarse) and (max-width: 1000px) {
+        @media (pointer: coarse) and (max-width: 850px) {
             /* Spielfeld oben andocken, der Leerraum liegt unten bei den Eckknoepfen */
             body {
                 align-items: flex-start;
@@ -554,42 +554,33 @@
             }
         }
 
-        /* Handy mit Touch im Querformat: die Seite dreht NICHT mit. JS setzt html[data-dreh] auf den
-           Drehwinkel des Bildschirms (90 oder 270), CSS dreht die ganze Seite zurueck ins Hochformat.
-           Der Body bekommt die Masse des gedrehten Viewports (Breite = kurze Seite, Hoehe = lange Seite).
-           position: fixed-Elemente (Zurueck, Sound, Eckknoepfe) haengen am gedrehten Body und drehen mit. */
-        html[data-dreh] {
-            overflow: hidden;
-        }
+        /* Handy mit Touch, Querformat: Spielfeld so gross wie moeglich, Titel weg */
+        @media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
+            .game-container {
+                padding: 6px 12px;
+            }
 
-        html[data-dreh] body {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vh;
-            height: 100vw;
-            min-height: 0;
-            overflow: hidden;
-            transform-origin: top left;
-            align-items: flex-start;
-        }
+            .game-title,
+            .controls,
+            .footer-note,
+            .button-row {
+                display: none;
+            }
 
-        html[data-dreh="90"] body {
-            transform: rotate(90deg) translateY(-100%);
-        }
+            body {
+                align-items: center;    /* Hochformat-Regel (oben andocken) hier wieder aufheben */
+            }
 
-        html[data-dreh="270"] body {
-            transform: rotate(-90deg) translateX(-100%);
-        }
+            .game-container {
+                margin-top: 0;
+            }
 
-        html[data-dreh] canvas {
-            max-height: calc(100vw - 230px);   /* 100vw = lange Seite = Hoehe der gedrehten Seite */
+            canvas {
+                max-height: calc(100vh - 130px);
+                max-height: calc(100svh - 130px);  /* svh: Hoehe ohne Browser-Adressleiste, plus Reserve unten */
+                margin: 4px 0;
+            }
         }
-
-        html[data-dreh] .overlay {
-            max-height: 92vw;                  /* dito: Overlay-Hoehe im gedrehten Rahmen */
-        }
-
     </style>
 </head>
 <body>
@@ -2445,25 +2436,6 @@ document.addEventListener('keyup', (e) => {
 });
 
 // Tab gewechselt oder Handy-Bildschirm aus: automatisch pausieren, damit das keine Leben kostet
-// Hochformat-Sperre am Handy: im Querformat wird html[data-dreh] gesetzt (CSS dreht die Seite zurueck).
-// Winkel = Drehung des Bildschirms gegen den Uhrzeigersinn (Screen Orientation API), CSS dreht im
-// Uhrzeigersinn um denselben Winkel zurueck. Fallback ohne API: 90.
-const drehMedia = window.matchMedia('(pointer: coarse) and (orientation: landscape)');
-function drehWinkel() {
-    let a = 0;
-    if (screen.orientation && typeof screen.orientation.angle === 'number') a = screen.orientation.angle;
-    else if (typeof window.orientation === 'number') a = (360 - window.orientation) % 360;
-    return (a === 90 || a === 270) ? a : 90;
-}
-function drehAnwenden() {
-    if (drehMedia.matches) document.documentElement.dataset.dreh = String(drehWinkel());
-    else delete document.documentElement.dataset.dreh;
-}
-drehAnwenden();
-window.addEventListener('resize', drehAnwenden);
-window.addEventListener('orientationchange', drehAnwenden);
-if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', drehAnwenden);
-
 document.addEventListener('visibilitychange', () => {
     if ((document.hidden || document.visibilityState === 'hidden') && state.mode === 'play') togglePause();
 });
@@ -2501,13 +2473,9 @@ document.addEventListener('touchmove', (e) => {
     e.preventDefault();
     for (const t of e.changedTouches) {
         if (t.identifier !== swipe.id) continue;
-        let dx = t.clientX - swipe.x;
-        let dy = t.clientY - swipe.y;
+        const dx = t.clientX - swipe.x;
+        const dy = t.clientY - swipe.y;
         if (Math.abs(dx) < SWIPE_MIN && Math.abs(dy) < SWIPE_MIN) continue;
-        // Seite zurueckgedreht (Hochformat-Sperre): Wischrichtung in den gedrehten Rahmen umrechnen
-        const dreh = document.documentElement.dataset.dreh;
-        if (dreh === '90') { const s = dx; dx = dy; dy = -s; }
-        else if (dreh === '270') { const s = dx; dx = -dy; dy = s; }
         const dir = Math.abs(dx) >= Math.abs(dy)
             ? (dx > 0 ? 'right' : 'left')
             : (dy > 0 ? 'down' : 'up');
