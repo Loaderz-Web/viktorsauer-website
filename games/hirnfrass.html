@@ -555,40 +555,10 @@
         }
 
         /* Handy mit Touch, Querformat: Spielfeld so gross wie moeglich, Titel weg */
-        /* Handy mit Touch im Querformat: gesperrt. Das Spielfeld ist hochkant, quer wird es zu klein
-           und jeder Browser schneidet unten anders ab. Reiner CSS-Vollbild-Hinweis, keine Spiel-Logik. */
-        .dreh-hinweis {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 20000;
-            background: #0a0a0a;
-            color: #aaa;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .dreh-hinweis .dreh-titel {
-            font-family: 'Creepster', cursive;
-            font-size: 34px;
-            color: #cc0000;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-            margin-bottom: 10px;
-        }
-
-        .dreh-hinweis .dreh-symbol {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
         @media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
-            .dreh-hinweis {
-                display: flex;
+            .game-container {
+                padding: 6px 12px;
             }
-        }
 
             .game-title,
             .controls,
@@ -614,11 +584,6 @@
     </style>
 </head>
 <body>
-<div class="dreh-hinweis" id="drehHinweis" aria-live="polite">
-    <div class="dreh-symbol">&#x1F4F1;</div>
-    <div class="dreh-titel">Dreh das Handy.</div>
-    <div>Grauburg gibt es nur hochkant.</div>
-</div>
 <a href="./" style="position:fixed;top:1rem;left:1rem;z-index:9999;color:#dc2626;background:rgba(15,15,15,0.85);border:1px solid #dc2626;padding:0.4rem 0.8rem;text-decoration:none;font-size:0.85rem;">← Spiele</a>
 <button type="button" class="touch-btn touch-pause" id="dpadPause" aria-label="Pause">II</button>
 <button type="button" class="touch-btn touch-reset" id="dpadReset" aria-label="Neustart">↺</button>
